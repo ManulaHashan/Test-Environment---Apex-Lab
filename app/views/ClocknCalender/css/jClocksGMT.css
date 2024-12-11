@@ -1,0 +1,81 @@
+.clock_container {
+    width: 250px;
+    position: relative;
+    background-color: #4472c2;
+    height: 429px;
+    border-radius: 10px;
+}
+.clock_container .lbl {
+    font-size:10px;
+    color: #333333;
+    line-height: 22px;
+    background: url(../images/clock_label.png);
+    text-align: center;
+    height: 27px;
+    width: 108px;
+
+}
+.clockHolder {
+    width: 250px;
+    position: relative;
+    padding: 5em 0;
+}
+.sec {
+    display:block;
+    position:absolute;
+    left: 27%;
+    top: 0%;
+}
+.min {
+    display:block;
+    position:absolute;
+    left: 26.5%;
+    top: 0%;
+}
+.hour {
+    display:block;
+    position:absolute;
+    top: 0%;
+    left: 27%;
+}
+
+.rotatingWrapper {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    left:50px;
+    top: 131px;
+}
+.digital {
+    font-weight:bold;
+    font-size: 2em;
+    color: #fff;
+    text-align:center;
+    
+    background: -moz-linear-gradient(top, rgba(30,87,153,1) 0%, rgba(30,87,153,1) 15%, rgba(37,132,196,1) 34%, rgba(37,132,196,1) 71%, rgba(30,87,153,1) 88%, rgba(30,87,153,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(30,87,153,1) 0%,rgba(30,87,153,1) 15%,rgba(37,132,196,1) 34%,rgba(37,132,196,1) 71%,rgba(30,87,153,1) 88%,rgba(30,87,153,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(30,87,153,1) 0%,rgba(30,87,153,1) 15%,rgba(37,132,196,1) 34%,rgba(37,132,196,1) 71%,rgba(30,87,153,1) 88%,rgba(30,87,153,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#1e5799',GradientType=0 );
+    
+    border-radius: 15px;
+    
+    padding:0.1em 0;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+/*--responsive--*/
+@media (max-width: 480px){
+    .digital {
+        font-size: 1.7em;
+    }
+}
+@media (max-width:320px){
+    .clock_container {
+        width: 265px;
+    }
+    .clockHolder {
+        padding: 3em 0;
+    }
+    .rotatingWrapper {
+        top: 77px;
+    }
+}
