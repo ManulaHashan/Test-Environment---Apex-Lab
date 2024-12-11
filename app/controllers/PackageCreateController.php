@@ -53,11 +53,6 @@ class PackageCreateController extends Controller
         $pkgPrice = Input::get('pkgPrice');
         $pkgTests = Input::get('pkgTests');
 
-        // Validate inputs
-        // if (empty($pkgName) || empty($pkgPrice) || empty($pkgTests)) {
-        //     return Response::json(['error' => 'empty']);
-        // }
-
         // Check if package name already exists
         $existingPackage = DB::table('labpackages')
         ->where('name', $pkgName)
@@ -68,7 +63,6 @@ class PackageCreateController extends Controller
             return Response::json(['error' => 'exist']);
         }
 
-        // Start transaction
         DB::beginTransaction();
         try {
             // Insert into 'labpackages'
@@ -95,7 +89,7 @@ class PackageCreateController extends Controller
             
         } catch (Exception $e) {
             DB::rollBack();
-            return Response::json(['error' => 'saveerror']);
+            return Response::json(['error' => 'saveerror','message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         }
     }
 
@@ -128,7 +122,15 @@ class PackageCreateController extends Controller
                 $output .= '<tr>';
                 $output .= '<td>' . htmlspecialchars($tgid) . '</td>';
                 $output .= '<td>' . htmlspecialchars($pkgName) . '</td>';
-                $output .= '<td> <button style ="background-color: #ff4d4d; color: white; padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer;">Remove</button> </td>';
+                $output .= '<td> <button style ="background-color: #ff4d4d; 
+                                color: white; 
+                                padding: 5px 10px;
+                                    border-radius: 5px;
+                                    border: none;
+                                    cursor: pointer;" 
+                                    onclick="removeTest(this,' . $tgid . ')">
+                                    Remove
+                                    </button> </td>';
                 $output .= '</tr>';
             }
 
@@ -212,11 +214,9 @@ class PackageCreateController extends Controller
             if (!$pkgID) {
                 return json_encode(['error' => 'notfound']);
             }
-
-            // Begin transaction
             DB::beginTransaction();
 
-            // Update the labpackages table to set isactive = 0
+
             $updated = DB::table('labpackages')
             ->where('idlabpackages', '=', $pkgID)
                 ->update(['isactive' => 0]);

@@ -14,7 +14,7 @@ Create Test Package
 <script>
     $(document).ready(function() {
 
-        loadRecordToTable(); 
+        loadRecordToTable();
 
     });
 
@@ -22,11 +22,11 @@ Create Test Package
     function loadRecordToTable() {
         $.ajax({
             type: "GET",
-            url: "/getAllTestPackages", 
+            url: "/getAllTestPackages",
             success: function(tbl_records) {
                 //alert('Successfully loaded data.');
                 if (tbl_records) {
-                    $('#record_tbl').html(tbl_records); 
+                    $('#record_tbl').html(tbl_records);
                 } else {
                     alert('No records found');
                 }
@@ -34,72 +34,7 @@ Create Test Package
         });
     }
 
-    // ******************Function to save Package data**************************
-    var pkgTests = [];
-    function savePackage() {
-        var pkgName = $('#Pkg_name').val();
-        var pkgPrice = $('#Pkg_price').val();
 
-
-        // Collect selected tests from the table
-        $('#selectedTests tr').each(function() {
-            var testID = $(this).find('td:first').text();
-            if (testID) {
-                pkgTests.push(testID);
-            }
-        });
-
-        // Validate the input fields
-        if (pkgName === '') {
-            alert('Package Name is required.');
-            return;
-        }
-        if (pkgPrice === '') {
-            alert('Package Price is required.');
-            return;
-        }
-        if (pkgTests.length === 0) {
-            alert('Please select at least one test to save the package.');
-            return;
-        }
-
-        // AJAX request to save the package
-        $.ajax({
-            type: "POST",
-            url: "/savePackage",
-            data: {
-                pkgName: pkgName,
-                pkgPrice: pkgPrice,
-                pkgTests: pkgTests
-            },
-            success: function(response) {
-                // alert(response);
-
-                var jobject = JSON.parse(response);
-
-                console.log(response);
-                if (jobject.error === "saved") {
-                    alert("Package saved successfully!");
-                    $('#Pkg_name').val('');
-                    $('#Pkg_price').val('');
-                    $('#selectedTests').empty();
-                    loadRecordToTable();
-                } else if (jobject.error === "exist") {
-                    alert('Package Name already exists!');
-                } else if (jobject.error === "empty") {
-                    alert('Please fill all required fields!');
-                } else if (jobject.error === "saveerror") {
-                    alert('An error occurred while saving the package!');
-                } else {
-                    alert('Unknown error occurred.');
-                }
-            },
-
-            error: function(xhr, status, error) {
-                alert('AJAX Error: ' + error);
-            }
-        });
-    }
 
     // ********************Function to load selected record into the input field when clicking on a table row*********
     function selectRecord(pkgID, pkgName, pkgPrice) {
@@ -184,6 +119,72 @@ Create Test Package
         });
     });
 
+    // ******************Function to save Package data**************************
+    var pkgTests = [];
+
+    function savePackage() {
+        var pkgName = $('#Pkg_name').val();
+        var pkgPrice = $('#Pkg_price').val();
+
+
+        // Collect selected tests from the table
+        $('#selectedTests tr').each(function() {
+            var testID = $(this).find('td:first').text();
+            if (testID) {
+                pkgTests.push(testID);
+            }
+        });
+
+        // Validate the input fields
+        if (pkgName === '') {
+            alert('Package Name is required.');
+            return;
+        }
+        if (pkgPrice === '') {
+            alert('Package Price is required.');
+            return;
+        }
+        if (pkgTests.length === 0) {
+            alert('Please select at least one test to save the package.');
+            return;
+        }
+        alert(pkgTests);
+        // AJAX request to save the package
+        $.ajax({
+            type: "POST",
+            url: "/savePackage",
+            data: {
+                pkgName: pkgName,
+                pkgPrice: pkgPrice,
+                pkgTests: pkgTests
+            },
+            success: function(response) {
+                // alert(response);
+
+                var jobject = JSON.parse(response);
+
+                console.log(response);
+                if (jobject.error === "saved") {
+                    alert("Package saved successfully!");
+                    resetFields()
+                    loadRecordToTable();
+                } else if (jobject.error === "exist") {
+                    alert('Package Name already exists!');
+                } else if (jobject.error === "empty") {
+                    alert('Please fill all required fields!');
+                } else if (jobject.error === "saveerror") {
+                    alert('An error occurred while saving the package!');
+                } else {
+                    alert('Unknown error occurred.');
+                }
+            },
+
+            error: function(xhr, status, error) {
+                alert('AJAX Error: ' + error);
+            }
+        });
+    }
+
     // ******************Function to Update Package data**************************
     function updatePackage() {
         var pkgID = $('#idlabpackages').val();
@@ -231,10 +232,7 @@ Create Test Package
 
                 if (jobject.error === "updated") {
                     alert('Package updated successfully!');
-                    $('#Pkg_name').val('');
-                    $('#Pkg_price').val('');
-                    $('#selectedTests').empty();
-                    $('#idlabpackages').val('');
+                    resetFields()
                     loadRecordToTable();
                 } else if (jobject.error === "notfound") {
                     alert('Package not found!');
@@ -272,10 +270,7 @@ Create Test Package
 
                 if (jobject.error === "deleted") {
                     alert('Package deactivated successfully!');
-                    $('#idlabpackages').val('');
-                    $('#Pkg_name').val('');
-                    $('#Pkg_price').val('');
-                    $('#selectedTests').empty();
+                    resetFields()
                     loadRecordToTable(); // Reload the records
                 } else if (jobject.error === "notfound") {
                     alert('Package not found.');
@@ -300,22 +295,50 @@ Create Test Package
         $('#idlabpackages').val('');
         $('#selectedTests').empty();
         $('#testDropdown').prop('selectedIndex', 0);
+        pkgTests = [];
+        // Enable the Save button
         $('#saveBtn').prop('disabled', false);
+
+        // Make sure the Save button is visible after reset
+        $('#saveBtn').show(); // Ensure the Save button is visible
     }
+
+    function removeTest(button, testID) {
+        // Remove the test ID from the pkgTests array
+        var index = pkgTests.indexOf(testID);
+        if (index !== -1) {
+            pkgTests.splice(index, 1);
+        }
+
+        // Find and remove the corresponding table row
+        var row = button.closest('tr'); 
+        if (row) {
+            row.remove(); 
+        }
+    }
+
 
 
     // ******************Function to Disable save button when table row is clicked**********************************
     $(document).ready(function() {
         $('#createdTestPackages tbody').on('click', 'tr', function() {
-            $('#saveBtn').prop('disabled', true); // Disable the Save button
+            $('#saveBtn').hide();
         });
     });
 
 
+    // ******************Functionprice text feild validation**********************************
+    $(document).ready(function() {
+        $('#Pkg_price').on('input', function() {
+            var value = $(this).val();
+            var regex = /^[+]?\d+(\.\d+)?$/;
+
+            if (value && !regex.test(value)) {
+                $(this).val(value.slice(0, -1));
+            }
+        });
+    });
 </script>
-
-
-
 
 
 <style>
@@ -381,7 +404,7 @@ Create Test Package
                     </div>
                     <div style="display: flex; align-items: center; margin-bottom: 10px;">
                         <label style="width: 150px;font-size: 18px;">Package Price &nbsp;:</label>
-                        <input type="number" name=" Pkg_price" class="input-text" id="Pkg_price" style="width: 250px">
+                        <input type="text" name=" Pkg_price" class="input-text" id="Pkg_price" style="width: 250px">
                     </div>
                     <div style="display: flex; align-items: center; margin-bottom: 10px;">
                         <label style="width: 150px;font-size: 18px;">Tests &nbsp;:</label>
