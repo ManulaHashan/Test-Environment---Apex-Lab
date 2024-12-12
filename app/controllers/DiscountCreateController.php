@@ -1,6 +1,3 @@
-<!-- **********~~~~~~~~~~~~~Manula Hashan's Devolopment~~~~~~~~~~~~~********** -->
-
-
 <?php
 
 use Illuminate\Support\Facades\DB;

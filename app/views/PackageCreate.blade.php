@@ -296,11 +296,8 @@ Create Test Package
         $('#selectedTests').empty();
         $('#testDropdown').prop('selectedIndex', 0);
         pkgTests = [];
-        // Enable the Save button
         $('#saveBtn').prop('disabled', false);
-
-        // Make sure the Save button is visible after reset
-        $('#saveBtn').show(); // Ensure the Save button is visible
+        $('#saveBtn').show(); 
     }
 
     function removeTest(button, testID) {

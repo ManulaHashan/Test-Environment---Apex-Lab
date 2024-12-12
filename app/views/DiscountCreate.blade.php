@@ -1,6 +1,3 @@
-<!-- **********~~~~~~~~~~~~~Manula Hashan's Devolopment~~~~~~~~~~~~~********** -->
-
-
 <?php ?>
 @extends('Templates/WiTemplate')
 
@@ -45,7 +42,8 @@ Create Discount
         document.getElementById('Discount_name').value = '';
         document.getElementById('Discount_value').value = '';
         console.log("All fields have been reset!");
-
+        $('#saveBtn').prop('disabled', false);
+        $('#saveBtn').show(); 
     }
 
 
@@ -150,7 +148,7 @@ Create Discount
         }
 
 
-        if (confirm('Are you sure you want to delete this reference?')) {
+        if (confirm('Are you sure you want to delete this Disount?')) {
             $.ajax({
                 type: "POST",
                 url: "/deleteDiscount",
@@ -163,9 +161,6 @@ Create Discount
                         loadRecordToTable();
                         resetFields();
                     }
-                    // else {
-                    //     alert('Cant delete this Discount. Because it is used for billing process.');
-                    // }
                 },
                 error: function(xhr, status, error) {
                     console.log('Error:', error);
@@ -177,15 +172,33 @@ Create Discount
 
     //*************validation for Discount value feild to enter 1-100 numbers*************** */
     function validateOnSubmit() {
-        let value = $('#Discount_value').val();
+        let value = parseFloat($('#Discount_value').val());
 
         if (value < 1 || value > 100) {
             alert('Discount value must be between 1 and 100.');
-            return false; // Prevent form submission
+            return false;
         }
 
         return true;
     }
+
+    //*************validation for Discount value feild to can't enter charactors and desimal accepted*************** */
+    $(document).ready(function() {
+        $('#Discount_value').on('input', function() {
+            var value = $(this).val();
+            var regex = /^[+]?\d*\.?\d*$/;
+
+            if (value && !regex.test(value)) {
+                $(this).val(value.slice(0, -1));
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('#record_tbl ').on('click', 'tr', function() {
+            $('#saveBtn').hide();
+        });
+    });
 </script>
 
 <style>
