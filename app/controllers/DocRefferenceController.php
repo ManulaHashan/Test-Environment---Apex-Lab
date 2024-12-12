@@ -213,58 +213,34 @@ class DocRefferenceController extends Controller
         $lpsArray = [];
 
         if (is_array($effected_refIds) && count($effected_refIds) >= 1) {
+            // Collect all lpsids that are associated with the effected reference ids
             foreach ($effected_refIds as $check) {
-                
                 $lpsResults = DB::table('lps')
-                ->where('refference_idref', '=', $check)
-                    ->lists('lpsid'); 
+                    ->where('refference_idref', '=', $check)
+                    ->lists('lpsid');
                 $lpsArray = array_merge($lpsArray, (array)$lpsResults);
             }
 
+            // Update lps records with the new reference ID
             foreach ($lpsArray as $lpsid) {
                 DB::table('lps')
-                ->where('lpsid', $lpsid)
+                    ->where('lpsid', $lpsid)
                     ->update(['refference_idref' => $refID]);
             }
+
+            // Delete the effected references
             foreach ($effected_refIds as $check) {
                 DB::table('refference')
-                ->where('idref', $check)
+                    ->where('idref', $check)
                     ->delete();
             }
-    //         foreach ($effected_refIds as $logrefID) {
-    //             DB::statement("
-    //     INSERT INTO reference_removal_log (
-    //         removed_date, 
-    //         removed_time, 
-    //         removed_user, 
-    //         affected_lpsid, 
-    //         replaced_reference_name, 
-    //         replaced_with, 
-    //         lab_id
-    //     ) 
-    //     VALUES (
-    //         '" . date('Y-m-d') . "', 
-    //         '" . date('H:i:s') . "', 
-    //         '" . $_SESSION['user_id'] . "', 
-    //         '" . $check['refID'] . "', 
-    //         '" . $check['replaced_reference_name'] . "', 
-    //         '" . $check['replaced_with'] . "', 
-    //         '" . $_SESSION['lid'] . "'
-    //     )
-    // ");
-            }
-
-
-
-            
-
 
             return Response::json(['success' => true, 'message' => 'Refference merged successfully']);
         } else {
-            return Response::json(['success' => true, 'message' => 'Refference not selected']);
+            return Response::json(['success' => false, 'message' => 'Refference not selected']);
         }
-
     }
+
 
 public function getInvoiceCountFor_Reference(){
     $refID = Input::get('refID'); // Get the reference ID from the request

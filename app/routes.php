@@ -214,6 +214,7 @@ Route::get('/branchTestMapping', function () {
 
 Route::get('getAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWiseTests');;
 
+Route::get('searchAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWiseTests');;
 
 
 

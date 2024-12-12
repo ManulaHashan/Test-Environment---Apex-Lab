@@ -13,33 +13,75 @@ Branch Wise Test Mapping
 
 <script>
     $(document).ready(function() {
+        // Initial load of the data when the page is ready
         loadRecordToTable();
+
+
         $('#labBranchDropdown').change(function() {
-            loadRecordToTable();
+            loadRecordToTable(); 
+            searchRecords(); 
+        });
+
+
+        // $('#Ser_name').on('input', function() {
+           
+        // });
+
+
+        $('#selectAllCheckbox').change(function() {
+            var isChecked = $(this).prop('checked');
+            $('#record_tbl .select-test').each(function() {
+                $(this).prop('checked', isChecked);
+            });
         });
     });
 
 
+
     // ******************Function to load data into the table*********************
     function loadRecordToTable() {
-        var labBranchDropdown = $('#labBranchDropdown').val();
+        var labBranchDropdown = $('#labBranchDropdown').val(); 
+        var name = $('#Ser_name').val(); 
+
         $.ajax({
             type: "GET",
-            url: "getAllBranchTests",
+            url: "getAllBranchTests", 
             data: {
-                labBranchDropdown: labBranchDropdown
+                labBranchDropdown: labBranchDropdown,
+                name: name
             },
             success: function(tbl_records) {
-                $('#record_tbl').html(tbl_records);
+                $('#record_tbl').html(tbl_records); 
+                BranchInvoiceCount(); 
             },
             error: function(xhr, status, error) {
                 alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
-                console.error('Error details:', {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText,
-                    error: error
-                });
+            }
+        });
+    }
+
+    function BranchInvoiceCount() {
+        var rowCount = $('#record_tbl tr').length; 
+        $('#invoicecount').text(rowCount); 
+    }
+    // ******************Function to search the branch data******************
+
+    function searchRecords() {
+        var name = $('#Ser_name').val(); 
+        var labBranchDropdown = $('#labBranchDropdown').val(); 
+
+        $.ajax({
+            type: "GET",
+            url: "searchAllBranchTests", 
+            data: {
+                name: name,
+                labBranchDropdown: labBranchDropdown
+            },
+            success: function(tbl_records) {
+                $('#record_tbl').html(tbl_records); 
+            },
+            error: function(xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText);
             }
         });
     }
@@ -92,16 +134,14 @@ Branch Wise Test Mapping
                 <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
                     <label style="width: 150px;font-size: 18px;">Branch Name &nbsp;:</label>
                     <select name="labbranch" style="width: 273px" class="input-text" id="labBranchDropdown">
-                        <option value="%"></option>
+                        <option value="%"> Main Lab</option>
                         <?php
-                        // Fetch lab branches dynamically based on the session's Lab_lid
                         $Result = DB::select("select name, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "'");
 
                         foreach ($Result as $res) {
                             $branchName = $res->name;
                             $bid = $res->bid;
 
-                            // Check if the labbranch is set and if it matches the current branch's ID
                             if (isset($labbranch) && $labbranch == $bid) {
                         ?>
                                 <option value="{{ $bid }}" selected="selected">{{ $branchName }}</option>
@@ -125,7 +165,11 @@ Branch Wise Test Mapping
                 </div>
 
                 <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; border-radius: 10px;">
-                    <b><u><i>Test List</i></u></b><br>
+                    <b><u><i>Test List</i></u></b><br><br>
+                    <div style="display: flex; align-items: center;">
+                        <label style="width: 150px; font-size: 18px;">Search By Name :</label>
+                        <input type="text" name="Ser_name" class="input-text" id="Ser_name" style="width: 400px" title="" value="" oninput="searchRecords()">&nbsp;&nbsp;
+                    </div>
                     <div class="pageTableScope" style="height: 250px; margin-top: 10px;">
                         <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="branchdataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
                             <thead>
@@ -141,7 +185,22 @@ Branch Wise Test Mapping
                             </tbody>
                         </table>
                     </div>
+                </div><br>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <!-- Left aligned content -->
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="font-size: 18px; color: blue;">Test Count:</label>
+                        <label style="font-size: 18px; color: green;" id="invoicecount">0</label>
+                    </div>
+
+                    <!-- Right aligned content -->
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="font-size: 18px; color: blue;">Select All</label>
+                        <input class="form-check-input" type="checkbox" id="selectAllCheckbox" />
+                    </div>
                 </div>
+
             </div><br>
 
             <div style="width: 1000px; display: flex;">
