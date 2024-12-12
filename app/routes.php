@@ -205,6 +205,17 @@ Route::post('/deleteDiscount','DiscountCreateController@delete_Discount');
 Route::post('/updateDiscount', 'DiscountCreateController@update_Discount');
 
 
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To Branch WiseTest Mapping Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Route::get('/branchTestMapping', function () {
+    return View::make('BranchWiseTestMapping');
+});
+
+Route::get('getAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWiseTests');;
+
+
+
 
 
 
