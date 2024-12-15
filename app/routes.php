@@ -216,6 +216,12 @@ Route::get('getAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWis
 
 Route::get('searchAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWiseTests');;
 
+Route::get('getAllBranches', 'BranchWiseTestMappingController@getBranch_Details');;
+
+Route::post('saveBranch', 'BranchWiseTestMappingController@save_Branch');;
+
+Route::post('updateBranch', 'BranchWiseTestMappingController@update_Branch');;
+
 
 
 

@@ -12,21 +12,15 @@ Branch Wise Test Mapping
 
 
 <script>
+    // ****************** Onload ready Function*********************
     $(document).ready(function() {
-        // Initial load of the data when the page is ready
+        loadRecordToBranchTable()
         loadRecordToTable();
 
-
         $('#labBranchDropdown').change(function() {
-            loadRecordToTable(); 
-            searchRecords(); 
+            loadRecordToTable();
+            searchRecords();
         });
-
-
-        // $('#Ser_name').on('input', function() {
-           
-        // });
-
 
         $('#selectAllCheckbox').change(function() {
             var isChecked = $(this).prop('checked');
@@ -34,25 +28,42 @@ Branch Wise Test Mapping
                 $(this).prop('checked', isChecked);
             });
         });
+        $('#selectBranchCheckbox').change(function() {
+            var isChecked = $(this).prop('checked');
+            $('#Branch_record_tbl .select-test').each(function() {
+                $(this).prop('checked', isChecked);
+            });
+        });
+
+        if ($('#labBranchDropdown').val() === "%") {
+            $('#selectAllBtn').hide();
+        }
+
+        // When Baranch Name = 'Main Lab' then hide Remove button
+        $('#labBranchDropdown').on('change', function() {
+            if ($(this).val() === "%") {
+                $('#selectAllBtn').hide();
+            } else {
+                $('#selectAllBtn').show();
+            }
+        });
     });
-
-
 
     // ******************Function to load data into the table*********************
     function loadRecordToTable() {
-        var labBranchDropdown = $('#labBranchDropdown').val(); 
-        var name = $('#Ser_name').val(); 
+        var labBranchDropdown = $('#labBranchDropdown').val();
+        var name = $('#Ser_name').val();
 
         $.ajax({
             type: "GET",
-            url: "getAllBranchTests", 
+            url: "getAllBranchTests",
             data: {
                 labBranchDropdown: labBranchDropdown,
                 name: name
             },
             success: function(tbl_records) {
-                $('#record_tbl').html(tbl_records); 
-                BranchInvoiceCount(); 
+                $('#record_tbl').html(tbl_records);
+                BranchInvoiceCount();
             },
             error: function(xhr, status, error) {
                 alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
@@ -60,30 +71,184 @@ Branch Wise Test Mapping
         });
     }
 
+    // ******************Function to get branch test count******************
     function BranchInvoiceCount() {
-        var rowCount = $('#record_tbl tr').length; 
-        $('#invoicecount').text(rowCount); 
+        var rowCount = $('#record_tbl tr').length;
+        $('#invoicecount').text(rowCount);
     }
-    // ******************Function to search the branch data******************
 
+    // ******************Function to search the branch data******************
     function searchRecords() {
-        var name = $('#Ser_name').val(); 
-        var labBranchDropdown = $('#labBranchDropdown').val(); 
+        var name = $('#Ser_name').val();
+        var labBranchDropdown = $('#labBranchDropdown').val();
 
         $.ajax({
             type: "GET",
-            url: "searchAllBranchTests", 
+            url: "searchAllBranchTests",
             data: {
                 name: name,
                 labBranchDropdown: labBranchDropdown
             },
             success: function(tbl_records) {
-                $('#record_tbl').html(tbl_records); 
+                $('#record_tbl').html(tbl_records);
             },
             error: function(xhr, status, error) {
                 alert('Error: ' + xhr.status + ' - ' + xhr.statusText);
             }
         });
+    }
+
+    //#############################################################################################################
+    //*********************************************Branch Creating Section*****************************************
+
+    // Function to load branch data into the table
+    function loadRecordToBranchTable() {
+        $.ajax({
+            type: "GET",
+            url: "getAllBranches",
+            success: function(tbl_records) {
+                $('#Branch_record_tbl').html(tbl_records);
+            },
+            error: function(xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
+                console.error('Error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+            }
+        });
+    }
+
+    // ******************Function to save the reference data**************************
+    function saveBranches() {
+        // Get values from input fields by their IDs
+        var brnName = $('#Branch_name').val();
+        var brnCode = $('#Branch_code').val();
+
+        if (brnName === '') {
+            alert('Branch name is required.');
+            return;
+        }
+
+        if (brnCode === '') {
+            alert('Branch code is required.');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/saveBranch",
+            data: {
+                branchName: brnName,
+                branchCode: brnCode,
+            },
+            success: function(response) {
+                if (response.error === "saved") {
+                    alert('Branch saved successfully!');
+                    loadRecordToBranchTable();
+                    $('#Branch_name').val('');
+                    $('#Branch_code').val('');
+                } else if (response.error === "name_exist") {
+                    alert('Branch Name already exists!');
+                } else if (response.error === "code_exist") {
+                    alert('Branch Code already exists!');
+                } else {
+                    alert('Error occurred while saving!');
+                }
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr.responseText);
+                alert('AJAX error occurred');
+            }
+        });
+    }
+    // ********************Function to load selected record into the input field when clicking on a table row*********
+    function selectBranch(brnID, brnName, brnCode) {
+        $('#Branch_id').val(brnID);
+        $('#Branch_name').val(brnName);
+        $('#Branch_code').val(brnCode);
+        $('#Branch_code').prop('readonly', true);
+    }
+
+
+    //****************** */ Function to reset the input fields*************************
+    function resetFields() {
+        document.getElementById('Branch_id').value = '';
+        document.getElementById('Branch_name').value = '';
+        document.getElementById('Branch_code').value = '';
+        $('#Branch_code').prop('readonly', false);
+        $('.select-test').prop('checked', false);
+        $('#saveBtn').prop('disabled', false);
+        $('#saveBtn').show();
+    }
+
+    //*******************Save button disable */
+    $(document).ready(function() {
+        $('#Branch_record_tbl').on('click', 'td', function() {
+            if ($(this).index() === 0 || $(this).index() === 1 || $(this).index() === 2) {
+                $('#saveBtn').hide();
+            }
+        });
+    });
+
+    // ******************Function to update the Branch data******************
+
+    function updateBranch() {
+        var brnID = $('#Branch_id').val();
+        var brnName = $('#Branch_name').val();
+        var brnCode = $('#Branch_code').val();
+
+        if (!brnID || !brnName || !brnCode) {
+            alert('Please select a valid record and fill out all fields.');
+            return;
+        }
+
+        // AJAX request to update the discount
+        $.ajax({
+            type: "POST",
+            url: "/updateBranch",
+            data: {
+                'Branch_id': brnID,
+                'Branch_name': brnName,
+                'Branch_code': brnCode
+            },
+            success: function(response) {
+                if (response.success && response.error === "updated") {
+                    alert('Branch updated successfully!');
+                    loadRecordToBranchTable();
+                    resetFields();
+                } else if (!response.success && response.error === "Branch_name_exist") {
+                    alert('The Branch Name is already in use. Please use a unique name.');
+                } else if (!response.success && response.error === "not_updated") {
+                    alert('No changes made to the Branche.');
+                } else {
+                    alert('Error in updating Branche.');
+                }
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr);
+                alert('Error in updating Branche.');
+            }
+        });
+    }
+
+    // ******************Function to update the validate Branch Code******************
+    function validateBranchCode() {
+        var inputField = document.getElementById('Branch_code');
+        var value = inputField.value;
+
+        // Convert input to uppercase
+        inputField.value = value.toUpperCase();
+
+        // Allow only letters (A-Z)
+        inputField.value = inputField.value.replace(/[^A-Z]/g, '');
+
+        // Limit the input to 2 characters
+        if (inputField.value.length > 2) {
+            inputField.value = inputField.value.slice(0, 2);
+        }
     }
 </script>
 
@@ -119,6 +284,10 @@ Branch Wise Test Mapping
     .card-text {
         font-size: 14px;
     }
+
+    #Branch_code[readonly] {
+        cursor: not-allowed;
+    }
 </style>
 @stop
 
@@ -128,7 +297,7 @@ Branch Wise Test Mapping
 <h2 class="pageheading" style="margin-top: -1px;"> Branch Wise Test Mapping
 </h2>
 <div class="container">
-    <div class="card" style="height: 750px;">
+    <div class="card" style="height: 870px;">
         <div class="card-body">
             <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; margin-right: 5px; border-radius: 10px;">
                 <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
@@ -136,7 +305,10 @@ Branch Wise Test Mapping
                     <select name="labbranch" style="width: 273px" class="input-text" id="labBranchDropdown">
                         <option value="%"> Main Lab</option>
                         <?php
-                        $Result = DB::select("select name, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "'");
+                        //$lid = $_SESSION['lid'];
+                        //Result = DB::select("SELECT name, bid FROM labbranches WHERE Lab_lid = ? ORDER BY name ASC", [$lid]);
+
+                        $Result = DB::select("Select name, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
 
                         foreach ($Result as $res) {
                             $branchName = $res->name;
@@ -161,7 +333,7 @@ Branch Wise Test Mapping
 
                     </select>
 
-                    <input type="hidden" name="Branch_id" id="Branch_id">
+                    <input type="hidden" name="crBranch_id" id="crBranch_id">
                 </div>
 
                 <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; border-radius: 10px;">
@@ -196,6 +368,7 @@ Branch Wise Test Mapping
 
                     <!-- Right aligned content -->
                     <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="button" style="color:red" class="btn" id="selectAllBtn" value="Remove">
                         <label style="font-size: 18px; color: blue;">Select All</label>
                         <input class="form-check-input" type="checkbox" id="selectAllCheckbox" />
                     </div>
@@ -203,25 +376,55 @@ Branch Wise Test Mapping
 
             </div><br>
 
-            <div style="width: 1000px; display: flex;">
-                <!-- Add test package part -->
+            <div style="width:1350px; display: flex;">
+                <!-- Create New Branch -->
                 <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; margin-right: 5px; border-radius: 10px;">
 
-
+                    <b><u><i>Create New Branch</i></u></b><br>
+                    <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
+                        <label style="width: 150px;font-size: 18px;">Branch Name &nbsp;:</label>
+                        <input type="text" name=" Branch_name" class="input-text" id="Branch_name" style="width: 250px">
+                        <input type="text" name="Branch_id" id="Branch_id">
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <label style="width: 150px;font-size: 18px;">Branch Code:</label>
+                        <input type="text" name=" Branch_code" maxlength="2" class="input-text" id="Branch_code" style="width: 250px" oninput="validateBranchCode()">
+                    </div><br>
                     <div style="display: flex; justify-content: flex-center; gap: 5px; margin-bottom: 10px;">
-                        <input type="button" style="color:green" class="btn" id="saveBtn" value="Save" onclick="if (validateOnSubmit()) saveDiscount()">
-                        <input type="button" style="color:Blue" class="btn" id="updateBtn" value="Update" onclick="if (validateOnSubmit()) updateDiscount()">
-                        <input type="button" style="color:red" class="btn" id="deleteBtn" value="Delete" onclick="deleteDiscount()">
+                        <input type="button" style="color:green" class="btn" id="saveBtn" value="Save" onclick="saveBranches()">
+                        <input type="button" style="color:Blue" class="btn" id="updateBtn" value="Update" onclick="updateBranch()">
                         <input type="button" style="color:gray" class="btn" id="resetbtn" value="Reset" onclick="resetFields()">
                     </div>
                 </div>
 
-                <!-- selected tests part -->
+                <!-- Created Branches -->
 
-                <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; border-radius: 10px;">
-
+                <div style="flex: 2; padding: 10px; border: 2px #8e7ef7 solid; border-radius: 10px;">
+                    <div class="pageTableScope" style="height: 250px; margin-top: 10px;">
+                        <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="branchdataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
+                            <thead>
+                                <tr class="viewTHead">
+                                    <td class="fieldText" style="width: 20px;">Branch ID</td>
+                                    <td class="fieldText" style="width: 250px;">Branch Name</td>
+                                    <td class="fieldText" style="width: 20px;">Branch Code</td>
+                                    <td class="fieldText" style="width: 10px;">selecet</td>
+                                </tr>
+                            </thead>
+                            <tbody id="Branch_record_tbl">
+                                <!-- Dynamic rows will be inserted here via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-
+            </div>
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
+                <input type="button" style="color:green; width: 150px; height: 50px" class="btn" id="udateTestBranches" value="Update Tests" onclick="">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="font-size: 18px; color: blue;">Change Price If Test Exists</label>
+                    <input class="form-check-input" type="checkbox" id="priceUpdate" />
+                    <label style="font-size: 18px; color: blue;">Select All Branches</label>
+                    <input class="form-check-input" type="checkbox" id="selectBranchCheckbox" />
+                </div>
             </div>
         </div>
 

@@ -148,7 +148,7 @@ Create Test Package
             alert('Please select at least one test to save the package.');
             return;
         }
-        alert(pkgTests);
+        // alert(pkgTests);
         // AJAX request to save the package
         $.ajax({
             type: "POST",
