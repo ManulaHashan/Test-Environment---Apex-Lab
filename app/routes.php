@@ -212,15 +212,47 @@ Route::get('/branchTestMapping', function () {
     return View::make('BranchWiseTestMapping');
 });
 
-Route::get('getAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWiseTests');;
+Route::get('getAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWiseTests');
 
-Route::get('searchAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWiseTests');;
+Route::get('searchAllBranchTests', 'BranchWiseTestMappingController@getAllBranchWiseTests');
 
-Route::get('getAllBranches', 'BranchWiseTestMappingController@getBranch_Details');;
+Route::get('getAllBranches', 'BranchWiseTestMappingController@getBranch_Details');
 
-Route::post('saveBranch', 'BranchWiseTestMappingController@save_Branch');;
+Route::post('saveBranch', 'BranchWiseTestMappingController@save_Branch');
 
-Route::post('updateBranch', 'BranchWiseTestMappingController@update_Branch');;
+Route::post('updateBranch', 'BranchWiseTestMappingController@update_Branch');
+
+Route::post('updateTestBranches', 'BranchWiseTestMappingController@update_BranchTests');
+
+Route::post('RemoveTestFromBranch', 'BranchWiseTestMappingController@delete_BranchTests');
+
+
+
+
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To Test Parameter Mapping Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Route::get('/TestParaMapping', function () {
+    return View::make('TestParameterMapping');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

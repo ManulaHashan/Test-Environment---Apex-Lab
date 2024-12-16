@@ -58,7 +58,7 @@ class BranchWiseTestMappingController extends Controller
                 <td>' . htmlspecialchars($tgid) . '</td>
                 <td>' . htmlspecialchars($testName) . '</td>
                 <td>' . htmlspecialchars($price) . '</td>
-                <td><input type="checkbox" class="select-test" value="' . $tgid . '"></td>
+                <td><input type="checkbox" class="select-test" value="' . $tgid . ':' . $price . '"></td>
             </tr>';
             }
             echo $output;
@@ -86,7 +86,7 @@ class BranchWiseTestMappingController extends Controller
                     <td onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnID) . '</td>
                     <td onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnName) . '</td>
                     <td onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnCode) . '</td>
-                    <td><input type="checkbox" class="select-test" value="' . htmlspecialchars($brnID) . '"></td>
+                    <td><input type="checkbox" class="test-branch" value="' . htmlspecialchars($brnID) . '"></td>
                 </tr>';
             }
             echo $output;
@@ -172,5 +172,72 @@ class BranchWiseTestMappingController extends Controller
         return Response::json(['success' => false, 'error' => 'not_updated']);
     }
 
+
+    public function update_BranchTests()
+    {
+        $selectedTests = Input::get('selectedTests');
+        $testBranches = Input::get('testBranches');
+        $priceUpdate = Input::get('isSelected');
+
+        if (!$selectedTests || !$testBranches) {
+            return Response::json(['success' => false, 'error' => 'Invalid input']);
+        }
+
+        foreach ($selectedTests as $testID) {
+            $testData = explode(':', $testID);
+            $testID = $testData[0];
+            $price = $testData[1];
+            
+            foreach ($testBranches as $branchID) {
+
+                if ($priceUpdate == "true") {
+                    $updated = DB::table('labbranches_has_Testgroup')
+                    ->where('tgid','=', $testID)
+                    ->where('bid','=', $branchID)
+                    ->update([
+                        'price' => $price, 
+                        
+                    ]);
+                }else{
+                    $testData = DB::table('labbranches_has_Testgroup')
+                        ->where('tgid', '=', $testID)
+                        ->where('bid', '=', $branchID)
+                        ->select('bid')
+                        ->get();
+
+                    if (!count($testData) > 0) {
+                        DB::statement("
+                    INSERT INTO labbranches_has_Testgroup (bid, tgid,price) 
+                    VALUES (?, ?, ?)", [$branchID, $testID, $price]);
+                    } 
+                }
+                
+            }
+        }
+
+        return Response::json(['success' => true, 'error' => 'updated']);
+    }
+
+
+    public function delete_BranchTests(){
+        $selectedTests = Input::get('selectedTests');
+        $labBranchDropdown = Input::get('labBranchDropdown');
+
+
+        if (!$selectedTests || !$labBranchDropdown) {
+            return Response::json(['success' => false, 'error' => 'Invalid input']);
+        }
+
+        foreach ($selectedTests as $testID) {
+            $testData = explode(':', $testID);
+            $testID = $testData[0];
+            DB::table('labbranches_has_Testgroup')
+            ->where('tgid', '=', $testID)
+            ->where('bid', '=', $labBranchDropdown)
+            ->delete();
+        }
+
+        return Response::json(['success' => true, 'error' => 'deleted']);
+    }
 
 }

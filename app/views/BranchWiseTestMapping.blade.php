@@ -30,7 +30,7 @@ Branch Wise Test Mapping
         });
         $('#selectBranchCheckbox').change(function() {
             var isChecked = $(this).prop('checked');
-            $('#Branch_record_tbl .select-test').each(function() {
+            $('#Branch_record_tbl .test-branch').each(function() {
                 $(this).prop('checked', isChecked);
             });
         });
@@ -47,6 +47,7 @@ Branch Wise Test Mapping
                 $('#selectAllBtn').show();
             }
         });
+
     });
 
     // ******************Function to load data into the table*********************
@@ -180,6 +181,7 @@ Branch Wise Test Mapping
         document.getElementById('Branch_code').value = '';
         $('#Branch_code').prop('readonly', false);
         $('.select-test').prop('checked', false);
+        $('#selectAllCheckbox').prop('checked', false);
         $('#saveBtn').prop('disabled', false);
         $('#saveBtn').show();
     }
@@ -249,6 +251,70 @@ Branch Wise Test Mapping
         if (inputField.value.length > 2) {
             inputField.value = inputField.value.slice(0, 2);
         }
+    }
+
+
+    // ******************Function to update Test Branches******************
+    let selectedTests = [];
+    let testBranches = [];
+
+    function updateTestBranches() {
+        selectedTests = [];
+        testBranches = [];
+        document.querySelectorAll('.select-test:checked').forEach((checkbox) => {
+            selectedTests.push(checkbox.value);
+        });
+        document.querySelectorAll('.test-branch:checked').forEach((checkbox) => {
+            testBranches.push(checkbox.value);
+        })
+        //alert(selectedTests + " " + testBranches);
+        $.ajax({
+            type: "POST",
+            url: "/updateTestBranches",
+            data: {
+                'selectedTests': selectedTests,
+                'testBranches': testBranches,
+                'isSelected': document.getElementById('priceUpdate').checked
+            },
+            success: function(response) {
+                if (response.success && response.error === "updated") {
+                    alert('Test Branches updated successfully!');
+                    loadRecordToBranchTable();
+                    resetFields();
+                } else {
+                    alert('Error in updating Test Branches.');
+                }
+            }
+        });
+    }
+
+
+    //**************************function Remove Test From Branch */
+    function RemoveTestFromBranch() {
+        selectedTests = [];
+        let labBranchDropdown = document.getElementById('labBranchDropdown').value;
+        document.querySelectorAll('.select-test:checked').forEach((checkbox) => {
+            selectedTests.push(checkbox.value);
+        });
+        $.ajax({
+            type: "POST",
+            url: "/RemoveTestFromBranch",
+            data: {
+                'selectedTests': selectedTests,
+                'labBranchDropdown': labBranchDropdown
+
+            },
+            success: function(response) {
+                if (response.success && response.error === "deleted") {
+                    alert('Test Delete successfully!');
+                    loadRecordToTable();
+                    resetFields();
+                } else {
+                    alert('Error in updating Test Branches.');
+                }
+
+            }
+        })
     }
 </script>
 
@@ -368,7 +434,7 @@ Branch Wise Test Mapping
 
                     <!-- Right aligned content -->
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="button" style="color:red" class="btn" id="selectAllBtn" value="Remove">
+                        <input type="button" style="color:red" class="btn" id="selectAllBtn" value="Remove" onclick="RemoveTestFromBranch()">
                         <label style="font-size: 18px; color: blue;">Select All</label>
                         <input class="form-check-input" type="checkbox" id="selectAllCheckbox" />
                     </div>
@@ -384,7 +450,7 @@ Branch Wise Test Mapping
                     <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
                         <label style="width: 150px;font-size: 18px;">Branch Name &nbsp;:</label>
                         <input type="text" name=" Branch_name" class="input-text" id="Branch_name" style="width: 250px">
-                        <input type="text" name="Branch_id" id="Branch_id">
+                        <input type="hidden" name="Branch_id" id="Branch_id">
                     </div>
                     <div style="display: flex; align-items: center; margin-bottom: 10px;">
                         <label style="width: 150px;font-size: 18px;">Branch Code:</label>
@@ -418,7 +484,7 @@ Branch Wise Test Mapping
                 </div>
             </div>
             <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
-                <input type="button" style="color:green; width: 150px; height: 50px" class="btn" id="udateTestBranches" value="Update Tests" onclick="">
+                <input type="button" style="color:green; width: 150px; height: 50px" class="btn" id="udateTestBranches" value="Update Tests" onclick="updateTestBranches()">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label style="font-size: 18px; color: blue;">Change Price If Test Exists</label>
                     <input class="form-check-input" type="checkbox" id="priceUpdate" />
