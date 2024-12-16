@@ -233,10 +233,11 @@ Route::post('RemoveTestFromBranch', 'BranchWiseTestMappingController@delete_Bran
 //~~~~~~~~~~~~~~~~~~~~~~~~Route To Test Parameter Mapping Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Route::get('/TestParaMapping', function () {
+Route::get('/testParaMapping', function () {
     return View::make('TestParameterMapping');
 });
 
+Route::get('getAllSamples', 'TestParameterMappingController@getAllSampleDetails');
 
 
 
