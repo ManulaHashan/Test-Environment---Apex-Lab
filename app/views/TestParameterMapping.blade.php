@@ -26,6 +26,7 @@ Test parameter mapping
     });
 
 
+    // Function to load records to table
     function loadRecordToTable(date = null, sampleNo = null) {
         $.ajax({
             type: "GET",
@@ -45,6 +46,39 @@ Test parameter mapping
                     responseText: xhr.responseText,
                     error: error
                 });
+            }
+        });
+    }
+
+
+    // Function to update Test Parameters
+
+    let selectedSamples = [];
+
+
+    function updateTestParameters() {
+        selectedSamples = [];
+        document.querySelectorAll('.select-test:checked').forEach((checkbox) => {
+            selectedSamples.push(checkbox.value);
+        });
+
+        //alert(selectedSamples);
+        $.ajax({
+            type: "POST",
+            url: "/updateTestParameters",
+            data: {
+                'selectedSamples': selectedSamples
+
+            },
+            success: function(response) {
+                //var jobject = JSON.parse(response);
+                if (response.success && response.error === "updated") {
+                    alert('Test Parameters updated successfully!');
+
+                }
+                else {
+                    alert('Failed to update Test Parameters.');
+                }
             }
         });
     }
@@ -129,7 +163,7 @@ Test parameter mapping
                 </div>
             </div>
             <div style="display: flex; justify-content: center; align-items: center;">
-                <input type="button" style="color:green; font-size: 16px; margin-left: 15px;" class="btn" id="updateParaBtn" value="Update Parameters" onclick="">
+                <input type="button" style="color:green; font-size: 16px; margin-left: 15px;" class="btn" id="updateParaBtn" value="Update Parameters" onclick="updateTestParameters()">
             </div>
 
         </div>

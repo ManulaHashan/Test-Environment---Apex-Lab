@@ -48,7 +48,7 @@ class TestParameterMappingController extends Controller{
                     $output .= '<td>' . $record->fname . ' ' . $record->lname . '</td>';
                     $output .= '<td>' . $record->Testgroup_tgid . '</td>';
                     $output .= '<td>' . $record->name . '</td>';
-                    $output .= '<td><input type="checkbox" value="' . $record->lpsid . '"></td>';
+                    $output .= '<td><input type="checkbox" class="select-test" value="' . $record->lpsid . ':' . $record->Testgroup_tgid .'"></td>';
                     $output .= '</tr>';
                 }
             }
@@ -59,6 +59,48 @@ class TestParameterMappingController extends Controller{
         }
     }
 
+    //function update Test Parmeters
+    public function updateTestParmeters()
+    {
+        $selectedSamples = Input::get('selectedSamples');
+
+        if (!$selectedSamples) {
+            return Response::json(['success' => false, 'error' => 'Invalid input']);
+        }
+
+        foreach ($selectedSamples as $selectedData) {
+            $sampleData = explode(':', $selectedData);
+            $lpsID = $sampleData[0];
+            $tgID = $sampleData[1];
+
+            $testIDs = DB::table('Lab_has_test')
+            ->where('Lab_lid', '=', $_SESSION['lid'])
+            ->where('Testgroup_tgid', '=', $tgID)
+            ->select('test_tid')
+            ->get();
+
+
+            foreach ($testIDs as $testID) {
+                // Check if record already exists in lps_has_test
+                $exists = DB::table('lps_has_test')
+                ->where('lps_lpsid', '=', $lpsID)
+                ->where('test_tid', '=', $testID->test_tid)
+                ->select('id')
+                ->get();
+
+                if (!count($exists) > 0) {
+                     DB::table('lps_has_test')->insert([
+                        'lps_lpsid' => $lpsID,
+                        'test_tid' => $testID->test_tid,
+                        'state' => 'pending',
+                        'lisloaded' => 0,
+                    ]);
+                }
+            }
+        }
+
+        return Response::json(['success' => true, 'error' => 'updated']);
+    }
 
 
 

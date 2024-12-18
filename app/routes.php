@@ -239,6 +239,8 @@ Route::get('/testParaMapping', function () {
 
 Route::get('getAllSamples', 'TestParameterMappingController@getAllSampleDetails');
 
+Route::post('updateTestParameters', 'TestParameterMappingController@updateTestParmeters');
+
 
 
 
