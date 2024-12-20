@@ -14,7 +14,7 @@ if (!isset($_SESSION)) {
 class TestParameterMappingController extends Controller{
 
     // **********************Function to get all details*************************************** 
-    public function getAllSampleDetails()
+    public function getAll_SampleDetails()
     {
         try {
             $date = Input::get('date');

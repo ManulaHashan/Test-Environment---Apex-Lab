@@ -471,7 +471,7 @@ Enter Doctor Refference
 
 
 
-                <div class="pageTableScope" style="height: 350px; margin-top: 10px;">
+                <div class="pageTableScope" style="height: 350px; margin-top: 10px; width: 100%;">
                     <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="pdataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
                         <tbody>
                             <tr>

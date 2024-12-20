@@ -23,12 +23,12 @@ class BranchWiseTestMappingController extends Controller
             ->select('c.tgid', 'c.name as test_name', 'c.price')
             ->orderBy('c.name', 'asc');
 
-        // Add search condition if name is provided
+
         if (!empty($name)) {
             $query->where('c.name', 'LIKE', $name . '%');
         }
 
-        // If labBranch is not "%" and is set, modify the query for specific branch
+
         if ($labBranch !== "%" && !empty($labBranch)) {
             $query = DB::table('labbranches_has_Testgroup as b')
             ->join('labbranches as a', 'a.bid', '=', 'b.bid')
@@ -38,13 +38,13 @@ class BranchWiseTestMappingController extends Controller
                 ->select('b.tgid', 'c.name as test_name', 'b.price')
                 ->orderBy('c.name', 'asc');
 
-            // Add search condition to the branch-specific query if name is provided
+
             if (!empty($name)) {
                 $query->where('c.name', 'LIKE', $name . '%');
             }
         }
 
-        // Fetch the results
+
         $Result = $query->get();
 
         // Return results
@@ -55,10 +55,10 @@ class BranchWiseTestMappingController extends Controller
                 $testName = $res->test_name;
                 $price = $res->price;
                 $output .= '<tr>
-                <td>' . htmlspecialchars($tgid) . '</td>
-                <td>' . htmlspecialchars($testName) . '</td>
-                <td>' . htmlspecialchars($price) . '</td>
-                <td><input type="checkbox" class="select-test" value="' . $tgid . ':' . $price . '"></td>
+                <td align="center">' . htmlspecialchars($tgid) . '</td>
+                <td align="center">' . htmlspecialchars($testName) . '</td>
+                <td align="center">' . htmlspecialchars($price) . '</td>
+                <td align="center"><input type="checkbox" class="select-test" value="' . $tgid . ':' . $price . '"></td>
             </tr>';
             }
             echo $output;
@@ -83,10 +83,10 @@ class BranchWiseTestMappingController extends Controller
                 $brnCode = $branch->code;
 
                 $output .= '<tr style="cursor: pointer;">
-                    <td onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnID) . '</td>
-                    <td onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnName) . '</td>
-                    <td onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnCode) . '</td>
-                    <td><input type="checkbox" class="test-branch" value="' . htmlspecialchars($brnID) . '"></td>
+                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnID) . '</td>
+                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnName) . '</td>
+                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnCode) . '</td>
+                    <td align="center"><input type="checkbox" class="test-branch" value="' . htmlspecialchars($brnID) . '"></td>
                 </tr>';
             }
             echo $output;

@@ -13,8 +13,8 @@ class DocRefferenceController extends Controller
     // Function to get all details 
     public function getAllDetails()
     {
-        $name = Input::get('name');  // Get the search name filter (if any)
-        $code = Input::get('code');  // Get the search code filter (if any)
+        $name = Input::get('name');  
+        $code = Input::get('code');  
 
         // Base query to fetch data
         $query = DB::table('refference')
@@ -46,16 +46,16 @@ class DocRefferenceController extends Controller
 
                 $output .= '<tr class="phistr" style="cursor: pointer;">
                 <td>' . $code . '</td>
-                <td  onclick="selectRecord(' .
+                <td align="center"  onclick="selectRecord(' .
                     $idref . ', \'' . htmlspecialchars($code) . '\', \'' . htmlspecialchars($name) . '\', \'' .
                     htmlspecialchars($address) . '\', \'' . htmlspecialchars($tp) . '\', \'' . htmlspecialchars($degree) . '\', \'' .
                     htmlspecialchars($joindate) . '\')">' . htmlspecialchars($name) . '</td>
                 <td>' . htmlspecialchars($address) . '</td>
-                <td>' . htmlspecialchars($tp) . '</td>
-                <td>' . htmlspecialchars($degree) . '</td>
-                <td>' . htmlspecialchars($joindate) . '</td>
-                <td>' . $idref . '</td>
-                <td style="text-align: center; vertical-align: middle;">
+                <td align="center">' . htmlspecialchars($tp) . '</td>
+                <td align="center">' . htmlspecialchars($degree) . '</td>
+                <td align="center">' . htmlspecialchars($joindate) . '</td>
+                <td align="center">' . $idref . '</td>
+                <td align="center">
                     <input type="checkbox" value="' . $idref . '" class="ref_chkbox">
                 </td>
             </tr>';

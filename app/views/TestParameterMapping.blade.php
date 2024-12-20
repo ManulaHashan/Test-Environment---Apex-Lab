@@ -28,14 +28,18 @@ Test parameter mapping
 
     // Function to load records to table
     function loadRecordToTable(date = null, sampleNo = null) {
+
+       
+
         $.ajax({
             type: "GET",
-            url: "getAllSamples",
+            url: "getAllSamplesParaTable",
             data: {
                 date: date,
                 sample_no: sampleNo
             },
             success: function(tbl_records) {
+
                 $('#record_tbl').html(tbl_records.html);
             },
             error: function(xhr, status, error) {
@@ -75,8 +79,7 @@ Test parameter mapping
                 if (response.success && response.error === "updated") {
                     alert('Test Parameters updated successfully!');
 
-                }
-                else {
+                } else {
                     alert('Failed to update Test Parameters.');
                 }
             }

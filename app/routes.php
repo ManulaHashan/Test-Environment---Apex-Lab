@@ -237,9 +237,57 @@ Route::get('/testParaMapping', function () {
     return View::make('TestParameterMapping');
 });
 
-Route::get('getAllSamples', 'TestParameterMappingController@getAllSampleDetails');
+Route::get('getAllSamplesParaTable', 'TestParameterMappingController@getAll_SampleDetails');
 
 Route::post('updateTestParameters', 'TestParameterMappingController@updateTestParmeters');
+
+
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To Bulk Payment Update Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Route::get('/bulckPaymentUpdate', function () {
+    return View::make('BulkPaymentUpdate');
+});
+
+Route::get('getAllSamples', 'BulkPaymentUpdateController@getAllSample_Details');
+Route::post('updatePayments', 'BulkPaymentUpdateController@update_Payments');
+
+
+
+
+
+
+
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To Sample Container Configuration Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Route::get('/sampleContainerConfig', function () {
+    return View::make('SampleContainerConfig');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

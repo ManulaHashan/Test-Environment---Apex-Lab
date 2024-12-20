@@ -35,8 +35,8 @@ class DiscountCreateController extends Controller
                 $disValue = $discount->value;
 
                 $output .= '<tr style="cursor: pointer;" onclick="selectRecord(' . $disID . ', \'' . htmlspecialchars($disName) . '\', \'' . htmlspecialchars($disValue) . '\')">
-                        <td>' . htmlspecialchars($disName) . '</td>
-                        <td>' . htmlspecialchars($disValue) . '</td>
+                        <td align="center">' . htmlspecialchars($disName) . '</td>
+                        <td align="center">' . htmlspecialchars($disValue) . '</td>
                     </tr>';
             }
             echo $output;
