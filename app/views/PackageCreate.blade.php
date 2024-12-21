@@ -19,6 +19,8 @@ Create Test Package
     });
 
     // Function to load Created Packages into the table
+
+
     function loadRecordToTable() {
         $.ajax({
             type: "GET",
@@ -45,6 +47,15 @@ Create Test Package
 
     }
 
+    // *********************function for select test add to table*******************
+
+    let totalTestPrice = 0;
+
+
+    function updateTotalPriceLabel() {
+        document.querySelector('#totalPriceLabel').textContent = totalTestPrice.toFixed(2);
+    }
+
     //**************load package included tests to table when package is selected in the table*********************
     function loadSelectedPackageTests(pkgID) {
 
@@ -58,6 +69,8 @@ Create Test Package
                 var jobject = JSON.parse(response);
 
                 $('#selectedTests').html(jobject.tbldata);
+                document.querySelector('#totalPriceLabel').textContent = jobject.total_test_amount.toFixed(2);
+                totalTestPrice = jobject.total_test_amount;
 
                 for (var i = 0; i < jobject.testgrouparray.length; i++) {
                     //alert(jobject.testgrouparray[i]);
@@ -68,7 +81,12 @@ Create Test Package
         });
     }
 
-    // *********************function for select test add to table*******************
+
+
+
+
+
+
     document.addEventListener("DOMContentLoaded", function() {
         const dropdown = document.getElementById("testDropdown");
         dropdown.addEventListener("change", function() {
@@ -82,6 +100,13 @@ Create Test Package
                 const isAlreadyAdded = existingRows.some(row => row.cells[0].textContent === selectedValue);
 
                 if (!isAlreadyAdded) {
+
+                    const priceMatch = selectedText.match(/- (\d+(\.\d+)?)/);
+                    const price = priceMatch ? parseFloat(priceMatch[1]) : 0;
+
+                    totalTestPrice += price;
+
+
                     const newRow = document.createElement("tr");
                     const idCell = document.createElement("td");
                     idCell.textContent = selectedValue;
@@ -98,20 +123,24 @@ Create Test Package
                     deleteButton.style.border = "none";
                     deleteButton.style.cursor = "pointer";
 
-                    // Add click event to remove the row
+
                     deleteButton.addEventListener("click", function() {
+
+                        totalTestPrice -= price;
+                        updateTotalPriceLabel();
                         tableBody.removeChild(newRow);
                     });
 
                     actionCell.appendChild(deleteButton);
 
-                    // Append cells to the row
                     newRow.appendChild(idCell);
                     newRow.appendChild(nameCell);
                     newRow.appendChild(actionCell);
 
-                    // Append the row to the table
                     tableBody.appendChild(newRow);
+
+
+                    updateTotalPriceLabel();
                 } else {
                     alert("This test is already added.");
                 }
@@ -297,20 +326,24 @@ Create Test Package
         $('#testDropdown').prop('selectedIndex', 0);
         pkgTests = [];
         $('#saveBtn').prop('disabled', false);
-        $('#saveBtn').show(); 
+        $('#saveBtn').show();
+        totalTestPrice = 0;
+        updateTotalPriceLabel();
     }
 
-    function removeTest(button, testID) {
+    function removeTest(button, testID, testPrice) {
         // Remove the test ID from the pkgTests array
         var index = pkgTests.indexOf(testID);
+        totalTestPrice -= parseFloat(testPrice);
+        updateTotalPriceLabel();
         if (index !== -1) {
             pkgTests.splice(index, 1);
         }
 
         // Find and remove the corresponding table row
-        var row = button.closest('tr'); 
+        var row = button.closest('tr');
         if (row) {
-            row.remove(); 
+            row.remove();
         }
     }
 
@@ -408,18 +441,19 @@ Create Test Package
                         <select name="tgroup" style="width: 273px" class="input-text" id="testDropdown">
                             <option value="%"></option>
                             <?php
-                            $Result = DB::select("select c.name,c.tgid from test a, Lab_has_test b,Testgroup c where a.tid = b.test_tid and b.testgroup_tgid = c.tgid and b.lab_lid='" . $_SESSION['lid'] . "' group by c.name order by c.name");
+                            $Result = DB::select("select c.name,c.tgid, c.price from test a, Lab_has_test b,Testgroup c where a.tid = b.test_tid and b.testgroup_tgid = c.tgid and b.lab_lid='" . $_SESSION['lid'] . "' group by c.name order by c.name");
                             foreach ($Result as $res) {
                                 $tgid = $res->tgid;
                                 $group = $res->name;
+                                $price = $res->price;
 
                                 if (isset($tgroup) && $tgroup == $tgid) {
                             ?>
-                                    <option value="{{ $tgid }}" selected="selected">{{ $group }}</option>
+                                    <option value="{{ $tgid}}" selected="selected">{{ $group }} - {{ $price }}</option>
                                 <?php
                                 } else {
                                 ?>
-                                    <option value="{{ $tgid }}">{{ $group }}</option>
+                                    <option value="{{ $tgid}}">{{ $group }} - {{ $price }}</option>
                             <?php
                                 }
                             }
@@ -455,10 +489,17 @@ Create Test Package
                                 <!-- Dynamic rows will be added here -->
                             </tbody>
                         </table>
+
                     </div>
+
                 </div>
 
             </div>
+
+            <label style="width: 150px;font-size: 18px;">Total Amount</label>
+            <label id="totalPriceLabel" style="width: 150px;font-size: 18px;">000.00</label>
+
+
 
             <div style="width: 1000px; display: flex;">
 

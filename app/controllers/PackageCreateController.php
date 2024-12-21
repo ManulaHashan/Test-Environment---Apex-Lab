@@ -13,6 +13,7 @@ class PackageCreateController extends Controller
     // Function to get all details to table from database
     public function getAllTestPackages()
     {
+        
         // Base query to fetch data
         $query = DB::table('labpackages')
             ->select('idlabpackages', 'name', 'price')
@@ -24,11 +25,13 @@ class PackageCreateController extends Controller
 
         // Prepare the output
         if (count($Result) > 0) {
+            
             $output = '';
             foreach ($Result as $res) {
                 $idlabpackages = $res->idlabpackages;
                 $pkgName = $res->name;
                 $pkgPrice = $res->price;
+                
 
                 $output .= '<tr style="cursor: pointer;" onclick="selectRecord(' . $idlabpackages . ', \'' . htmlspecialchars($pkgName) . '\', \'' . htmlspecialchars($pkgPrice) . '\')">';
                 $output .= '<td>' . htmlspecialchars($idlabpackages) . '</td>';
@@ -81,8 +84,8 @@ class PackageCreateController extends Controller
             }
             
             DB::commit();
-            return Response::json(['error' => 'saved']);
-            
+           return Response::json(['error' => 'saved']);
+        
             
         } catch (Exception $e) {
             DB::rollBack();
@@ -100,7 +103,7 @@ class PackageCreateController extends Controller
         ->join('Testgroup as c', 'c.tgid', '=', 'b.tgid')
         ->where('a.Lab_lid', '=', $_SESSION['lid'])
         ->where('b.idlabpackages', '=', $pkgID)
-        ->select('a.idlabpackages', 'c.name', 'b.tgid')
+        ->select('a.idlabpackages', 'c.name', 'b.tgid','c.price' )
         ->orderBy('b.tgid', 'ASC')  // Adjust the column for ordering if needed
         ->get();
 
@@ -110,22 +113,25 @@ class PackageCreateController extends Controller
         if (count($query) > 0) {
             $output = '';
             $tgarray = []; // Initialize the array
-
+            $total_test_amount = 0;
             foreach ($query as $res) {
                 $pkgName = $res->name;
                 $tgid = $res->tgid;
+                $price = $res->price;
                 $tgarray[] = $tgid;
+
+                $total_test_amount += $price;
 
                 $output .= '<tr>';
                 $output .= '<td>' . htmlspecialchars($tgid) . '</td>';
-                $output .= '<td>' . htmlspecialchars($pkgName) . '</td>';
+                $output .= '<td>' . htmlspecialchars($pkgName) . ' - ' . htmlspecialchars($price) . '</td>';
                 $output .= '<td> <button style ="background-color: #ff4d4d; 
                                 color: white; 
                                 padding: 5px 10px;
                                     border-radius: 5px;
                                     border: none;
                                     cursor: pointer;" 
-                                    onclick="removeTest(this,' . $tgid . ')">
+                                    onclick="removeTest(this,' . $tgid . ','. $price.')">
                                     Remove
                                     </button> </td>';
                 $output .= '</tr>';
@@ -134,7 +140,8 @@ class PackageCreateController extends Controller
             // Create the response array
             $tgData = [
                 'tbldata' => $output,
-                'testgrouparray' => $tgarray
+                'testgrouparray' => $tgarray,
+                'total_test_amount' => $total_test_amount
             ];
 
             // Send the response as JSON
