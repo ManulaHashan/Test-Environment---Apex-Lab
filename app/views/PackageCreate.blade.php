@@ -190,18 +190,19 @@ Create Test Package
             success: function(response) {
                 // alert(response);
 
-                var jobject = JSON.parse(response);
+
+                //var jobject = JSON.parse(response);
 
                 console.log(response);
-                if (jobject.error === "saved") {
+                if (response.error === "saved") {
                     alert("Package saved successfully!");
                     resetFields()
                     loadRecordToTable();
-                } else if (jobject.error === "exist") {
+                } else if (response.error === "exist") {
                     alert('Package Name already exists!');
-                } else if (jobject.error === "empty") {
+                } else if (response.error === "empty") {
                     alert('Please fill all required fields!');
-                } else if (jobject.error === "saveerror") {
+                } else if (response.error === "saveerror") {
                     alert('An error occurred while saving the package!');
                 } else {
                     alert('Unknown error occurred.');
