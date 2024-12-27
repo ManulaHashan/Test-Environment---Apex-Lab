@@ -71,7 +71,7 @@ class BranchWiseTestMappingController extends Controller
     {
         $branchData = DB::table('labbranches')
             ->where('Lab_lid', '=', $_SESSION['lid'])
-            ->select('bid', 'name', 'code')
+            ->select('bid', 'name', 'code', 'tpno', 'address')
             ->orderBy('name', 'asc')
             ->get();
 
@@ -81,11 +81,13 @@ class BranchWiseTestMappingController extends Controller
                 $brnID = $branch->bid;
                 $brnName = $branch->name;
                 $brnCode = $branch->code;
+                $brnTpno = $branch->tpno;
+                $brnAddress = $branch->address;
 
                 $output .= '<tr style="cursor: pointer;">
-                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnID) . '</td>
-                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnName) . '</td>
-                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\')">' . htmlspecialchars($brnCode) . '</td>
+                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\', \'' . htmlspecialchars($brnTpno) . '\', \'' . htmlspecialchars($brnAddress) . '\')">' . htmlspecialchars($brnID) . '</td>
+                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\', \'' . htmlspecialchars($brnTpno) . '\', \'' . htmlspecialchars($brnAddress) . '\')">' . htmlspecialchars($brnName) . '</td>
+                    <td align="center" onclick="selectBranch(' . $brnID . ', \'' . htmlspecialchars($brnName) . '\', \'' . htmlspecialchars($brnCode) . '\', \'' . htmlspecialchars($brnTpno) . '\', \'' . htmlspecialchars($brnAddress) . '\')">' . htmlspecialchars($brnCode) . '</td>
                     <td align="center"><input type="checkbox" class="test-branch" value="' . htmlspecialchars($brnID) . '"></td>
                 </tr>';
             }
@@ -102,6 +104,8 @@ class BranchWiseTestMappingController extends Controller
         // Fetch values sent in POST request
         $branchName = Input::get('branchName');
         $branchCode = Input::get('branchCode');
+        $branchContact = Input::get('branchContact');
+        $branchAddress = Input::get('branchAddress');
 
         if (!$branchName || !$branchCode) {
             return Response::json(['error' => 'Invalid input']);
@@ -125,8 +129,8 @@ class BranchWiseTestMappingController extends Controller
         }
 
         DB::statement("
-        INSERT INTO labbranches ( Lab_lid,name, code) 
-        VALUES (?, ?, ?)", [$_SESSION['lid'], $branchName, $branchCode, ]);
+        INSERT INTO labbranches ( Lab_lid,name, code,address, tpno) 
+        VALUES (?, ?, ?,?,?)", [$_SESSION['lid'], $branchName, $branchCode, $branchAddress, $branchContact]);
 
         return Response::json(['error' => 'saved']);
     }
@@ -137,7 +141,9 @@ class BranchWiseTestMappingController extends Controller
     {
         $brnID = Input::get('Branch_id');
         $brnName = Input::get('Branch_name');
-        $brnCode = Input::get('Branch_code'); // This will not be updated
+        $brnCode = Input::get('Branch_code');// This will not be updated
+        $branchContact = Input::get('Branch_contact');
+        $branchAddress = Input::get('Branch_address'); 
 
         if (!$brnID || !$brnName || !$brnCode) {
             return Response::json(['success' => false, 'error' => 'Invalid input']);
@@ -161,7 +167,9 @@ class BranchWiseTestMappingController extends Controller
         $updated = DB::table('labbranches')
         ->where('bid', '=', $brnID)
             ->update([
-                'name' => $brnName, // Only update the name, not the code
+                'name' => $brnName,
+            'address' => $branchAddress ,
+            'tpno' => $branchContact, // Only update the name, not the code
                 // 'code' remains unchanged
             ]);
 

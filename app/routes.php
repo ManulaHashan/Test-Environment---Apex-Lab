@@ -181,7 +181,8 @@ Route::post('/updatePackage', 'PackageCreateController@update_Package');
 // Route to delete a package
 Route::post('/deletePackage', 'PackageCreateController@delete_Package');
 
-
+// Route to Active a package
+Route::post('/activePackage', 'PackageCreateController@actiate_Package');
 
 
 

@@ -45,6 +45,8 @@ Create Test Package
         $('#Pkg_price').val(pkgPrice);
         loadSelectedPackageTests(pkgID);
 
+
+
     }
 
     // *********************function for select test add to table*******************
@@ -281,7 +283,7 @@ Create Test Package
         var pkgID = $('#idlabpackages').val();
 
         if (!pkgID) {
-            alert('Please select a package to delete.');
+            alert('Please select a package to deactivate.');
             return;
         }
 
@@ -315,6 +317,46 @@ Create Test Package
             }
         });
     }
+
+    function activatePackage() {
+        var pkgID = $('#idlabpackages').val();
+
+        if (!pkgID) {
+            alert('Please select a package to Active.');
+            return;
+        }
+
+        if (!confirm('Are you sure you want to activate this package?')) {
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/activePackage",
+            data: {
+                pkgID: pkgID
+            },
+            success: function(response) {
+                var jobject = JSON.parse(response);
+
+                if (jobject.error === "activated") {
+                    alert('Package activated successfully!');
+                    resetFields()
+                    loadRecordToTable(); // Reload the records
+                } else if (jobject.error === "notfound") {
+                    alert('Package not found.');
+                } else if (jobject.error === "activeerror") {
+                    alert('An error occurred while activating the package.');
+                } else {
+                    alert('Unknown error occurred.');
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('AJAX Error: ' + error);
+            }
+        });
+    }
+
 
 
     // ******************Function to reset the form fields and selected tests table**************************
@@ -358,7 +400,7 @@ Create Test Package
     });
 
 
-    // ******************Functionprice text feild validation**********************************
+    // ******************Function price text feild validation**********************************
     $(document).ready(function() {
         $('#Pkg_price').on('input', function() {
             var value = $(this).val();
@@ -468,7 +510,8 @@ Create Test Package
                     <div style="display: flex; justify-content: flex-center; gap: 5px; margin-bottom: 10px;">
                         <input type="button" style="color:green" class="btn" id="saveBtn" value="Save" onclick="savePackage()">
                         <input type="button" style="color:Blue" class="btn" id="updateBtn" value="Update" onclick="updatePackage()">
-                        <input type="button" style="color:red" class="btn" id="deleteBtn" value="Delete" onclick="deletePackage()">
+                        <input type="button" style="color:red" class="btn" id="deleteBtn" value="Deactivate" onclick="deletePackage()">
+                        <input type="button" style="color:blue" class="btn" id="activeBtn" value="Activate" onclick="activatePackage()">
                         <input type="button" style="color:gray" class="btn" id="resetbtn" value="Reset" onclick="resetFields()">
                     </div>
                 </div>
@@ -497,15 +540,23 @@ Create Test Package
 
             </div>
 
-            <label style="width: 150px;font-size: 18px;">Total Amount</label>
-            <label id="totalPriceLabel" style="width: 150px;font-size: 18px;">000.00</label>
+            <div style="margin-left: 800px">
+                <label style="width: 150px;font-size: 20px;">Total Amount</label>
+                <label id="totalPriceLabel" style="width: 150px;font-size: 22px; color:rgb(57, 76, 250); ">000.00</label>
+            </div>
 
 
 
             <div style="width: 1000px; display: flex;">
 
                 <div style="flex: 1; padding: 10px; ">
-                    <b><u><i>Crerated Test Packages</i></u></b>
+                    <div>
+                        <b><u><i>Crerated Test Packages</i></u></b> &nbsp;&nbsp;&nbsp;
+                        <select name="" class="input-text" id="pkgStatus" style="width: 120px; height: 29px; font-size: 18px;">
+                            <option value="1" Selected>Active</option>
+                            <option value="0">Deactive</option>
+                        </select>
+                    </div>
                     <div class="pageTableScope" style="height: 250px; margin-top: 10px;">
 
                         <table id="createdTestPackages" width="100%" border="0" cellspacing="2" cellpadding="0">
@@ -531,6 +582,19 @@ Create Test Package
 </div>
 
 
+<script>
+    // ******************Function table package status change validation**********************************
+    document.getElementById('pkgStatus').addEventListener('change', function() {
+        const status = this.value; // Get selected value (1 or 0)
+        fetch(`/getAllTestPackages?status=${status}`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('record_tbl').innerHTML = data;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    });
+    document.getElementById('pkgStatus').dispatchEvent(new Event('change'));
+</script>
 
 
 @stop

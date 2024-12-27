@@ -127,6 +127,8 @@ Branch Wise Test Mapping
         // Get values from input fields by their IDs
         var brnName = $('#Branch_name').val();
         var brnCode = $('#Branch_code').val();
+        var brnContact = $('#Branch_contact').val();
+        var brnAddress = $('#Branch_address').val();
 
         if (brnName === '') {
             alert('Branch name is required.');
@@ -144,6 +146,8 @@ Branch Wise Test Mapping
             data: {
                 branchName: brnName,
                 branchCode: brnCode,
+                branchContact: brnContact,
+                branchAddress: brnAddress
             },
             success: function(response) {
                 if (response.error === "saved") {
@@ -151,6 +155,8 @@ Branch Wise Test Mapping
                     loadRecordToBranchTable();
                     $('#Branch_name').val('');
                     $('#Branch_code').val('');
+                    $('#Branch_contact').val('');
+                    $('#Branch_address').val('');
                 } else if (response.error === "name_exist") {
                     alert('Branch Name already exists!');
                 } else if (response.error === "code_exist") {
@@ -166,10 +172,12 @@ Branch Wise Test Mapping
         });
     }
     // ********************Function to load selected record into the input field when clicking on a table row*********
-    function selectBranch(brnID, brnName, brnCode) {
+    function selectBranch(brnID, brnName, brnCode, brnContact, brnAddress) {
         $('#Branch_id').val(brnID);
         $('#Branch_name').val(brnName);
         $('#Branch_code').val(brnCode);
+        $('#Branch_contact').val(brnContact);
+        $('#Branch_address').val(brnAddress);
         $('#Branch_code').prop('readonly', true);
     }
 
@@ -179,6 +187,8 @@ Branch Wise Test Mapping
         document.getElementById('Branch_id').value = '';
         document.getElementById('Branch_name').value = '';
         document.getElementById('Branch_code').value = '';
+        document.getElementById('Branch_contact').value = '';
+        document.getElementById('Branch_address').value = '';
         $('#Branch_code').prop('readonly', false);
         $('.select-test').prop('checked', false);
         $('#selectAllCheckbox').prop('checked', false);
@@ -201,6 +211,8 @@ Branch Wise Test Mapping
         var brnID = $('#Branch_id').val();
         var brnName = $('#Branch_name').val();
         var brnCode = $('#Branch_code').val();
+        var brnContact = $('#Branch_contact').val();
+        var brnAddress = $('#Branch_address').val();
 
         if (!brnID || !brnName || !brnCode) {
             alert('Please select a valid record and fill out all fields.');
@@ -214,7 +226,9 @@ Branch Wise Test Mapping
             data: {
                 'Branch_id': brnID,
                 'Branch_name': brnName,
-                'Branch_code': brnCode
+                'Branch_code': brnCode,
+                'Branch_contact': brnContact,
+                'Branch_address': brnAddress
             },
             success: function(response) {
                 if (response.success && response.error === "updated") {
@@ -412,10 +426,10 @@ Branch Wise Test Mapping
                         <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="branchdataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
                             <thead>
                                 <tr class="viewTHead">
-                                    <td class="fieldText" style="width: 80px;">Test Group ID</td>
-                                    <td class="fieldText" style="width: 350px;">Name</td>
-                                    <td class="fieldText" style="width: 80px;">Price</td>
-                                    <td class="fieldText" style="width: 50px;">selecet</td>
+                                    <td align="center" class="fieldText" style="width: 80px;">Test Group ID</td>
+                                    <td align="center" class="fieldText" style="width: 350px;">Name</td>
+                                    <td align="center" class="fieldText" style="width: 80px;">Price</td>
+                                    <td align="center" class="fieldText" style="width: 50px;">selecet</td>
                                 </tr>
                             </thead>
                             <tbody id="record_tbl">
@@ -456,12 +470,21 @@ Branch Wise Test Mapping
                         <label style="width: 150px;font-size: 18px;">Branch Code:</label>
                         <input type="text" name=" Branch_code" maxlength="2" class="input-text" id="Branch_code" style="width: 250px" oninput="validateBranchCode()">
                     </div><br>
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <label style="width: 150px;font-size: 18px;">Branch Contact:</label>
+                        <input type="text" name=" Branch_contact" maxlength="10" class="input-text" id="Branch_contact" style="width: 250px">
+                    </div><br>
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <label style="width: 150px;font-size: 18px;">Branch Address:</label>
+                        <input type="text" name=" Branch_address" class="input-text" id="Branch_address" style="width: 250px">
+                    </div><br>
                     <div style="display: flex; justify-content: flex-center; gap: 5px; margin-bottom: 10px;">
                         <input type="button" style="color:green" class="btn" id="saveBtn" value="Save" onclick="saveBranches()">
                         <input type="button" style="color:Blue" class="btn" id="updateBtn" value="Update" onclick="updateBranch()">
                         <input type="button" style="color:gray" class="btn" id="resetbtn" value="Reset" onclick="resetFields()">
                     </div>
                 </div>
+
 
                 <!-- Created Branches -->
 
@@ -470,10 +493,10 @@ Branch Wise Test Mapping
                         <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="branchdataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
                             <thead>
                                 <tr class="viewTHead">
-                                    <td class="fieldText" style="width: 20px;">Branch ID</td>
-                                    <td class="fieldText" style="width: 250px;">Branch Name</td>
-                                    <td class="fieldText" style="width: 20px;">Branch Code</td>
-                                    <td class="fieldText" style="width: 10px;">selecet</td>
+                                    <td align="center" class="fieldText" style="width: 20px;">Branch ID</td>
+                                    <td align="center" class="fieldText" style="width: 250px;">Branch Name</td>
+                                    <td align="center" class="fieldText" style="width: 20px;">Branch Code</td>
+                                    <td align="center" class="fieldText" style="width: 10px;">selecet</td>
                                 </tr>
                             </thead>
                             <tbody id="Branch_record_tbl">

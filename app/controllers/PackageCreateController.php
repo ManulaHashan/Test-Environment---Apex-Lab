@@ -13,12 +13,13 @@ class PackageCreateController extends Controller
     // Function to get all details to table from database
     public function getAllTestPackages()
     {
+        $status = Input::get('status', 1); // Default to '1' (active)
         
         // Base query to fetch data
         $query = DB::table('labpackages')
             ->select('idlabpackages', 'name', 'price')
             ->where('Lab_lid', '=', $_SESSION['lid'])
-            ->where('isactive', '=', 1);  
+            ->where('isactive', '=', $status);  
 
         // Get results
         $Result = $query->orderBy('idlabpackages', 'ASC')->get();
@@ -238,6 +239,33 @@ class PackageCreateController extends Controller
         }
     }
 
+    public function actiate_Package()
+    {
+        try {
+            $pkgID = Input::get('pkgID');
+
+            if (!$pkgID) {
+                return json_encode(['error' => 'notfound']);
+            }
+            DB::beginTransaction();
+
+
+            $updated = DB::table('labpackages')
+                ->where('idlabpackages', '=', $pkgID)
+                ->update(['isactive' => 1]);
+
+            if ($updated) {
+                DB::commit();
+                return json_encode(['error' => 'activated']);
+            } else {
+                DB::rollBack();
+                return json_encode(['error' => 'notfound']);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            return json_encode(['error' => 'activeerror', 'message' => $e->getMessage()]);
+        }
+    }
 
 
 }
