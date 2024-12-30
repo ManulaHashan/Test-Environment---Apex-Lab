@@ -46,15 +46,15 @@ class DocRefferenceController extends Controller
 
                 $output .= '<tr class="phistr" style="cursor: pointer;">
                 <td>' . $code . '</td>
-                <td align="center"  onclick="selectRecord(' .
+                <td   onclick="selectRecord(' .
                     $idref . ', \'' . htmlspecialchars($code) . '\', \'' . htmlspecialchars($name) . '\', \'' .
                     htmlspecialchars($address) . '\', \'' . htmlspecialchars($tp) . '\', \'' . htmlspecialchars($degree) . '\', \'' .
                     htmlspecialchars($joindate) . '\')">' . htmlspecialchars($name) . '</td>
                 <td>' . htmlspecialchars($address) . '</td>
-                <td align="center">' . htmlspecialchars($tp) . '</td>
-                <td align="center">' . htmlspecialchars($degree) . '</td>
-                <td align="center">' . htmlspecialchars($joindate) . '</td>
-                <td align="center">' . $idref . '</td>
+                <td >' . htmlspecialchars($tp) . '</td>
+                <td >' . htmlspecialchars($degree) . '</td>
+                <td >' . htmlspecialchars($joindate) . '</td>
+                <td >' . $idref . '</td>
                 <td align="center">
                     <input type="checkbox" value="' . $idref . '" class="ref_chkbox">
                 </td>

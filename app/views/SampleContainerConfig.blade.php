@@ -24,11 +24,94 @@ Sample Container Configuration
 
     function loadRecordToTable() {
 
+        $.ajax({
+            type: "GET",
+            url: "getAllcontainerdata",
+            success: function(tbl_records) {
+                // alert('Successfully loaded data.');
+                $('#record_tbl').html(tbl_records);
+            },
+            error: function(xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
+                console.error('Error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+            }
+
+        });
+    }
+    //search by name
+    function searchRecords() {
+        var name = $('#Ser_name').val();
+
+        $.ajax({
+            type: "GET",
+            url: "/getAllcontainerdata",
+            data: {
+                name: name,
+
+            },
+            success: function(tbl_records) {
+                $('#record_tbl').html(tbl_records);
+            },
+            error: function(xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText);
+            }
+        });
     }
 
-    // Function to Update Containers data
-    function UpdateContainers() {
 
+    // Function to Update Containers data
+
+    function UpdateContainers() {
+        const selectedTests = [];
+        const sampleContainerId = $('#containerDropdown').val();
+
+        $('.select-test:checked').each(function() {
+            selectedTests.push($(this).val());
+        });
+
+        if (!sampleContainerId) {
+            alert('Please select a container type.');
+            return;
+        }
+
+        if (selectedTests.length === 0) {
+            alert('Please select at least one test.');
+            return;
+        }
+
+        
+        $.ajax({
+            type: "POST",
+            url: "/updateContainers",
+            data: {
+                selectedTests: selectedTests, 
+                containerId: sampleContainerId,
+                
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Container updated successfully!');
+                    loadRecordToTable(); 
+                    resetFields();
+                } else {
+                    alert('Error updating container: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText);
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+    function resetFields() {
+        $('#Ser_name').val('');
+        $('#containerDropdown').val('');
     }
 </script>
 
@@ -87,37 +170,26 @@ Sample Container Configuration
                     <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
                         <label style="width: 150px;font-size: 20px; margin-left: 15px;">Container Type &nbsp;:</label>
                         <select name="labbranch" style="width: 250px" class="input-text" id="containerDropdown">
-                            <option value="%"> All</option>
+                            <option value=""></option>
                             <?php
-
-                            $Result = DB::select("Select name, code FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+                            $Result = DB::select("select scid, name FROM sample_containers ORDER BY name ASC");
 
                             foreach ($Result as $res) {
-                                $branchName = $res->name;
-                                $code = $res->code;
-
-                                if (isset($labbranch) && $labbranch == $bid) {
+                                $containerName = $res->name;
+                                $scid = $res->scid;
                             ?>
-                                    <option value="{{ $code }}" selected="selected">{{ $branchName }}</option>
-                                <?php
-                                } else {
-                                ?>
-                                    <option value="{{ $code }}">{{ $branchName }}</option>
+                                <option value="{{ $scid }}" {{ isset($labbranch) && $labbranch == $scid ? 'selected' : '' }}>
+                                    {{ $containerName }}
+                                </option>
                             <?php
-                                }
-                            }
-
-                            // If no branch is selected, set the default value as '%'
-                            if (!isset($labbranch)) {
-                                $labbranch = "%";
                             }
                             ?>
-
                         </select>
+
                     </div>
                     <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
                         <label style="width: 150px;font-size: 20px; margin-left: 15px; ">Search Test &nbsp;:</label>
-                        <input type="text" name="searchTest" class="input-text" id="searchTest" style="width: 230px">
+                        <input type="text" name="searchTest" class="input-text" id="Ser_name" style="width: 230px" oninput="searchRecords()">
                     </div>
                 </div>
 

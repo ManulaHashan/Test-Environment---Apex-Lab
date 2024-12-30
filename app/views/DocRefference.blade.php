@@ -382,6 +382,7 @@ Enter Doctor Refference
         border-radius: 4px;
         font-size: 16px;
         color: #842029;
+        width: 100%;
     }
 
     .warning-icon {
@@ -404,7 +405,7 @@ Enter Doctor Refference
 <div class="container">
     <div class="card" style="height: 750px;">
         <div class="card-body">
-            <div style="width: 900px; display: inline-block;">
+            <div style="width: 1300px; display: inline-block;">
                 <!-- Input group container -->
 
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -479,14 +480,14 @@ Enter Doctor Refference
                                     <table border="1px" style="border-color: #ffffff; " cellpadding="0" cellspacing="0" class="TableWithBorder">
                                         <thead>
                                             <tr class="viewTHead">
-                                                <td width="25%" class="fieldText">Code</td>
-                                                <td width="75%" class="fieldText">Name</td>
-                                                <td width="75%" class="fieldText">Address</td>
-                                                <td width="75%" class="fieldText">Contact No</td>
-                                                <td width="75%" class="fieldText">Degree</td>
-                                                <td width="75%" class="fieldText">Joined Date</td>
-                                                <td width="25%" class="fieldText">RefID</td>
-                                                <td width="15px" class="fieldText"> Select</td>
+                                                <td width="5%" class="fieldText">Code</td>
+                                                <td width="25%" class="fieldText">Name</td>
+                                                <td width="15%" class="fieldText">Address</td>
+                                                <td width="10%" class="fieldText">Contact No</td>
+                                                <td width="15%" class="fieldText">Degree</td>
+                                                <td width="10%" class="fieldText">Joined Date</td>
+                                                <td width="5%" class="fieldText">RefID</td>
+                                                <td  width="5%" class="fieldText"> Select</td>
                                             </tr>
                                         </thead>
                                         <tbody id="record_tbl">
@@ -505,7 +506,7 @@ Enter Doctor Refference
                             Merge references is permanent. Please double-check your selections before proceeding.
                         </span>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="button" class="btn" style="margin: 0 5px; color:red;" name="remove" value="Merge Reference" onclick="getData()">
+                        <input type="button"  class="btn" style="margin: 0 5px; color:red; margin-left: 400px;" name="remove" value="Merge Reference" onclick="getData()">
                     </div>
                 </div>
             </div>
