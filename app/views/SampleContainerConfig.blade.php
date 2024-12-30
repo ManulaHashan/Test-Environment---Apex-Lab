@@ -47,20 +47,26 @@ Sample Container Configuration
     function searchRecords() {
         var name = $('#Ser_name').val();
 
-        $.ajax({
-            type: "GET",
-            url: "/getAllcontainerdata",
-            data: {
-                name: name,
-
-            },
-            success: function(tbl_records) {
-                $('#record_tbl').html(tbl_records);
-            },
-            error: function(xhr, status, error) {
-                alert('Error: ' + xhr.status + ' - ' + xhr.statusText);
-            }
-        });
+       
+        if (name.length >= 3) {
+            $.ajax({
+                type: "GET",
+                url: "/getAllcontainerdata",
+                data: {
+                    name: name,
+                },
+                success: function(tbl_records) {
+                    $('#record_tbl').html(tbl_records);
+                },
+                error: function(xhr, status, error) {
+                    alert('Error: ' + xhr.status + ' - ' + xhr.statusText);
+                }
+            });
+        } else {
+            // Clear the table if input is less than 3 characters
+            $('#record_tbl').html('');
+            loadRecordToTable();
+        }
     }
 
 
@@ -84,19 +90,19 @@ Sample Container Configuration
             return;
         }
 
-        
+
         $.ajax({
             type: "POST",
             url: "/updateContainers",
             data: {
-                selectedTests: selectedTests, 
+                selectedTests: selectedTests,
                 containerId: sampleContainerId,
-                
+
             },
             success: function(response) {
                 if (response.success) {
                     alert('Container updated successfully!');
-                    loadRecordToTable(); 
+                    loadRecordToTable();
                     resetFields();
                 } else {
                     alert('Error updating container: ' + response.message);
