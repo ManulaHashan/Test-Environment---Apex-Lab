@@ -269,6 +269,7 @@ Route::get('/sampleContainerConfig', function () {
 // Route to fetch the filtered records
 Route::get('/getAllcontainerdata', 'SampleContainerConfigController@getAllDetails');
 
+//update sample containeer
 Route::post('/updateContainers', 'SampleContainerConfigController@updateContainers');
 
 

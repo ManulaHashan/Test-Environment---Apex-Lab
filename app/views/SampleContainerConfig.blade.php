@@ -71,7 +71,7 @@ Sample Container Configuration
 
 
     // Function to Update Containers data
-
+        
     function UpdateContainers() {
         const selectedTests = [];
         const sampleContainerId = $('#containerDropdown').val();

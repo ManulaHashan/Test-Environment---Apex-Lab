@@ -83,7 +83,7 @@ class SampleContainerConfigController extends Controller
                 'success' => true,
                 'message' => 'Container updated successfully.',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return Response::json([
                 'success' => false,
                 'message' => 'Error updating container: ' . $e->getMessage(),
