@@ -274,8 +274,12 @@ Route::post('/updateContainers', 'SampleContainerConfigController@updateContaine
 
 
 
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To Patient registration Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
+Route::get('/patientRegistration', function () {
+    return View::make('PatientRegistration');
+});
 
 
 
