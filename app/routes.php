@@ -281,6 +281,64 @@ Route::get('/patientRegistration', function () {
     return View::make('PatientRegistration');
 });
 
+Route::get('/getCurrentSampleNumber', 'PatientRegistrationController@loadSampleNumber');
+Route::get('/getTests', 'PatientRegistrationController@loadBrachWiceTest');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -15,307 +15,216 @@ Add New Patient
 
 <script>
     $(document).ready(function() {
-        loadRecordToTable();
+        loadcurrentSampleNo();
+        load_test();
+
     });
 
-    // Function to load data into the table
-    function loadRecordToTable() {
+    function load_test() {
+        var labBranchDropdown = $('#labBranchDropdown').val();
 
         $.ajax({
             type: "GET",
-            url: "getAllRefference",
-            success: function(tbl_records) {
-                // alert('Successfully loaded data.');
-                $('#record_tbl').html(tbl_records);
-            },
-            error: function(xhr, status, error) {
-                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
-                console.error('Error details:', {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText,
-                    error: error
-                });
-            }
-
-        });
-    }
-
-    // Set the current date as the default value
-    document.addEventListener("DOMContentLoaded", function() {
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-        document.getElementById('jdate').value = formattedDate; // Set the value
-    });
-
-    // ********************Function to load selected record into the input field when clicking on a table row*********
-    function selectRecord(refID, refcode, refName, refAddress, refContact, refDegree, refJoinedDate) {
-        $('#refID').val(refID);
-        $('#refcode').val(refcode);
-        $('#Ref_name').val(refName);
-        $('#Ref_address').val(refAddress);
-        $('#Ref_contact').val(refContact);
-        $('#Ref_degree').val(refDegree);
-        $('#jdate').val(refJoinedDate);
-        loadInvoiceCount(refID);
-    }
-
-
-    // ******************Function to save the  data**************************
-    function savePatient() {
-        // Get the values from the input fields
-        var refID = $('#refcode').val();
-        var refName = $('#Ref_name').val();
-        var refAddress = $('#Ref_address').val();
-        var refContact = $('#Ref_contact').val();
-        var refDegree = $('#Ref_degree').val();
-        var refJoinedDate = $('#jdate').val();
-
-
-        if (refID === '') {
-            alert('Reference Code is required.');
-            return;
-        }
-        if (refName === '') {
-            alert('Reference name is required.');
-            return;
-        }
-        if (refContact === '') {
-            alert('Reference contact is required.');
-            return;
-        }
-        if (refContact !== '' && !/^\d{10}$/.test(refContact)) {
-            alert('Please enter a valid 10-digit contact number.');
-            return;
-        }
-
-        // AJAX request to save the reference data
-        $.ajax({
-            type: "POST",
-            url: "saveReference",
+            url: "getTests",
             data: {
-                'refID': refID,
-                'refName': refName,
-                'refAddress': refAddress,
-                'refContact': refContact,
-                'refDegree': refDegree,
-                'refJoinedDate': refJoinedDate
+                'labBranchId': labBranchDropdown
             },
+            dataType: "json",
             success: function(response) {
+                $('#testlist').empty();
 
-                if (response.error == "saved") {
-                    alert('Reference saved successfully!');
-                    loadRecordToTable();
-                    $('#refcode').val('');
-                    $('#Ref_name').val('');
-                    $('#Ref_address').val('');
-                    $('#Ref_contact').val('');
-                    $('#Ref_degree').val('');
-                    const today = new Date();
-                    const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-                    document.getElementById('jdate').value = formattedDate; // Set the value
-                } else if (response.error == "exist") {
-                    alert('Code already exist!');
+                if (response.options) {
+                    $('#testlist').html(response.options); // Inject the dropdown options from the controller
                 } else {
-                    alert('Error in saving process.');
-
-                }
-            },
-            error: function(xhr) {
-                console.log('Error:', xhr); // Log the full error response for debugging
-                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
-                alert(errorMsg); // Display the error message to the user
-            }
-        });
-    }
-
-    //****************** */ Function to reset the input fields*************************
-    function resetFields() {
-        document.getElementById('refID').value = '';
-        document.getElementById('refcode').value = '';
-        document.getElementById('invoicecount').innerHTML = '0';;
-        document.getElementById('Ref_name').value = '';
-        document.getElementById('Ref_address').value = '';
-        document.getElementById('Ref_contact').value = '';
-        document.getElementById('Ref_degree').value = '';
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-        document.getElementById('jdate').value = formattedDate;
-
-        console.log("All fields have been reset!");
-
-    }
-    //**************************function validateNumbersOnly on contact feild***************
-    function validateNumbersOnly(input) {
-        // Remove any non-numeric characters
-        input.value = input.value.replace(/[^0-9]/g, '');
-    }
-
-    //**************************function validateLettersOnly on name feild***************
-    function validateLettersOnly(input) {
-        // Allow only letters and spaces
-        input.value = input.value.replace(/[^a-zA-Z\s]/g, '');
-    }
-
-
-
-    // ******************Function to delete the reference data**********************
-    function deleteReference() {
-        var refID = $('#refID').val();
-
-        if (refID === '') {
-            alert('Please select a reference to delete.');
-            return;
-        }
-
-
-        if (confirm('Are you sure you want to delete this reference?')) {
-            $.ajax({
-                type: "POST",
-                url: "/deleteReference",
-                data: {
-                    'refID': refID
-                },
-                success: function(response) {
-                    if (response == "deleted") {
-                        alert('Reference deleted successfully!');
-                        loadRecordToTable();
-                        resetFields();
-                    } else {
-                        alert('Cant delete this reference. Because it is used for billing process.');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log('Error:', error);
-                    alert('Error in deleting reference.');
-                }
-            });
-        }
-    }
-
-    // ******************Function to update the reference data******************
-
-    function updateReference() {
-        var refID = $('#refID').val();
-        var refCode = $('#refcode').val();
-        var refName = $('#Ref_name').val();
-        var refAddress = $('#Ref_address').val();
-        var refContact = $('#Ref_contact').val();
-        var refDegree = $('#Ref_degree').val();
-        var refJoinedDate = $('#jdate').val();
-
-        if (refName === '') {
-            alert('Select record to update.');
-            return;
-        }
-
-
-        // AJAX request to update the reference data
-        $.ajax({
-            type: "POST",
-            url: "updateReference",
-            data: {
-                'refID': refID,
-                'refcode': refCode,
-                'refName': refName,
-                'refAddress': refAddress,
-                'refContact': refContact,
-                'refDegree': refDegree,
-                'refJoinedDate': refJoinedDate
-            },
-            success: function(response) {
-                if (response.success && response.error === "updated") {
-                    alert('Reference updated successfully!');
-                    loadRecordToTable();
-                    resetFields();
-                } else if (!response.success && response.error === "exist") {
-                    alert('The reference code is already in use. Please use a unique code.');
-                } else if (!response.success && response.error === "not_updated") {
-                    alert('No changes made to the reference.');
-                } else {
-                    alert('Error in updating reference.');
+                    $('#testlist').append('<option value="">No Tests Available</option>');
                 }
             },
             error: function(xhr) {
                 console.log('Error:', xhr);
-                alert('Error in updating reference.');
+                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+                alert(errorMsg);
             }
         });
     }
 
-    // ******************Function to search the reference data******************
 
-    function searchRecords() {
-        var name = $('#Ser_name').val();
-        var code = $('#Ser_code').val();
+    // ******************Function to save the  data**************************
 
-        $.ajax({
-            type: "GET",
-            url: "/getAllRefference",
-            data: {
-                name: name,
-                code: code
-            },
-            success: function(tbl_records) {
-                $('#record_tbl').html(tbl_records);
-            },
-            error: function(xhr, status, error) {
-                alert('Error: ' + xhr.status + ' - ' + xhr.statusText);
-            }
-        });
-    }
+    function savePatient() {
+        // Get the values from the input fields
+        var fname = $('#fname').val();
+        var lname = $('#lname').val();
+        var dob = $('#dob').val();
+        var years = $('#years').val();
+        var months = $('#months').val();
+        var days = $('#days').val();
+        var gender = $('input[name="male"]:checked').val() || $('input[name="female"]:checked').val();
+        var nic = $('#nic').val();
+        var address = $('#address').val();
+        var refcode = $('#refcode').val();
+        var ref = $('#ref').val();
+        var testname = $('#testname').val();
+        var pkgname = $('#pkgname').val();
+        var fast_time = $('#fast_time').val();
 
-    var selectChecks = [];
-
-    function getData() {
-
-        var refID = $('#refID').val();
-
-        if (refID === '') {
-            alert('Please select a reference to merge.');
+        // Validation for required fields
+        if (!fname || !lname) {
+            alert('First Name and Last Name are required.');
             return;
-        } else {
-            selectChecks.length = 0;
-            $('.ref_chkbox:checked').each(function() {
-                selectChecks.push($(this).val());
-            })
-
-            $.ajax({
-                type: "POST",
-                url: "mergeReference",
-                data: {
-                    'Main_refID': refID,
-                    'effected_refIds': selectChecks
-                },
-                success: function(response) {
-                    alert(response.message);
-                    selectChecks.length = 0;
-                    loadRecordToTable();
-                }
-            });
+        }
+        if (!dob) {
+            alert('Date of Birth is required.');
+            return;
+        }
+        if (!gender) {
+            alert('Gender is required.');
+            return;
         }
 
 
-    }
+        if (!ref) {
+            alert('Reference Name is required.');
+            return;
+        }
 
-    //*********************Function for veiw invoice count******************************
-    function loadInvoiceCount(refID) {
+        // AJAX request to save the patient data
         $.ajax({
-            url: '/getInvoiceCountForReference',
-            type: 'GET',
+            type: "POST",
+            url: "savePatient", // Change this to the appropriate endpoint
             data: {
-                refID: refID
+                'fname': fname,
+                'lname': lname,
+                'dob': dob,
+                'years': years,
+                'months': months,
+                'days': days,
+                'gender': gender,
+                'nic': nic,
+                'address': address,
+                'refcode': refcode,
+                'ref': ref,
+                'testname': testname,
+                'pkgname': pkgname,
+                'fast_time': fast_time
             },
             success: function(response) {
-                if (response.success) {
-                    $('#invoicecount').text(response.count);
+                if (response.error == "saved") {
+                    alert('Patient saved successfully!');
+                    $('#fname, #lname, #dob, #years, #months, #days, #nic, #address, #refcode, #ref, #testname, #pkgname, #fast_time').val('');
+                    $('input[name="male"], input[name="female"]').prop('checked', false);
+                } else {
+                    alert('Error in saving process.');
                 }
-
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr);
+                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+                alert(errorMsg);
             }
-        })
+        });
+    }
+
+    // ----------------------------*****************----------------
+
+
+    // *---***-----------******Sample Number Generator***********----------------
+    function loadcurrentSampleNo() {
+        var labBranchDropdown = document.getElementById("labBranchDropdown");
+
+
+        $.ajax({
+            type: "GET",
+            url: "getCurrentSampleNumber",
+            data: {
+                'labBranchId': labBranchDropdown.value
+
+            },
+            success: function(response) {
+                $('#sampleNo').val(response);
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr);
+                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+                alert(errorMsg);
+            }
+        });
 
     }
+
+    // ----------------------------*******Add tests to the patient Registration Table**********---------------- 
+    var itemListTestData = [];
+
+    function setDataToTable(select_value) {
+        // This will be triggered when a valid value is selected from the datalist
+        var tst = select_value;
+        var f_time = $('#fast_time').val();
+        const pattern = /^\d+:.+$/; // Ensure the value is in the correct format (e.g., 1:Test1:500:30)
+
+        // Check if the selected value is in the correct format
+        if (pattern.test(tst)) {
+            var tst_part = tst.split(":"); // Split the value into parts (testId, testName, price, time)
+
+            var tstData = tst_part[0] + "@" + tst_part[1] + "@" + tst_part[2] + "@" + tst_part[3] + "@" + f_time; // Create a string with the test data
+            var x = itemListTestData.indexOf(tstData); // Check if the data is already in the list
+
+            // If data is not already in the list, add it to the table
+            if (x == -1) {
+                itemListTestData.push(tstData);
+
+                // Create table row with test data
+                var tr = "<tr id='tblTesttr" + tst_part[0] + "'><td>" + tst_part[0] + "</td><td>" + tst_part[1] + "</td><td align='right'>" + tst_part[2] + "</td><td align='center'>" + tst_part[3] + "</td><td align='center'>" + f_time + "</td><td align='center'><input type='checkbox' id='chk_bcode" + tst_part[0] + "' checked></td>";
+                tr += "<td><center><button class='btn btn-danger' onclick='removeTestItemInTable(" + tst_part[0] + ", \"" + tstData + "\")' style='cursor:pointer;'>Remove</button></center></td></tr>";
+
+                // Append the row to the table
+                $('#Branch_record_tbl').append(tr);
+
+                // Clear the text field after adding data to the table
+                $('#testname').val("");
+                $('#fast_time').val("0");
+            } else {
+                alert("This test already exists in the table!");
+            }
+        } else {
+            alert("Please select the test first!");
+        }
+    }
+
+    function removeTestItemInTable(tstid, ArrData) {
+        // Remove the selected test from the table and array
+        var index = itemListTestData.indexOf(ArrData);
+        if (index !== -1) {
+            itemListTestData.splice(index, 1);
+        }
+
+        // Remove the corresponding row from the table
+        $('#tblTesttr' + tstid).remove();
+    }
+
+
+    function removeTestItemInTable(tstid, ArrData) {
+        var index = itemListTestData.indexOf(ArrData);
+        if (index !== -1) {
+            itemListTestData.splice(index, 1);
+        }
+
+        $('#tblTesttr' + tstid).remove();
+    }
+
+
+
+
+    //------------------------------------------------------------------------
+
+    // document.getElementById("edit").addEventListener("change", function() {
+    //     var sampleNoField = document.getElementById("sampleNo");
+    //     if (this.checked) {
+    //         sampleNoField.removeAttribute("disabled");
+    //     } else {
+    //         sampleNoField.setAttribute("disabled", true);
+    //     }
+    // });
 </script>
+
 
 
 <style>
@@ -385,17 +294,41 @@ Add New Patient
             <div style="width: 1350px; display: inline-block;">
                 <!-- Input group container -->
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
+
                     <label style="width: 150px;font-size: 18px;">Sample No</label>
-                    <input type="text" name="refcode" class="input-text" id="sampleNo" style="width: 200px; height: 40px;font-size: 38px;">
+                    <input type="text" name="sampleNo" class="input-text" id="sampleNo" style="width: 200px; height: 40px;font-size: 38px;" disabled>
+
                     <!-- <input type="hidden" name="refID" id="refID"> -->
                     <label style="width: 10px;font-size: 16px;  "></label>
                     <input type="checkbox" name="edit" id="edit" class="ref_chkbox" value="1">
-                    <label style="width: 80px;font-size: 18px;  ">Edit</label>
+                    <label style="width: 80px;font-size: 18px;">Edit</label>
+
                     <label style="width: 100px;font-size: 18px; ">Center</label>
-                    <select type="text" name="Ref_address" class="input-text" id="center" style="width: 350px; height: 30px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
-                        <option value="%">Main</option>
-                        <option value="2">Center 2</option>
+
+                    <select name="labbranch" style="width: 200px; height: 30px" class="input-text" id="labBranchDropdown" onchange="loadcurrentSampleNo(); load_test();">
+                        <option value="%" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
+                        <?php
+                        $Result = DB::select("SELECT name, code, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+
+                        foreach ($Result as $res) {
+                            $branchName = $res->name;
+                            $branchCode = $res->code;
+                            $bid = $res->bid;
+
+
+                            $displayText = $branchCode . " : " . $branchName;
+                        ?>
+                            <option value="<?= $bid ?>"><?= $displayText ?></option>
+                        <?php
+                        }
+                        ?>
                     </select>
+
+
+
+
+
+                    <input type="hidden" name="crBranch_id" id="crBranch_id">
                     <input type="checkbox" name="lock_branch" id="lock_branch" value="1">
                     <label style="width: 140px;font-size: 16px;  "><b>Lock Branch</b></label>
                     <label style="width: 10px;font-size: 16px;  "></label>
@@ -495,14 +428,20 @@ Add New Patient
                         <label style="width: 150px;font-size: 18px; ">Refered:</label>
                         <input type="text" name=" ref" class="input-text" id="ref" style="width: 450px">
                     </div>
+                    <!-- <div style="display: flex; align-items: center; margin-top: 5px;">
+                        <label style="width: 150px;font-size: 18px; "><b>Test Name</b>:</label>
+                        <input type="text" name="testname" class="input-text" id="testname" list="testlist" oninput="setDataToTable(this.value)" style="width: 350px">
+                        <datalist id="testlist"></datalist>
+                        <input type="checkbox" name="byname" id="byname" class="ref_chkbox" value="1">
+                        <label style="width: 70px;font-size: 16px;  "><b>By Name</b></label>
+                    </div> -->
+
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; "><b>Test Name</b>:</label>
-                        <input type="text" name="testname" class="input-text" id="testname" list="testlist" style="width: 350px">
+                        <!-- Using onchange event here to trigger the function when a valid value is selected -->
+                        <input type="text" name="testname" class="input-text" id="testname" list="testlist" onchange="setDataToTable(this.value)" style="width: 350px">
                         <datalist id="testlist">
-                            <option value="111 : Test 1 : 300 : 20min">
-                            <option value="122:Test 2:400:20min">
-                            <option value="133:Test 3:500:20min">
-                            <option value="144:Test 4:600:20min">
+
                         </datalist>
                         <input type="checkbox" name="byname" id="byname" class="ref_chkbox" value="1">
                         <label style="width: 70px;font-size: 16px;  "><b>By Name</b></label>
@@ -511,7 +450,7 @@ Add New Patient
                         <label style="width: 150px;font-size: 18px; "><b>Package Name</b>:</label>
                         <input type="text" name="pkgname" class="input-text" id="pkgname" style="width: 230px">
                         <label style="width: 120px;font-size: 18px; "><b>Fasting Time</b>:</label>
-                        <input type="text" name=" fast_time" class="input-text" id="fast_time" style="width: 80px">
+                        <input type="text" name=" fast_time" class="input-text" id="fast_time" value="0" style="width: 80px">
                         <input type="checkbox" name="fastcheck" id="fastcheck" class="ref_chkbox" value="1">
                     </div>
 
