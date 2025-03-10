@@ -458,8 +458,8 @@ Add New Patient
 
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 125px;font-size: 18px; ">Total Amount:</label>
-                        <label style="width: 30px;font-size: 18px; ">Rs: </label>
-                        <label style="width: 155px;font-size: 18px; " id="total_amt">000,000.00</label>
+                        <label style="width: 30px;font-size: 18px; ">Rs: </label>       
+                        <label id="total_amt">000,000.00</label>
                         <label style="width: 80px;font-size: 18px; ">Discount:</label>
                         <input type="text" name=" discount" class="input-text" id="discount" style="width: 80px">
                         <select type="text" name="discount_precentage" class="input-text" id="discount_precentage" style="width: 80px; height: 30px">

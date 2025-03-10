@@ -46,10 +46,11 @@ Enter Doctor Refference
         const today = new Date();
         const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
         document.getElementById('jdate').value = formattedDate; // Set the value
+        document.getElementById('Ref_dob').value = formattedDate; // Set the value
     });
 
     // ********************Function to load selected record into the input field when clicking on a table row*********
-    function selectRecord(refID, refcode, refName, refAddress, refContact, refDegree, refJoinedDate) {
+    function selectRecord(refID, refcode, refName, refAddress, refContact, refDegree, refJoinedDate, refCategory, refUnit, refArea, refCoodinator, refDob,refSpeciality) {
         $('#refID').val(refID);
         $('#refcode').val(refcode);
         $('#Ref_name').val(refName);
@@ -57,6 +58,12 @@ Enter Doctor Refference
         $('#Ref_contact').val(refContact);
         $('#Ref_degree').val(refDegree);
         $('#jdate').val(refJoinedDate);
+        $('#Ref_category').val(refCategory);
+        $('#Ref_unit').val(refUnit);
+        $('#Ref_area').val(refArea);
+        $('#Ref_coodinator').val(refCoodinator);
+        $('#Ref_dob').val(refDob);
+        $('#Ref_speciality').val(refSpeciality);
         loadInvoiceCount(refID);
     }
 
@@ -70,7 +77,12 @@ Enter Doctor Refference
         var refContact = $('#Ref_contact').val();
         var refDegree = $('#Ref_degree').val();
         var refJoinedDate = $('#jdate').val();
-
+        var refCategory = $('#Ref_category').val();
+        var refUnit = $('#Ref_unit').val();
+        var refArea = $('#Ref_area').val();
+        var refCoodinator = $('#Ref_coodinator').val();
+        var refDob = $('#Ref_dob').val();
+        var refSpeciality = $('#Ref_speciality').val();
 
         if (refID === '') {
             alert('Reference Code is required.');
@@ -84,6 +96,7 @@ Enter Doctor Refference
             alert('Reference contact is required.');
             return;
         }
+        
         if (refContact !== '' && !/^\d{10}$/.test(refContact)) {
             alert('Please enter a valid 10-digit contact number.');
             return;
@@ -99,7 +112,13 @@ Enter Doctor Refference
                 'refAddress': refAddress,
                 'refContact': refContact,
                 'refDegree': refDegree,
-                'refJoinedDate': refJoinedDate
+                'refJoinedDate': refJoinedDate,
+                'refCategory': refCategory,
+                'refUnit': refUnit,
+                'refArea': refArea,
+                'refCoodinator': refCoodinator,
+                'refDob': refDob,
+                'refSpeciality': refSpeciality
             },
             success: function(response) {
 
@@ -111,6 +130,11 @@ Enter Doctor Refference
                     $('#Ref_address').val('');
                     $('#Ref_contact').val('');
                     $('#Ref_degree').val('');
+                    $('#Ref_category').val('');
+                    $('#Ref_speciality').val('');
+                    $('#Ref_unit').val('');
+                    $('#Ref_area').val('');
+                    $('#Ref_coodinator').val('');
                     const today = new Date();
                     const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
                     document.getElementById('jdate').value = formattedDate; // Set the value
@@ -138,9 +162,15 @@ Enter Doctor Refference
         document.getElementById('Ref_address').value = '';
         document.getElementById('Ref_contact').value = '';
         document.getElementById('Ref_degree').value = '';
+        document.getElementById('Ref_category').value = '';
+        document.getElementById('Ref_unit').value = '';
+        document.getElementById('Ref_area').value = '';
+        document.getElementById('Ref_coodinator').value = '';        
+        document.getElementById('Ref_speciality').value = '';
         const today = new Date();
         const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
         document.getElementById('jdate').value = formattedDate;
+        document.getElementById('Ref_dob').value = formattedDate;
 
         console.log("All fields have been reset!");
 
@@ -203,6 +233,12 @@ Enter Doctor Refference
         var refContact = $('#Ref_contact').val();
         var refDegree = $('#Ref_degree').val();
         var refJoinedDate = $('#jdate').val();
+        var refCategory = $('#Ref_category').val();
+        var refSpeciality = $('#Ref_speciality').val();
+        var refUnit = $('#Ref_unit').val();
+        var refArea = $('#Ref_area').val();
+        var refCoodinator = $('#Ref_coodinator').val();
+        var refDob = $('#Ref_dob').val();
 
         if (refName === '') {
             alert('Select record to update.');
@@ -221,7 +257,13 @@ Enter Doctor Refference
                 'refAddress': refAddress,
                 'refContact': refContact,
                 'refDegree': refDegree,
-                'refJoinedDate': refJoinedDate
+                'refJoinedDate': refJoinedDate,
+                'refCategory': refCategory,
+                'refSpeciality': refSpeciality,
+                'refUnit': refUnit,
+                'refArea': refArea,
+                'refCoodinator': refCoodinator,
+                'refDob': refDob
             },
             success: function(response) {
                 if (response.success && response.error === "updated") {
@@ -419,17 +461,23 @@ Enter Doctor Refference
                     <label style="width: 150px;font-size: 18px; color: blue;">Invoice Count:</label>
                     <label style="width: 150px;font-size: 18px; color: green;" id="invoicecount">0</label>
 
+                     <label style="width: 150px;font-size: 18px; margin-left: 0px;">Ref.Category &nbsp;:</label>
+                    <input type="text" name="Ref_address" class="input-text" id="Ref_category" style="width: 450px"  title="" value="">
                 </div>
 
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <label style="width: 150px;font-size: 18px;">Name &nbsp;:</label>
                     <input type="text" oninput="validateLettersOnly(this)" name=" Ref_name" class="input-text" id="Ref_name" style="width: 450px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
 
-
+                    <label style="width: 150px;font-size: 18px; margin-left: 20px;">Ref.Speciality  &nbsp;:</label>
+                    <input type="text" name="Ref_address" class="input-text" id="Ref_speciality" style="width: 450px"  title="" value="">
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <label style="width: 150px;font-size: 18px;">Address &nbsp;:</label>
                     <input type="text" name="Ref_address" class="input-text" id="Ref_address" style="width: 450px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
+                
+                    <label style="width: 150px;font-size: 18px;margin-left: 20px;">Ref. Unit &nbsp;:</label>
+                    <input type="text" name="Ref_address" class="input-text" id="Ref_unit" style="width: 450px; "  title="" value="">
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <label style="width: 150px;font-size: 18px;">Contact No &nbsp;:</label>
@@ -440,17 +488,25 @@ Enter Doctor Refference
                         style="width: 450px"
                         maxlength="10"
                         oninput="validateNumbersOnly(this)">
+
+                        <label style="width: 150px;font-size: 18px;margin-left: 20px;">Ref. Nearest Area &nbsp;:</label>
+                    <input type="text" name="Ref_address" class="input-text" id="Ref_area" style="width: 450px;" title="" value="">
                 </div>
 
 
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <label style="width: 150px;font-size: 18px;">Degree &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px;">Ref.Initials  &nbsp;:</label>
                     <input type="text" name="Ref_degree" class="input-text" id="Ref_degree" style="width: 450px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
+                    <label style="width: 150px;font-size: 18px; margin-left: 20px;">Coordinator &nbsp;:</label>
+                     <input type="text" name="Ref_address" class="input-text" id="Ref_coodinator" style="width: 450px;"  title="" value="">
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <label style="width: 150px;font-size: 18px;">Joined Date &nbsp;:</label>
                     <input type="date" name="jdate" class="input-text" id="jdate" style="width: 150px">
+                    <label style="width: 150px;font-size: 18px; margin-left: 320px;">Date of Birth &nbsp;:</label>
+                    <input type="date" name="jdate" class="input-text" id="Ref_dob" style="width: 150px">
                 </div>
+                 
 
 
                 <div style="display: flex; justify-content: flex-center; gap: 5px; margin-bottom: 10px;">

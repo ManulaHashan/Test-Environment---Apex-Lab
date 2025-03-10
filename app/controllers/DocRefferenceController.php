@@ -18,7 +18,7 @@ class DocRefferenceController extends Controller
 
         // Base query to fetch data
         $query = DB::table('refference')
-            ->select('idref', 'code', 'name', 'address', 'tpno', 'degree', 'join_date')
+            ->select('idref', 'code', 'name', 'address', 'tpno', 'degree', 'join_date', 'ref_category', 'ref_unit', 'ref_area', 'ref_coodinator', 'dob', 'ref_speciality')
             ->where('lid', '=', $_SESSION['lid']);
 
         // Apply filters if they exist
@@ -43,13 +43,29 @@ class DocRefferenceController extends Controller
                 $tp = $res->tpno;
                 $degree = $res->degree;
                 $joindate = $res->join_date;
+                $category = $res->ref_category;
+                $unit = $res->ref_unit;
+                $area = $res->ref_area;
+                $coordinator = $res->ref_coodinator;
+                $dob = $res->dob;
+                $speciality = $res->ref_speciality;
 
                 $output .= '<tr class="phistr" style="cursor: pointer;">
                 <td>' . $code . '</td>
                 <td   onclick="selectRecord(' .
-                    $idref . ', \'' . htmlspecialchars($code) . '\', \'' . htmlspecialchars($name) . '\', \'' .
-                    htmlspecialchars($address) . '\', \'' . htmlspecialchars($tp) . '\', \'' . htmlspecialchars($degree) . '\', \'' .
-                    htmlspecialchars($joindate) . '\')">' . htmlspecialchars($name) . '</td>
+                    $idref . ', 
+                    \'' . htmlspecialchars($code) . '\',
+                     \'' . htmlspecialchars($name) . '\', 
+                     \'' .htmlspecialchars($address) . '\',
+                      \'' . htmlspecialchars($tp) . '\', 
+                      \'' . htmlspecialchars($degree) . '\',
+                       \'' .htmlspecialchars($joindate) . '\', 
+                       \'' .htmlspecialchars($category) . '\', 
+                       \'' .htmlspecialchars($unit) . '\', 
+                       \'' .htmlspecialchars($area) . '\', 
+                       \'' .htmlspecialchars($coordinator) . '\',
+                       \'' .htmlspecialchars($dob) . '\',
+                        \'' .htmlspecialchars($speciality) . '\')">' . htmlspecialchars($name) . '</td>
                 <td>' . htmlspecialchars($address) . '</td>
                 <td >' . htmlspecialchars($tp) . '</td>
                 <td >' . htmlspecialchars($degree) . '</td>
@@ -79,6 +95,12 @@ class DocRefferenceController extends Controller
         $refContact = Input::get('refContact');
         $refDegree = Input::get('refDegree');
         $refJoinedDate = Input::get('refJoinedDate');
+        $refCategory = Input::get('refCategory');
+        $refUnit = Input::get('refUnit');
+        $refArea = Input::get('refArea');
+        $refCoordinator = Input::get('refCoodinator');
+        $refDob = Input::get('refDob');
+        $refSpeciality = Input::get('refSpeciality');
 
 
         $existingCode = DB::table('refference') 
@@ -96,16 +118,23 @@ class DocRefferenceController extends Controller
 
 
         DB::statement("
-    INSERT INTO refference (code, name, address, tpno, degree, join_date, lid) 
-    VALUES (
-        '". $refID."', 
-        '". $refName."', 
-        '". $refAddress."', 
-        '". $refContact."', 
-        '". $refDegree."', 
-        '". $refJoinedDate."', 
-        '". $_SESSION['lid'] . "'
-    )
+    INSERT INTO refference 
+        (code, name, address, tpno, degree, join_date, ref_category, ref_unit, ref_area, ref_coodinator, dob,ref_speciality, lid) 
+            VALUES (
+                '" . $refID . "', 
+                '" . $refName . "', 
+                '" . $refAddress . "', 
+                '" . $refContact . "', 
+                '" . $refDegree . "', 
+                '" . $refJoinedDate . "',
+                '" . $refCategory . "',
+                '" . $refUnit . "',
+                '" . $refArea . "',
+                '" . $refCoordinator . "',
+                '" . $refDob . "', 
+                '" . $refSpeciality . "', 
+                '" . $_SESSION['lid'] . "'
+                )
 ");
         return Response::json(['error' => 'saved']);
 
@@ -152,6 +181,12 @@ class DocRefferenceController extends Controller
         $refContact = Input::get('refContact');
         $refDegree = Input::get('refDegree');
         $refJoinedDate = Input::get('refJoinedDate');
+        $refCategory = Input::get('refCategory');
+        $refUnit = Input::get('refUnit');
+        $refArea = Input::get('refArea');
+        $refCoordinator = Input::get('refCoodinator');
+        $refDob = Input::get('refDob');
+        $refSpeciality = Input::get('refSpeciality');
 
         // Check if the code already exists for another reference
         $existingCode = DB::table('refference')
@@ -176,6 +211,12 @@ class DocRefferenceController extends Controller
                 'tpno' => $refContact,
                 'degree' => $refDegree,
                 'join_date' => $refJoinedDate,
+                'ref_category' => $refCategory,
+                'ref_unit' => $refUnit,
+                'ref_area' => $refArea,
+                'ref_coodinator' => $refCoordinator,
+                'dob' => $refDob,
+                'ref_speciality' => $refSpeciality
             ]);
 
         if ($updated) {
