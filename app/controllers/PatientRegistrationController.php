@@ -96,6 +96,7 @@ public function loadBrachWiceTest(){
 
         // Build options for dropdown
         $list_data = "<option value=''></option>";
+        
 
         foreach ($result as $res) {
             $tgid = htmlspecialchars($res->tgid);

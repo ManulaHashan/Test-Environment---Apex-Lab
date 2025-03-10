@@ -38,6 +38,7 @@ Add New Patient
                 } else {
                     $('#testlist').append('<option value="">No Tests Available</option>');
                 }
+                
             },
             error: function(xhr) {
                 console.log('Error:', xhr);
@@ -210,9 +211,146 @@ Add New Patient
         $('#tblTesttr' + tstid).remove();
     }
 
+// **********************grand total genereting*******************
+
+    function setDataToTable(selectedValue) {
+    if (!selectedValue) return;
+
+    var parts = selectedValue.split(":");
+    if (parts.length < 4) return; 
+
+    var tgid = parts[0];  
+    var group = parts[1]; 
+    var price = parseFloat(parts[2]) || 0; 
+    var time = parts[3];  
+
+    if ($("#Branch_record_tbl tr[data-id='" + tgid + "']").length > 0) {
+        alert("This test is already added!");
+        $('#testname').val('');
+        return;
+    }
+
+    var newRow = `
+        <tr data-id="${tgid}">
+            <td align="center">${tgid}</td>
+            <td align="center">${group}</td>
+            <td align="center" class="price-column">${price.toFixed(2)}</td>
+            <td align="center">${time}</td>
+            <td align="center">-</td>  
+            <td align="center">-</td>  
+            <td align="center">
+                <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
+            </td>
+        </tr>
+    `;
+
+    $('#Branch_record_tbl').append(newRow);
+    updateTotalPrice(); 
+     $('#testname').val('');
+}
+
+
+function updateTotalPrice() {
+    var total = 0;
+
+    $('.price-column').each(function () {
+        var price = parseFloat($(this).text().replace(/,/g, '')) || 0;
+        total += price;
+    });
+
+    $('#total_amount').text(total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+}
+
+
+$(document).on('click', '.remove-row', function () {
+    $(this).closest('tr').remove();
+    updateTotalPrice();
+      $('#discount_percentage').val('');
+      $('#discount').val('');
+      $('#paid').val('');
+});
+
+//*************************************************************************************************
+function applyDiscount() {
+    var totalAmount = parseFloat(document.getElementById('total_amount').textContent.replace(/,/g, '')) || 0;
+    var discountAmount = parseFloat(document.getElementById('discount').value) || 0;
+    var discountPercentage = parseFloat(document.getElementById('discount_percentage').value) || 0;
+
+    // Ensure only one discount is applied
+    if (discountAmount > 0) {
+        document.getElementById('discount_percentage').value = "";
+    } else if (discountPercentage > 0) {
+        document.getElementById('discount').value = "";
+        discountAmount = (discountPercentage / 100) * totalAmount;
+    }
+
+    // Prevent discount greater than total amount
+    if (discountAmount > totalAmount) {
+        alert("Discount cannot exceed total amount!");
+        discountAmount = 0;
+        document.getElementById('discount').value = "";
+        document.getElementById('discount_percentage').value = "";
+    }
+
+    var grandTotal = totalAmount - discountAmount;
+    document.getElementById('grand_total').textContent = grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+    calculateDue(); 
+}
+
+function calculateDue() {
+    var grandTotal = parseFloat(document.getElementById('grand_total').textContent.replace(/,/g, '')) || 0;
+    var payment = parseFloat(document.getElementById('paid').value) || 0;
+    var due = grandTotal - payment;
+
+    document.getElementById('due').textContent = due.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+}
 
 
 
+//*************************************************************************************************
+
+$(document).on('click', '.remove-item', function() {
+    $(this).closest('tr').remove(); // Remove row from table
+
+    updateTotalAmount(); // Recalculate total amount
+    resetDiscountAndPaymentFields(); // Reset discount and payment fields
+});
+
+function updateTotalAmount() {
+    let total = 0;
+    
+    $('#Branch_record_tbl tr').each(function() {
+        let price = parseFloat($(this).find('.price-column').text()) || 0;
+        total += price;
+    });
+
+    $('#total_amount').text(total.toFixed(2));
+    $('#grand_total').text(total.toFixed(2));
+    $('#due').text(total.toFixed(2));
+}
+
+function resetDiscountAndPaymentFields() {
+    $('#discount').val('');
+    $('#discount_precentage').val('');
+    $('#paid').val('');
+    $('#due').text('000,000.00');
+}
+
+
+//*************************************************************************************************
+
+
+//*************************************************************************************************
+
+
+//*************************************************************************************************
+
+
+//*************************************************************************************************
+
+//*************************************************************************************************
     //------------------------------------------------------------------------
 
     // document.getElementById("edit").addEventListener("change", function() {
@@ -456,36 +594,45 @@ Add New Patient
 
                     <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none; margin-top: 20px;">
 
-                    <div style="display: flex; align-items: center;margin-top: 5px; ">
-                        <label style="width: 125px;font-size: 18px; ">Total Amount:</label>
-                        <label style="width: 30px;font-size: 18px; ">Rs: </label>       
-                        <label id="total_amt">000,000.00</label>
-                        <label style="width: 80px;font-size: 18px; ">Discount:</label>
-                        <input type="text" name=" discount" class="input-text" id="discount" style="width: 80px">
-                        <select type="text" name="discount_precentage" class="input-text" id="discount_precentage" style="width: 80px; height: 30px">
-                            <option value="1">5%</option>
-                            <option value="2">10%</option>
-                        </select>
-                    </div>
-                    <div style="display: flex; align-items: center;margin-top: 20px; ">
-                        <label style="width: 125px;font-size: 18px; "><b>Grand Total:</b></label>
-                        <label style="width: 30px;font-size: 18px; ">Rs: </label>
-                        <label style="width: 150px;font-size: 18px;" id="grand_total">000,000.00</label>
-                        <label> <input type="radio" name="cash" id="cash" value="cash"> Cash</label>
-                        <label><input type="radio" name="card" id="card" value="card"> Card</label>
-                        <label><input type="radio" name="credit" id="credit" value="credit"> Credit</label>
-                        <label><input type="radio" name="cheqe" id="cheqe" value="cheque"> Cheque</label>
-                        <label><input type="radio" name="split" id="split" value="cheque"> Split</label>
-                    </div>
-                    <div style="display: flex; align-items: center;margin-top: 20px; ">
-                        <label style="width: 125px;font-size: 18px; ">Payment:</label>
-                        <label style="width: 30px;font-size: 18px; ">Rs: </label>
-                        <input type="text" name=" paid" class="input-text" id="paid" style="width: 97px">
-                        <label style="width: 35px;font-size: 18px; "></label>
-                        <label style="width: 60px;font-size: 18px; ">Due:</label>
-                        <label style="width: 30px;font-size: 18px; ">Rs:</label>
-                        <label style="width: 150px;font-size: 18px; " id="due">000,000.00</label>
-                    </div>
+                         <div style="display: flex; align-items: center; margin-top: 5px;">
+                            <label style="width: 125px; font-size: 18px;">Total Amount:</label>
+                            <label style="width: 30px; font-size: 18px;">Rs: </label>       
+                            <label id="total_amount" style="color: #d63333">000,000.00</label>
+
+                            <br>
+
+                            <label style="width: 80px; font-size: 18px;">Discount:</label>
+                            <input type="number" name="discount" class="input-text" id="discount" style="width: 80px;" oninput="applyDiscount()">
+                            
+                            <select name="discount_percentage" class="input-text" id="discount_percentage" style="width: 80px; height: 30px" onchange="applyDiscount()">
+                                <option value="">Select %</option>
+                                <option value="5">5%</option>
+                                <option value="10">10%</option>
+                            </select>
+                        </div>
+
+                        <div style="display: flex; align-items: center; margin-top: 20px;">
+                            <label style="width: 125px; font-size: 18px;"><b>Grand Total:</b></label>
+                            <label style="width: 30px; font-size: 18px;">Rs: </label>
+                            <label style="width: 150px; font-size: 18px; color: #d63333" id="grand_total">000,000.00</label>
+
+                            <label><input type="radio" name="payment_method" value="cash"> Cash</label>
+                            <label><input type="radio" name="payment_method" value="card"> Card</label>
+                            <label><input type="radio" name="payment_method" value="credit"> Credit</label>
+                            <label><input type="radio" name="payment_method" value="cheque"> Cheque</label>
+                            <label><input type="radio" name="payment_method" value="split"> Split</label>
+                        </div>
+
+                        <div style="display: flex; align-items: center; margin-top: 20px;">
+                            <label style="width: 125px; font-size: 18px;">Payment:</label>
+                            <label style="width: 30px; font-size: 18px;">Rs: </label>
+                            <input type="number" name="paid" class="input-text" id="paid" style="width: 97px;" oninput="calculateDue()">
+
+                            <label style="width: 35px; font-size: 18px;"></label>
+                            <label style="width: 60px; font-size: 18px;">Due:</label>
+                            <label style="width: 30px; font-size: 18px;">Rs:</label>
+                            <label style="width: 150px; font-size: 18px; color: #d63333" id="due">000,000.00</label>
+                        </div>
                     <div style="display: flex; align-items: center;margin-top: 15px; ">
                         <label style="width: 405px;font-size: 18px; "></label>
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="update_payment" value="Update Payment " onclick="">
