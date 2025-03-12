@@ -34,7 +34,7 @@ Add New Patient
                 $('#testlist').empty();
 
                 if (response.options) {
-                    $('#testlist').html(response.options); // Inject the dropdown options from the controller
+                    $('#testlist').html(response.options); 
                 } else {
                     $('#testlist').append('<option value="">No Tests Available</option>');
                 }
@@ -47,86 +47,6 @@ Add New Patient
             }
         });
     }
-
-
-    // ******************Function to save the  data**************************
-
-    function savePatient() {
-        // Get the values from the input fields
-        var fname = $('#fname').val();
-        var lname = $('#lname').val();
-        var dob = $('#dob').val();
-        var years = $('#years').val();
-        var months = $('#months').val();
-        var days = $('#days').val();
-        var gender = $('input[name="male"]:checked').val() || $('input[name="female"]:checked').val();
-        var nic = $('#nic').val();
-        var address = $('#address').val();
-        var refcode = $('#refcode').val();
-        var ref = $('#ref').val();
-        var testname = $('#testname').val();
-        var pkgname = $('#pkgname').val();
-        var fast_time = $('#fast_time').val();
-
-        // Validation for required fields
-        if (!fname || !lname) {
-            alert('First Name and Last Name are required.');
-            return;
-        }
-        if (!dob) {
-            alert('Date of Birth is required.');
-            return;
-        }
-        if (!gender) {
-            alert('Gender is required.');
-            return;
-        }
-
-
-        if (!ref) {
-            alert('Reference Name is required.');
-            return;
-        }
-
-        // AJAX request to save the patient data
-        $.ajax({
-            type: "POST",
-            url: "savePatient", // Change this to the appropriate endpoint
-            data: {
-                'fname': fname,
-                'lname': lname,
-                'dob': dob,
-                'years': years,
-                'months': months,
-                'days': days,
-                'gender': gender,
-                'nic': nic,
-                'address': address,
-                'refcode': refcode,
-                'ref': ref,
-                'testname': testname,
-                'pkgname': pkgname,
-                'fast_time': fast_time
-            },
-            success: function(response) {
-                if (response.error == "saved") {
-                    alert('Patient saved successfully!');
-                    $('#fname, #lname, #dob, #years, #months, #days, #nic, #address, #refcode, #ref, #testname, #pkgname, #fast_time').val('');
-                    $('input[name="male"], input[name="female"]').prop('checked', false);
-                } else {
-                    alert('Error in saving process.');
-                }
-            },
-            error: function(xhr) {
-                console.log('Error:', xhr);
-                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
-                alert(errorMsg);
-            }
-        });
-    }
-
-    // ----------------------------*****************----------------
-
 
     // *---***-----------******Sample Number Generator***********----------------
     function loadcurrentSampleNo() {
@@ -156,30 +76,26 @@ Add New Patient
     var itemListTestData = [];
 
     function setDataToTable(select_value) {
-        // This will be triggered when a valid value is selected from the datalist
         var tst = select_value;
         var f_time = $('#fast_time').val();
-        const pattern = /^\d+:.+$/; // Ensure the value is in the correct format (e.g., 1:Test1:500:30)
+        const pattern = /^\d+:.+$/; 
 
-        // Check if the selected value is in the correct format
+
         if (pattern.test(tst)) {
-            var tst_part = tst.split(":"); // Split the value into parts (testId, testName, price, time)
+            var tst_part = tst.split(":");
 
-            var tstData = tst_part[0] + "@" + tst_part[1] + "@" + tst_part[2] + "@" + tst_part[3] + "@" + f_time; // Create a string with the test data
-            var x = itemListTestData.indexOf(tstData); // Check if the data is already in the list
+            var tstData = tst_part[0] + "@" + tst_part[1] + "@" + tst_part[2] + "@" + tst_part[3] + "@" + f_time; 
+            var x = itemListTestData.indexOf(tstData); 
 
-            // If data is not already in the list, add it to the table
             if (x == -1) {
                 itemListTestData.push(tstData);
 
-                // Create table row with test data
+
                 var tr = "<tr id='tblTesttr" + tst_part[0] + "'><td>" + tst_part[0] + "</td><td>" + tst_part[1] + "</td><td align='right'>" + tst_part[2] + "</td><td align='center'>" + tst_part[3] + "</td><td align='center'>" + f_time + "</td><td align='center'><input type='checkbox' id='chk_bcode" + tst_part[0] + "' checked></td>";
                 tr += "<td><center><button class='btn btn-danger' onclick='removeTestItemInTable(" + tst_part[0] + ", \"" + tstData + "\")' style='cursor:pointer;'>Remove</button></center></td></tr>";
 
-                // Append the row to the table
                 $('#Branch_record_tbl').append(tr);
 
-                // Clear the text field after adding data to the table
                 $('#testname').val("");
                 $('#fast_time').val("0");
             } else {
@@ -211,9 +127,8 @@ Add New Patient
         $('#tblTesttr' + tstid).remove();
     }
 
-// **********************grand total genereting*******************
-
-    function setDataToTable(selectedValue) {
+// **********************record to table*******************
+function setDataToTable(selectedValue) {
     if (!selectedValue) return;
 
     var parts = selectedValue.split(":");
@@ -237,6 +152,9 @@ Add New Patient
             <td align="center" class="price-column">${price.toFixed(2)}</td>
             <td align="center">${time}</td>
             <td align="center">-</td>  
+           <td align="center">
+                <input type="checkbox" class="barcode-checkbox" checked>
+            </td>
             <td align="center">-</td>  
             <td align="center">
                 <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
@@ -245,122 +163,319 @@ Add New Patient
     `;
 
     $('#Branch_record_tbl').append(newRow);
-    updateTotalPrice(); 
-     $('#testname').val('');
+    updateTotalAmount(); 
+    $('#testname').val('');
 }
 
-
-function updateTotalPrice() {
-    var total = 0;
-
-    $('.price-column').each(function () {
-        var price = parseFloat($(this).text().replace(/,/g, '')) || 0;
-        total += price;
-    });
-
-    $('#total_amount').text(total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-}
-
-
-$(document).on('click', '.remove-row', function () {
-    $(this).closest('tr').remove();
-    updateTotalPrice();
-      $('#discount_percentage').val('');
-      $('#discount').val('');
-      $('#paid').val('');
-});
-
-//*************************************************************************************************
-function applyDiscount() {
-    var totalAmount = parseFloat(document.getElementById('total_amount').textContent.replace(/,/g, '')) || 0;
-    var discountAmount = parseFloat(document.getElementById('discount').value) || 0;
-    var discountPercentage = parseFloat(document.getElementById('discount_percentage').value) || 0;
-
-    // Ensure only one discount is applied
-    if (discountAmount > 0) {
-        document.getElementById('discount_percentage').value = "";
-    } else if (discountPercentage > 0) {
-        document.getElementById('discount').value = "";
-        discountAmount = (discountPercentage / 100) * totalAmount;
-    }
-
-    // Prevent discount greater than total amount
-    if (discountAmount > totalAmount) {
-        alert("Discount cannot exceed total amount!");
-        discountAmount = 0;
-        document.getElementById('discount').value = "";
-        document.getElementById('discount_percentage').value = "";
-    }
-
-    var grandTotal = totalAmount - discountAmount;
-    document.getElementById('grand_total').textContent = grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
-
-    calculateDue(); 
-}
-
-function calculateDue() {
-    var grandTotal = parseFloat(document.getElementById('grand_total').textContent.replace(/,/g, '')) || 0;
-    var payment = parseFloat(document.getElementById('paid').value) || 0;
-    var due = grandTotal - payment;
-
-    document.getElementById('due').textContent = due.toLocaleString('en-IN', { minimumFractionDigits: 2 });
-
-}
-
-
-
-//*************************************************************************************************
-
-$(document).on('click', '.remove-item', function() {
-    $(this).closest('tr').remove(); // Remove row from table
-
-    updateTotalAmount(); // Recalculate total amount
-    resetDiscountAndPaymentFields(); // Reset discount and payment fields
-});
-
+// **********************grand total genereting*******************
 function updateTotalAmount() {
     let total = 0;
-    
-    $('#Branch_record_tbl tr').each(function() {
-        let price = parseFloat($(this).find('.price-column').text()) || 0;
-        total += price;
+
+    $('.price-column').each(function () {
+        total += parseFloat($(this).text()) || 0;
     });
 
     $('#total_amount').text(total.toFixed(2));
     $('#grand_total').text(total.toFixed(2));
     $('#due').text(total.toFixed(2));
+
+    resetDiscountAndPaymentFields(); 
 }
 
+// **********************payment details discount reset*******************
 function resetDiscountAndPaymentFields() {
     $('#discount').val('');
-    $('#discount_precentage').val('');
+    $('#discount_percentage').val('');
     $('#paid').val('');
-    $('#due').text('000,000.00');
+}
+
+$(document).on('click', '.remove-row', function () {
+    $(this).closest('tr').remove();
+    updateTotalAmount();
+});
+
+//*************************************************************************************************
+// Apply discount
+function applyDiscount() {
+    var totalAmount = parseFloat($('#total_amount').text()) || 0;
+    var discountAmount = parseFloat($('#discount').val()) || 0;
+    var discountPercentage = parseFloat($('#discount_percentage').val()) || 0;
+
+
+    if (discountAmount > 0) {
+        $('#discount_percentage').val('');
+    } else if (discountPercentage > 0) {
+        $('#discount').val('');
+        discountAmount = (discountPercentage / 100) * totalAmount;
+    }
+
+
+    if (discountAmount > totalAmount) {
+        alert("Discount cannot exceed total amount!");
+        discountAmount = 0;
+        $('#discount, #discount_percentage').val('');
+    }
+
+    var grandTotal = totalAmount - discountAmount;
+    $('#grand_total').text(grandTotal.toFixed(2));
+
+
+    $('#paid').val('');
+    $('#due').text(grandTotal.toFixed(2));
 }
 
 
-//*************************************************************************************************
+
+$('#discount, #discount_percentage').on('input', function () {
+    applyDiscount(); 
+});
 
 
 //*************************************************************************************************
+// Calculate due amount
+function calculateDue() {
+    var grandTotal = parseFloat($('#grand_total').text()) || 0;
+    var payment = parseFloat($('#paid').val()) || 0;
+    var due = grandTotal - payment;
+
+    $('#due').text(due.toFixed(2));
+}
+
 
 
 //*************************************************************************************************
+// Table Row selection function
+$(document).on('click', '#Branch_record_tbl tr', function (event) {
+    event.stopPropagation(); 
+    $('#Branch_record_tbl tr').removeClass('selected-row'); 
+    $(this).addClass('selected-row'); 
+});
+
+$(document).on('click', function () {
+   
+    $('#Branch_record_tbl tr').removeClass('selected-row');
+});
 
 
 //*************************************************************************************************
+// Priority button pe=rocess function
+$(document).ready(function () {
+    $('#make_priority').on('click', function () {
+        let selectedRow = $('#Branch_record_tbl tr.selected-row'); 
 
+        if (selectedRow.length === 0) {
+            alert("Please select a test!");
+            return;
+        }
+
+        let priorityCell = selectedRow.find('td:nth-child(7)'); 
+
+        if (priorityCell.text().trim() === '***') {
+            
+            priorityCell.text('-');
+            $(this).val('Make Priority').css('color', 'gray');
+            selectedRow.css('background-color', ''); 
+        } else {
+         
+            priorityCell.html('<span style="color: red;">***</span>');
+            $(this).val('Remove Priority').css('color', 'red');
+            selectedRow.css('background-color', 'pink'); 
+        }
+    });
+
+   
+    $(document).on('click', '#Branch_record_tbl tr', function () {
+        $('#Branch_record_tbl tr').removeClass('selected-row');
+        $(this).addClass('selected-row');
+
+        let priorityCell = $(this).find('td:nth-child(7)'); 
+        
+        if (priorityCell.text().trim() === '***') {
+            $('#make_priority').val('Remove Priority').css('color', 'red');
+            $(this).css('background-color', 'pink'); 
+        } else {
+            $('#make_priority').val('Make Priority').css('color', 'gray');
+            $(this).css('background-color', ''); 
+        }
+    });
+});
+
+
+//*************************************************************************************************
+// When dob enter then calculate age function
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("dob").addEventListener("change", function() {
+        var dobInput = this.value;
+
+        if (!dobInput) return; 
+
+        var dob = new Date(dobInput);
+        var today = new Date();
+
+        if (dob > today) {
+            alert("Date of Birth cannot be in the future!");
+            return;
+        }
+
+        var ageYears = today.getFullYear() - dob.getFullYear();
+        var ageMonths = today.getMonth() - dob.getMonth();
+        var ageDays = today.getDate() - dob.getDate();
+
+        
+        if (ageDays < 0) {
+            ageMonths--;
+            var lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            ageDays += lastMonth.getDate();
+        }
+
+        if (ageMonths < 0) {
+            ageYears--;
+            ageMonths += 12;
+        }
+
+        document.getElementById("years").value = ageYears;
+        document.getElementById("months").value = ageMonths;
+        document.getElementById("days").value = ageDays;
+    });
+});
+
+//##############*****************###################*****************##########################*****************##############################
+  
+//gender select for initial
+document.addEventListener("DOMContentLoaded", function() {
+    var initialSelect = document.getElementById("initial");
+
+    function updateGender() {
+        var selectedValue = initialSelect.value;
+
+        if (selectedValue == "1") { 
+            document.getElementById("male").checked = true;
+        } else if (selectedValue == "2" || selectedValue == "3") { 
+            document.getElementById("female").checked = true;
+        }
+    }
+    updateGender();
+
+    initialSelect.addEventListener("change", updateGender);
+});
+// ******************Function to save the  data*************************************************************
+
+    function savePatient() {
+        // Get the values from the input fields
+        var sampleNo = $('#sampleNo').val();
+        var labbranch = $('#labBranchDropdown').val();
+        var type =$ ('#type').val();
+        var source = $('#source').val();
+        var tpno = $('#tpno').val();
+        var initial = $('#initial').val();
+        var fname = $('#fname').val();
+        var lname = $('#lname').val();
+        var dob = $('#dob').val();
+        var years = $('#years').val();
+        var months = $('#months').val();
+        var days = $('#days').val();
+        var gender = $('input[name="male"]:checked').val() || $('input[name="female"]:checked').val();
+        var nic = $('#nic').val();
+        var address = $('#address').val();
+        var refcode = $('#refcode').val();
+        var ref = $('#ref').val();
+        var testname = $('#testname').val();
+        var pkgname = $('#pkgname').val();
+        var fast_time = $('#fast_time').val();
+        var total_amount = $('#total_amount').text();
+        var discount = $('#discount').val();
+        var discount_percentage = $('#discount_percentage').val();
+        var grand_total = $('#grand_total').text();
+        var payment_method = $('input[name="payment_method"]:checked').val();
+        var paid = $('#paid').val();
+        var due = $('#due').text();
+      
+
+        // Validation for required fields
+        if (!fname || !lname) {
+            alert('First Name and Last Name are required.');
+            return;
+        }
+        if (!years) {
+            alert('Date of Birth is required.');
+            return;
+        }
+        if (!gender) {
+            alert('Gender is required.');
+            return;
+        }
+
+
+
+        // AJAX request to save the patient data
+        $.ajax({
+            type: "POST",
+            url: "savePatient", // Change this to the appropriate endpoint
+            data: {
+
+                'sampleNo': sampleNo,
+                'labbranch': labbranch,
+                'type': type,
+                'source': source,
+                'tpno': tpno,
+                'initial': initial,
+                'fname': fname,
+                'lname': lname,
+                'dob': dob,
+                'years': years,
+                'months': months,
+                'days': days,
+                'gender': gender,
+                'nic': nic,
+                'address': address,
+                'refcode': refcode,
+                'ref': ref,
+                'testname': testname,
+                'pkgname': pkgname,
+                'fast_time': fast_time,
+                'total_amount': total_amount,
+                'discount': discount,
+                'discount_percentage': discount_percentage,
+                'grand_total': grand_total,
+                'payment_method': payment_method,
+                'paid': paid,
+                'due': due
+
+            },
+            success: function(response) {
+                if (response.error == "saved") {
+                    alert('Patient saved successfully!');
+                    $('#fname, #lname, #dob, #years, #months, #days, #nic, #address, #refcode, #ref, #testname, #pkgname, #fast_time').val('');
+                    $('input[name="male"], input[name="female"]').prop('checked', false);
+                } else {
+                    alert('Error in saving process.');
+                }
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr);
+                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+                alert(errorMsg);
+            }
+        });
+    }
+
+//*************************************************************************************************
+
+//*************************************************************************************************
+ 
+//*************************************************************************************************
+//*************************************************************************************************
+//*************************************************************************************************
+//*************************************************************************************************
+//*************************************************************************************************
+//*************************************************************************************************
+//*************************************************************************************************
+//*************************************************************************************************
+//*************************************************************************************************
 //*************************************************************************************************
     //------------------------------------------------------------------------
 
-    // document.getElementById("edit").addEventListener("change", function() {
-    //     var sampleNoField = document.getElementById("sampleNo");
-    //     if (this.checked) {
-    //         sampleNoField.removeAttribute("disabled");
-    //     } else {
-    //         sampleNoField.setAttribute("disabled", true);
-    //     }
-    // });
+ 
 </script>
 
 
@@ -418,6 +533,9 @@ function resetDiscountAndPaymentFields() {
     .warning-text {
         font-weight: bold;
     }
+    .selected-row {
+    background-color: #1977c9 !important; /* Light blue color */
+}
 </style>
 @stop
 
@@ -506,8 +624,7 @@ function resetDiscountAndPaymentFields() {
                 </div>
             </div>
 
-            <!-- --------------*********************************************************************************---------
- ------------------------------------------------------------------------------------------------------------
+            <!-- --------------*********************************************************************************-------------------->
                  -->
 
             <div style="width:1350px; display: flex;">
@@ -521,7 +638,7 @@ function resetDiscountAndPaymentFields() {
                             <option value="2">Mrs</option>
                             <option value="3">Miss</option>
                             <option value="4">Dr</option>
-                            <option value="4">Hons</option>
+                            <option value="5">Hons</option>
                         </select>
                         <input type="text" name=" fname" maxlength="2" class="input-text" id="fname" style="width: 380px">
                     </div>
@@ -542,12 +659,8 @@ function resetDiscountAndPaymentFields() {
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Gender:</label>
-                        <label style="display: flex; align-items: center; cursor: pointer; ">
-                            <input type="radio" name="male" id="male" value="male" style="margin-right: 5px;"> Male
-                        </label>
-                        <label style="display: flex; align-items: center; cursor: pointer; ">
-                            <input type="radio" name="female" id="female" value="female" style="margin-right: 5px;"> Female
-                        </label>
+                        <label><input type="radio" id="male" name="gender" value="male"> Male</label>
+                        <label><input type="radio" id="female" name="gender" value="female"> Female</label>                       
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">NIC NO:</label>
@@ -564,7 +677,20 @@ function resetDiscountAndPaymentFields() {
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Refered:</label>
-                        <input type="text" name=" ref" class="input-text" id="ref" style="width: 450px">
+                        <select name="ref" style="width: 450px; height: 30px" class="input-text" id="refDropdown">
+                            <option value=""></option>
+                            <?php
+                            $Result = DB::select("SELECT idref, name FROM refference WHERE lid = '" . $_SESSION['lid'] . "' AND name IS NOT NULL ORDER BY name ASC");
+
+                            foreach ($Result as $res) {
+                                $refId = $res->idref;
+                                $refName = $res->name;
+                            ?>
+                                <option value="<?= $refId ?>"><?= $refName ?></option>
+                            <?php
+                            }
+                            ?>
+                        </select>
                     </div>
                     <!-- <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; "><b>Test Name</b>:</label>
@@ -586,9 +712,23 @@ function resetDiscountAndPaymentFields() {
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; "><b>Package Name</b>:</label>
-                        <input type="text" name="pkgname" class="input-text" id="pkgname" style="width: 230px">
+                            <select name="pkgname" class="input-text" id="pkgname" style="width: 260px;">
+                                <option value=""></option>
+                                <?php
+                                
+                                $Result = DB::select("select idlabpackages, name FROM labpackages WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+
+                                foreach ($Result as $res) {
+                                    $packageId = $res->idlabpackages;  
+                                    $packageName = $res->name;        
+                                ?>
+                                    <option value="<?= $packageId ?>"><?= $packageId ?> : <?= $packageName ?></option>
+                                <?php
+                                }
+                                ?>
+                            </select>
                         <label style="width: 120px;font-size: 18px; "><b>Fasting Time</b>:</label>
-                        <input type="text" name=" fast_time" class="input-text" id="fast_time" value="0" style="width: 80px">
+                        <input type="text" name=" fast_time" class="input-text" id="fast_time" value="0" style="width: 40px">
                         <input type="checkbox" name="fastcheck" id="fastcheck" class="ref_chkbox" value="1">
                     </div>
 
@@ -605,10 +745,22 @@ function resetDiscountAndPaymentFields() {
                             <input type="number" name="discount" class="input-text" id="discount" style="width: 80px;" oninput="applyDiscount()">
                             
                             <select name="discount_percentage" class="input-text" id="discount_percentage" style="width: 80px; height: 30px" onchange="applyDiscount()">
-                                <option value="">Select %</option>
-                                <option value="5">5%</option>
-                                <option value="10">10%</option>
+                                <option value="">%</option>
+                                <?php
+                          
+                                $Result = DB::select("select did, name, value FROM Discount WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+
+                                foreach ($Result as $res) {
+                                    $discountId = $res->did;
+                                    $discountName = $res->name;
+                                    $discountValue = $res->value; 
+                                ?>
+                                    <option value="<?= $discountValue ?>"><?= $discountName ?> (<?= $discountValue ?>%)</option>
+                                <?php
+                                }
+                                ?>
                             </select>
+
                         </div>
 
                         <div style="display: flex; align-items: center; margin-top: 20px;">
@@ -616,11 +768,11 @@ function resetDiscountAndPaymentFields() {
                             <label style="width: 30px; font-size: 18px;">Rs: </label>
                             <label style="width: 150px; font-size: 18px; color: #d63333" id="grand_total">000,000.00</label>
 
-                            <label><input type="radio" name="payment_method" value="cash"> Cash</label>
-                            <label><input type="radio" name="payment_method" value="card"> Card</label>
-                            <label><input type="radio" name="payment_method" value="credit"> Credit</label>
-                            <label><input type="radio" name="payment_method" value="cheque"> Cheque</label>
-                            <label><input type="radio" name="payment_method" value="split"> Split</label>
+                            <label><input type="radio" name="payment_method" id="payment_method" value="cash"> Cash</label>
+                            <label><input type="radio" name="payment_method" id="payment_method" value="card"> Card</label>
+                            <label><input type="radio" name="payment_method" id="payment_method" value="credit"> Credit</label>
+                            <label><input type="radio" name="payment_method" id="payment_method" value="cheque"> Cheque</label>
+                            <label><input type="radio" name="payment_method" id="payment_method" value="split"> Split</label>
                         </div>
 
                         <div style="display: flex; align-items: center; margin-top: 20px;">
@@ -656,6 +808,7 @@ function resetDiscountAndPaymentFields() {
                                     <td align="center" class="fieldText" style="width: 10px;">Fasting Time</td>
                                     <td align="center" class="fieldText" style="width: 10px;"> Barcode</td>
                                     <td align="center" class="fieldText" style="width: 10px;">Priority</td>
+                                    <td align="center" class="fieldText" style="width: 10px;">Action</td>
                                 </tr>
                             </thead>
                             <tbody id="Branch_record_tbl">
@@ -666,7 +819,6 @@ function resetDiscountAndPaymentFields() {
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 150px;font-size: 18px; ">Pending Samples:</label>
                         <input type="button" style="color:gray;" class="btn" id="make_priority" value="Make Priority" onclick="">
-                        <input type="button" style="color:gray;" class="btn" id="remove_priority" value="Remove Priority " onclick="">
                         <input type="button" style="color:gray;" class="btn" id="delete" value="Delete" onclick="">
                     </div>
                     <div style="display: flex; align-items: center;margin-top: 5px; ">

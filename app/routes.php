@@ -382,6 +382,7 @@ Route::get('/getTests', 'PatientRegistrationController@loadBrachWiceTest');
 
 
 
+
 // ************************************************************************************************
 //new Update
 //Route::get('/financestat',function(){

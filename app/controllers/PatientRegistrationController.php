@@ -109,4 +109,18 @@ public function loadBrachWiceTest(){
         return Response::json(['options' => $list_data]);
 }
 
+    // public function getPackageTests(Request $request)
+    // {
+    //     $packageId = $request->input('packageId');
+
+    //     // Fetch tests related to the selected package
+    //     $tests = DB::table('Testgroup_has_labpackages')
+    //         ->join('tests', 'Testgroup_has_labpackages.idtest', '=', 'tests.id')
+    //         ->where('Testgroup_has_labpackages.idlabpackages', $packageId)
+    //         ->select('tests.id', 'tests.name', 'tests.amount')
+    //         ->get();
+
+    //     // Return the tests as a JSON response
+    //     return response()->json(['tests' => $tests]);
+    // }
 }
