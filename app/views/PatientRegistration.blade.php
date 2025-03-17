@@ -34,11 +34,11 @@ Add New Patient
                 $('#testlist').empty();
 
                 if (response.options) {
-                    $('#testlist').html(response.options); 
+                    $('#testlist').html(response.options);
                 } else {
                     $('#testlist').append('<option value="">No Tests Available</option>');
                 }
-                
+
             },
             error: function(xhr) {
                 console.log('Error:', xhr);
@@ -47,6 +47,8 @@ Add New Patient
             }
         });
     }
+
+
 
     // *---***-----------******Sample Number Generator***********----------------
     function loadcurrentSampleNo() {
@@ -75,296 +77,357 @@ Add New Patient
     // ----------------------------*******Add tests to the patient Registration Table**********---------------- 
     var itemListTestData = [];
 
-    function setDataToTable(select_value) {
-        var tst = select_value;
-        var f_time = $('#fast_time').val();
-        const pattern = /^\d+:.+$/; 
+    function setDataToTable(selectedValue) {
+        if (!selectedValue) return;
 
-
-        if (pattern.test(tst)) {
-            var tst_part = tst.split(":");
-
-            var tstData = tst_part[0] + "@" + tst_part[1] + "@" + tst_part[2] + "@" + tst_part[3] + "@" + f_time; 
-            var x = itemListTestData.indexOf(tstData); 
-
-            if (x == -1) {
-                itemListTestData.push(tstData);
-
-
-                var tr = "<tr id='tblTesttr" + tst_part[0] + "'><td>" + tst_part[0] + "</td><td>" + tst_part[1] + "</td><td align='right'>" + tst_part[2] + "</td><td align='center'>" + tst_part[3] + "</td><td align='center'>" + f_time + "</td><td align='center'><input type='checkbox' id='chk_bcode" + tst_part[0] + "' checked></td>";
-                tr += "<td><center><button class='btn btn-danger' onclick='removeTestItemInTable(" + tst_part[0] + ", \"" + tstData + "\")' style='cursor:pointer;'>Remove</button></center></td></tr>";
-
-                $('#Branch_record_tbl').append(tr);
-
-                $('#testname').val("");
-                $('#fast_time').val("0");
-            } else {
-                alert("This test already exists in the table!");
-            }
-        } else {
-            alert("Please select the test first!");
-        }
-    }
-
-    function removeTestItemInTable(tstid, ArrData) {
-        // Remove the selected test from the table and array
-        var index = itemListTestData.indexOf(ArrData);
-        if (index !== -1) {
-            itemListTestData.splice(index, 1);
-        }
-
-        // Remove the corresponding row from the table
-        $('#tblTesttr' + tstid).remove();
-    }
-
-
-    function removeTestItemInTable(tstid, ArrData) {
-        var index = itemListTestData.indexOf(ArrData);
-        if (index !== -1) {
-            itemListTestData.splice(index, 1);
-        }
-
-        $('#tblTesttr' + tstid).remove();
-    }
-
-// **********************record to table*******************
-function setDataToTable(selectedValue) {
-    if (!selectedValue) return;
-
-    var parts = selectedValue.split(":");
-    if (parts.length < 4) return; 
-
-    var tgid = parts[0];  
-    var group = parts[1]; 
-    var price = parseFloat(parts[2]) || 0; 
-    var time = parts[3];  
-
-    if ($("#Branch_record_tbl tr[data-id='" + tgid + "']").length > 0) {
-        alert("This test is already added!");
-        $('#testname').val('');
-        return;
-    }
-
-    var newRow = `
-        <tr data-id="${tgid}">
-            <td align="center">${tgid}</td>
-            <td align="center">${group}</td>
-            <td align="center" class="price-column">${price.toFixed(2)}</td>
-            <td align="center">${time}</td>
-            <td align="center">-</td>  
-           <td align="center">
-                <input type="checkbox" class="barcode-checkbox" checked>
-            </td>
-            <td align="center">-</td>  
-            <td align="center">
-                <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
-            </td>
-        </tr>
-    `;
-
-    $('#Branch_record_tbl').append(newRow);
-    updateTotalAmount(); 
-    $('#testname').val('');
-}
-
-// **********************grand total genereting*******************
-function updateTotalAmount() {
-    let total = 0;
-
-    $('.price-column').each(function () {
-        total += parseFloat($(this).text()) || 0;
-    });
-
-    $('#total_amount').text(total.toFixed(2));
-    $('#grand_total').text(total.toFixed(2));
-    $('#due').text(total.toFixed(2));
-
-    resetDiscountAndPaymentFields(); 
-}
-
-// **********************payment details discount reset*******************
-function resetDiscountAndPaymentFields() {
-    $('#discount').val('');
-    $('#discount_percentage').val('');
-    $('#paid').val('');
-}
-
-$(document).on('click', '.remove-row', function () {
-    $(this).closest('tr').remove();
-    updateTotalAmount();
-});
-
-//*************************************************************************************************
-// Apply discount
-function applyDiscount() {
-    var totalAmount = parseFloat($('#total_amount').text()) || 0;
-    var discountAmount = parseFloat($('#discount').val()) || 0;
-    var discountPercentage = parseFloat($('#discount_percentage').val()) || 0;
-
-
-    if (discountAmount > 0) {
-        $('#discount_percentage').val('');
-    } else if (discountPercentage > 0) {
-        $('#discount').val('');
-        discountAmount = (discountPercentage / 100) * totalAmount;
-    }
-
-
-    if (discountAmount > totalAmount) {
-        alert("Discount cannot exceed total amount!");
-        discountAmount = 0;
-        $('#discount, #discount_percentage').val('');
-    }
-
-    var grandTotal = totalAmount - discountAmount;
-    $('#grand_total').text(grandTotal.toFixed(2));
-
-
-    $('#paid').val('');
-    $('#due').text(grandTotal.toFixed(2));
-}
-
-
-
-$('#discount, #discount_percentage').on('input', function () {
-    applyDiscount(); 
-});
-
-
-//*************************************************************************************************
-// Calculate due amount
-function calculateDue() {
-    var grandTotal = parseFloat($('#grand_total').text()) || 0;
-    var payment = parseFloat($('#paid').val()) || 0;
-    var due = grandTotal - payment;
-
-    $('#due').text(due.toFixed(2));
-}
-
-
-
-//*************************************************************************************************
-// Table Row selection function
-$(document).on('click', '#Branch_record_tbl tr', function (event) {
-    event.stopPropagation(); 
-    $('#Branch_record_tbl tr').removeClass('selected-row'); 
-    $(this).addClass('selected-row'); 
-});
-
-$(document).on('click', function () {
-   
-    $('#Branch_record_tbl tr').removeClass('selected-row');
-});
-
-
-//*************************************************************************************************
-// Priority button pe=rocess function
-$(document).ready(function () {
-    $('#make_priority').on('click', function () {
-        let selectedRow = $('#Branch_record_tbl tr.selected-row'); 
-
-        if (selectedRow.length === 0) {
-            alert("Please select a test!");
+        var parts = selectedValue.split(":");
+        if (parts.length < 4) {
+            alert("Invalid test format!");
             return;
         }
 
-        let priorityCell = selectedRow.find('td:nth-child(7)'); 
+        var tgid = parts[0];
+        var group = parts[1];
+        var price = parseFloat(parts[2]) || 0;
+        var time = parts[3];
+        var f_time = $('#fast_time').val();
 
-        if (priorityCell.text().trim() === '***') {
-            
-            priorityCell.text('-');
-            $(this).val('Make Priority').css('color', 'gray');
-            selectedRow.css('background-color', ''); 
-        } else {
-         
-            priorityCell.html('<span style="color: red;">***</span>');
-            $(this).val('Remove Priority').css('color', 'red');
-            selectedRow.css('background-color', 'pink'); 
+        var tstData = `${tgid}@${group}@${price}@${time}@${f_time}`;
+
+        if (itemListTestData.includes(tstData)) {
+            alert("This test is already added!");
+            $('#testname').val('');
+            return;
         }
+
+        itemListTestData.push(tstData);
+
+        var newRow = `
+    <tr data-id="${tgid}">
+        <td align="center">${tgid}</td>
+        <td align="center">${group}</td>
+        <td align="center" class="price-column">${price.toFixed(2)}</td>
+        <td align="center">${time}</td>
+        <td align="center">${f_time}</td>
+        <td align="center">
+            <input type="checkbox" class="barcode-checkbox" checked>
+        </td>
+        <td align="center">-</td>  
+        <td align="center">
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeTestItemInTable('${tgid}', '${tstData}')">Remove</button>
+        </td>
+    </tr>`;
+
+        $('#Branch_record_tbl').append(newRow);
+        updateTotalAmount();
+        $('#testname').val('');
+        $('#fast_time').val('0');
+    }
+
+
+    function removeTestItemInTable(tgid, ArrData) {
+        var index = itemListTestData.indexOf(ArrData);
+        if (index !== -1) {
+            itemListTestData.splice(index, 1);
+        }
+
+        $(`tr[data-id='${tgid}']`).remove();
+        updateTotalAmount();
+    }
+
+
+
+
+    // **********Package test adding to table function
+    function load_package_tests() {
+        var packageId = $('#packageDropdown').val();
+        var f_time = $('#fast_time').val();
+
+        $.ajax({
+            type: "GET",
+            url: "getPackageTests",
+            data: {
+                'packageId': packageId
+
+            },
+            dataType: "json",
+            success: function(response) {
+
+                if (response.testData && response.testData.length > 0) {
+
+                    $.each(response.testData, function(index, test) {
+                        var tst_part = test.split("@");
+
+                        var tstData = tst_part[0] + "@" + tst_part[1] + "@" + tst_part[2] + "@" + tst_part[3] + "@" + f_time;
+                        var x = itemListTestData.indexOf(tstData);
+
+                        if (x == -1) {
+                            itemListTestData.push(tstData);
+
+                            var tr = "<tr id='tblTesttr" + tst_part[0] + "'><td>" + tst_part[0] + "</td><td>" + tst_part[1] + "</td><td align='right'>" + tst_part[2] + "</td><td align='center'>" + tst_part[3] + "</td><td align='center'>" + f_time + "</td><td align='center'><input type='checkbox' id='chk_bcode" + tst_part[0] + "' checked></td>";
+                            tr += "<td><center></center></td></tr>";
+
+                            $('#Branch_record_tbl').append(tr);
+
+                            $('#packageDropdown').val("");
+                            $('#fast_time').val("0");
+                        } else {
+                            alert("This test already exists in the table!");
+                        }
+                    });
+
+                } else {
+                    alert("No test data assigned to this package.");
+                }
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr);
+                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+                alert(errorMsg);
+            }
+        });
+    }
+
+    // **********************record to table*******************
+    // function setDataToTable(selectedValue) {
+    //     if (!selectedValue) return;
+
+    //     var parts = selectedValue.split(":");
+    //     if (parts.length < 4) return;
+
+    //     var tgid = parts[0];
+    //     var group = parts[1];
+    //     var price = parseFloat(parts[2]) || 0;
+    //     var time = parts[3];
+
+    //     if ($("#Branch_record_tbl tr[data-id='" + tgid + "']").length > 0) {
+    //         alert("This test is already added!");
+    //         $('#testname').val('');
+    //         return;
+    //     }
+
+    //     var newRow = `
+    //     <tr data-id="${tgid}">
+    //         <td align="center">${tgid}</td>
+    //         <td align="center">${group}</td>
+    //         <td align="center" class="price-column">${price.toFixed(2)}</td>
+    //         <td align="center">${time}</td>
+    //         <td align="center">-</td>  
+    //        <td align="center">
+    //             <input type="checkbox" class="barcode-checkbox" checked>
+    //         </td>
+    //         <td align="center">-</td>  
+    //         <td align="center">
+    //             <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
+    //         </td>
+    //     </tr>
+    // `;
+
+    //     $('#Branch_record_tbl').append(newRow);
+    //     updateTotalAmount();
+    //     $('#testname').val('');
+    // }
+
+    // **********************grand total genereting*******************
+    function updateTotalAmount() {
+        let total = 0;
+
+        $('.price-column').each(function() {
+            total += parseFloat($(this).text()) || 0;
+        });
+
+        $('#total_amount').text(total.toFixed(2));
+        $('#grand_total').text(total.toFixed(2));
+        $('#due').text(total.toFixed(2));
+
+        resetDiscountAndPaymentFields();
+    }
+
+
+
+    // **********************payment details discount reset*******************
+    function resetDiscountAndPaymentFields() {
+        $('#discount').val('');
+        $('#discount_percentage').val('');
+        $('#paid').val('');
+    }
+
+    // $(document).on('click', '.remove-row', function() {
+    //     $(this).closest('tr').remove();
+    //     updateTotalAmount();
+    // });
+
+    //*************************************************************************************************
+    // Apply discount
+    function applyDiscount() {
+        var totalAmount = parseFloat($('#total_amount').text()) || 0;
+        var discountAmount = parseFloat($('#discount').val()) || 0;
+        var discountPercentage = parseFloat($('#discount_percentage').val()) || 0;
+
+
+        if (discountAmount > 0) {
+            $('#discount_percentage').val('');
+        } else if (discountPercentage > 0) {
+            $('#discount').val('');
+            discountAmount = (discountPercentage / 100) * totalAmount;
+        }
+
+
+        if (discountAmount > totalAmount) {
+            alert("Discount cannot exceed total amount!");
+            discountAmount = 0;
+            $('#discount, #discount_percentage').val('');
+        }
+
+        var grandTotal = totalAmount - discountAmount;
+        $('#grand_total').text(grandTotal.toFixed(2));
+
+
+        $('#paid').val('');
+        $('#due').text(grandTotal.toFixed(2));
+    }
+
+
+
+    $('#discount, #discount_percentage').on('input', function() {
+        applyDiscount();
     });
 
-   
-    $(document).on('click', '#Branch_record_tbl tr', function () {
+
+    //*************************************************************************************************
+    // Calculate due amount
+    function calculateDue() {
+        var grandTotal = parseFloat($('#grand_total').text()) || 0;
+        var payment = parseFloat($('#paid').val()) || 0;
+        var due = grandTotal - payment;
+
+        $('#due').text(due.toFixed(2));
+    }
+
+
+
+    //*************************************************************************************************
+    // Table Row selection function
+    $(document).on('click', '#Branch_record_tbl tr', function(event) {
+        event.stopPropagation();
         $('#Branch_record_tbl tr').removeClass('selected-row');
         $(this).addClass('selected-row');
-
-        let priorityCell = $(this).find('td:nth-child(7)'); 
-        
-        if (priorityCell.text().trim() === '***') {
-            $('#make_priority').val('Remove Priority').css('color', 'red');
-            $(this).css('background-color', 'pink'); 
-        } else {
-            $('#make_priority').val('Make Priority').css('color', 'gray');
-            $(this).css('background-color', ''); 
-        }
     });
-});
 
+    $(document).on('click', function() {
 
-//*************************************************************************************************
-// When dob enter then calculate age function
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("dob").addEventListener("change", function() {
-        var dobInput = this.value;
-
-        if (!dobInput) return; 
-
-        var dob = new Date(dobInput);
-        var today = new Date();
-
-        if (dob > today) {
-            alert("Date of Birth cannot be in the future!");
-            return;
-        }
-
-        var ageYears = today.getFullYear() - dob.getFullYear();
-        var ageMonths = today.getMonth() - dob.getMonth();
-        var ageDays = today.getDate() - dob.getDate();
-
-        
-        if (ageDays < 0) {
-            ageMonths--;
-            var lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-            ageDays += lastMonth.getDate();
-        }
-
-        if (ageMonths < 0) {
-            ageYears--;
-            ageMonths += 12;
-        }
-
-        document.getElementById("years").value = ageYears;
-        document.getElementById("months").value = ageMonths;
-        document.getElementById("days").value = ageDays;
+        $('#Branch_record_tbl tr').removeClass('selected-row');
     });
-});
 
-//##############*****************###################*****************##########################*****************##############################
-  
-//gender select for initial
-document.addEventListener("DOMContentLoaded", function() {
-    var initialSelect = document.getElementById("initial");
 
-    function updateGender() {
-        var selectedValue = initialSelect.value;
+    //*************************************************************************************************
+    // Priority button pe=rocess function
+    $(document).ready(function() {
+        $('#make_priority').on('click', function() {
+            let selectedRow = $('#Branch_record_tbl tr.selected-row');
 
-        if (selectedValue == "1") { 
-            document.getElementById("male").checked = true;
-        } else if (selectedValue == "2" || selectedValue == "3") { 
-            document.getElementById("female").checked = true;
+            if (selectedRow.length === 0) {
+                alert("Please select a test!");
+                return;
+            }
+
+            let priorityCell = selectedRow.find('td:nth-child(7)');
+
+            if (priorityCell.text().trim() === '***') {
+
+                priorityCell.text('-');
+                $(this).val('Make Priority').css('color', 'gray');
+                selectedRow.css('background-color', '');
+            } else {
+
+                priorityCell.html('<span style="color: red;">***</span>');
+                $(this).val('Remove Priority').css('color', 'red');
+                selectedRow.css('background-color', 'pink');
+            }
+        });
+
+
+        $(document).on('click', '#Branch_record_tbl tr', function() {
+            $('#Branch_record_tbl tr').removeClass('selected-row');
+            $(this).addClass('selected-row');
+
+            let priorityCell = $(this).find('td:nth-child(7)');
+
+            if (priorityCell.text().trim() === '***') {
+                $('#make_priority').val('Remove Priority').css('color', 'red');
+                $(this).css('background-color', 'pink');
+            } else {
+                $('#make_priority').val('Make Priority').css('color', 'gray');
+                $(this).css('background-color', '');
+            }
+        });
+    });
+
+
+    //*************************************************************************************************
+    // When dob enter then calculate age function
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("dob").addEventListener("change", function() {
+            var dobInput = this.value;
+
+            if (!dobInput) return;
+
+            var dob = new Date(dobInput);
+            var today = new Date();
+
+            if (dob > today) {
+                alert("Date of Birth cannot be in the future!");
+                return;
+            }
+
+            var ageYears = today.getFullYear() - dob.getFullYear();
+            var ageMonths = today.getMonth() - dob.getMonth();
+            var ageDays = today.getDate() - dob.getDate();
+
+
+            if (ageDays < 0) {
+                ageMonths--;
+                var lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+                ageDays += lastMonth.getDate();
+            }
+
+            if (ageMonths < 0) {
+                ageYears--;
+                ageMonths += 12;
+            }
+
+            document.getElementById("years").value = ageYears;
+            document.getElementById("months").value = ageMonths;
+            document.getElementById("days").value = ageDays;
+        });
+    });
+
+    //##############*****************###################*****************##########################*****************##############################
+
+    //gender select for initial
+    document.addEventListener("DOMContentLoaded", function() {
+        var initialSelect = document.getElementById("initial");
+
+        function updateGender() {
+            var selectedValue = initialSelect.value;
+
+            if (selectedValue == "1") {
+                document.getElementById("male").checked = true;
+            } else if (selectedValue == "2" || selectedValue == "3") {
+                document.getElementById("female").checked = true;
+            }
         }
-    }
-    updateGender();
+        updateGender();
 
-    initialSelect.addEventListener("change", updateGender);
-});
-// ******************Function to save the  data*************************************************************
+        initialSelect.addEventListener("change", updateGender);
+    });
+    // ******************Function to save the  data*************************************************************
 
     function savePatient() {
         // Get the values from the input fields
         var sampleNo = $('#sampleNo').val();
         var labbranch = $('#labBranchDropdown').val();
-        var type =$ ('#type').val();
+        var type = $('#type').val();
         var source = $('#source').val();
         var tpno = $('#tpno').val();
         var initial = $('#initial').val();
@@ -389,7 +452,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var payment_method = $('input[name="payment_method"]:checked').val();
         var paid = $('#paid').val();
         var due = $('#due').text();
-      
+
 
         // Validation for required fields
         if (!fname || !lname) {
@@ -459,23 +522,21 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-//*************************************************************************************************
+    //*************************************************************************************************
 
-//*************************************************************************************************
- 
-//*************************************************************************************************
-//*************************************************************************************************
-//*************************************************************************************************
-//*************************************************************************************************
-//*************************************************************************************************
-//*************************************************************************************************
-//*************************************************************************************************
-//*************************************************************************************************
-//*************************************************************************************************
-//*************************************************************************************************
+    //*************************************************************************************************
+
+    //*************************************************************************************************
+    //*************************************************************************************************
+    //*************************************************************************************************
+    //*************************************************************************************************
+    //*************************************************************************************************
+    //*************************************************************************************************
+    //*************************************************************************************************
+    //*************************************************************************************************
+    //*************************************************************************************************
+    //*************************************************************************************************
     //------------------------------------------------------------------------
-
- 
 </script>
 
 
@@ -533,9 +594,11 @@ document.addEventListener("DOMContentLoaded", function() {
     .warning-text {
         font-weight: bold;
     }
+
     .selected-row {
-    background-color: #1977c9 !important; /* Light blue color */
-}
+        background-color: #1977c9 !important;
+        /* Light blue color */
+    }
 </style>
 @stop
 
@@ -625,8 +688,6 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
 
             <!-- --------------*********************************************************************************-------------------->
-                 -->
-
             <div style="width:1350px; display: flex;">
                 <!--Left Side -->
                 <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; margin-right: 5px; border-radius: 10px;">
@@ -660,7 +721,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Gender:</label>
                         <label><input type="radio" id="male" name="gender" value="male"> Male</label>
-                        <label><input type="radio" id="female" name="gender" value="female"> Female</label>                       
+                        <label><input type="radio" id="female" name="gender" value="female"> Female</label>
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">NIC NO:</label>
@@ -680,7 +741,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         <select name="ref" style="width: 450px; height: 30px" class="input-text" id="refDropdown">
                             <option value=""></option>
                             <?php
-                            $Result = DB::select("SELECT idref, name FROM refference WHERE lid = '" . $_SESSION['lid'] . "' AND name IS NOT NULL ORDER BY name ASC");
+                            $Result = DB::select("select idref, name from refference where lid = '" . $_SESSION['lid'] . "' AND name IS NOT NULL ORDER BY name ASC");
 
                             foreach ($Result as $res) {
                                 $refId = $res->idref;
@@ -712,21 +773,28 @@ document.addEventListener("DOMContentLoaded", function() {
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; "><b>Package Name</b>:</label>
-                            <select name="pkgname" class="input-text" id="pkgname" style="width: 260px;">
-                                <option value=""></option>
-                                <?php
-                                
-                                $Result = DB::select("select idlabpackages, name FROM labpackages WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+                        <input type="text" name="packageDropdown" class="input-text" id="packageDropdown" list="package_test_list" onchange="load_package_tests()" style="width: 350px">
 
-                                foreach ($Result as $res) {
-                                    $packageId = $res->idlabpackages;  
-                                    $packageName = $res->name;        
-                                ?>
-                                    <option value="<?= $packageId ?>"><?= $packageId ?> : <?= $packageName ?></option>
-                                <?php
-                                }
-                                ?>
-                            </select>
+                        <datalist id="package_test_list">
+
+
+                            <option value=""></option>
+                            <?php
+
+                            $Result = DB::select("select idlabpackages, name,price FROM labpackages WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+
+                            foreach ($Result as $res) {
+                                $packageId = $res->idlabpackages;
+                                $packageName = $res->name;
+                                $packagePrice = $res->price;
+                            ?>
+                                <option value="<?= $packageId . ":" . $packageName . ":" . $packagePrice ?>"><?= $packageName ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </datalist>
+
                         <label style="width: 120px;font-size: 18px; "><b>Fasting Time</b>:</label>
                         <input type="text" name=" fast_time" class="input-text" id="fast_time" value="0" style="width: 40px">
                         <input type="checkbox" name="fastcheck" id="fastcheck" class="ref_chkbox" value="1">
@@ -734,57 +802,57 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none; margin-top: 20px;">
 
-                         <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label style="width: 125px; font-size: 18px;">Total Amount:</label>
-                            <label style="width: 30px; font-size: 18px;">Rs: </label>       
-                            <label id="total_amount" style="color: #d63333">000,000.00</label>
+                    <div style="display: flex; align-items: center; margin-top: 5px;">
+                        <label style="width: 125px; font-size: 18px;">Total Amount:</label>
+                        <label style="width: 30px; font-size: 18px;">Rs: </label>
+                        <label id="total_amount" style="color: #d63333">000,000.00</label>
 
-                            <br>
+                        <br>
 
-                            <label style="width: 80px; font-size: 18px;">Discount:</label>
-                            <input type="number" name="discount" class="input-text" id="discount" style="width: 80px;" oninput="applyDiscount()">
-                            
-                            <select name="discount_percentage" class="input-text" id="discount_percentage" style="width: 80px; height: 30px" onchange="applyDiscount()">
-                                <option value="">%</option>
-                                <?php
-                          
-                                $Result = DB::select("select did, name, value FROM Discount WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+                        <label style="width: 80px; font-size: 18px;">Discount:</label>
+                        <input type="number" name="discount" class="input-text" id="discount" style="width: 80px;" oninput="applyDiscount()">
 
-                                foreach ($Result as $res) {
-                                    $discountId = $res->did;
-                                    $discountName = $res->name;
-                                    $discountValue = $res->value; 
-                                ?>
-                                    <option value="<?= $discountValue ?>"><?= $discountName ?> (<?= $discountValue ?>%)</option>
-                                <?php
-                                }
-                                ?>
-                            </select>
+                        <select name="discount_percentage" class="input-text" id="discount_percentage" style="width: 80px; height: 30px" onchange="applyDiscount()">
+                            <option value="">%</option>
+                            <?php
 
-                        </div>
+                            $Result = DB::select("select did, name, value FROM Discount WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
 
-                        <div style="display: flex; align-items: center; margin-top: 20px;">
-                            <label style="width: 125px; font-size: 18px;"><b>Grand Total:</b></label>
-                            <label style="width: 30px; font-size: 18px;">Rs: </label>
-                            <label style="width: 150px; font-size: 18px; color: #d63333" id="grand_total">000,000.00</label>
+                            foreach ($Result as $res) {
+                                $discountId = $res->did;
+                                $discountName = $res->name;
+                                $discountValue = $res->value;
+                            ?>
+                                <option value="<?= $discountValue ?>"><?= $discountName ?> (<?= $discountValue ?>%)</option>
+                            <?php
+                            }
+                            ?>
+                        </select>
 
-                            <label><input type="radio" name="payment_method" id="payment_method" value="cash"> Cash</label>
-                            <label><input type="radio" name="payment_method" id="payment_method" value="card"> Card</label>
-                            <label><input type="radio" name="payment_method" id="payment_method" value="credit"> Credit</label>
-                            <label><input type="radio" name="payment_method" id="payment_method" value="cheque"> Cheque</label>
-                            <label><input type="radio" name="payment_method" id="payment_method" value="split"> Split</label>
-                        </div>
+                    </div>
 
-                        <div style="display: flex; align-items: center; margin-top: 20px;">
-                            <label style="width: 125px; font-size: 18px;">Payment:</label>
-                            <label style="width: 30px; font-size: 18px;">Rs: </label>
-                            <input type="number" name="paid" class="input-text" id="paid" style="width: 97px;" oninput="calculateDue()">
+                    <div style="display: flex; align-items: center; margin-top: 20px;">
+                        <label style="width: 125px; font-size: 18px;"><b>Grand Total:</b></label>
+                        <label style="width: 30px; font-size: 18px;">Rs: </label>
+                        <label style="width: 150px; font-size: 18px; color: #d63333" id="grand_total">000,000.00</label>
 
-                            <label style="width: 35px; font-size: 18px;"></label>
-                            <label style="width: 60px; font-size: 18px;">Due:</label>
-                            <label style="width: 30px; font-size: 18px;">Rs:</label>
-                            <label style="width: 150px; font-size: 18px; color: #d63333" id="due">000,000.00</label>
-                        </div>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="cash"> Cash</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="card"> Card</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="credit"> Credit</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="cheque"> Cheque</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="split"> Split</label>
+                    </div>
+
+                    <div style="display: flex; align-items: center; margin-top: 20px;">
+                        <label style="width: 125px; font-size: 18px;">Payment:</label>
+                        <label style="width: 30px; font-size: 18px;">Rs: </label>
+                        <input type="number" name="paid" class="input-text" id="paid" style="width: 97px;" oninput="calculateDue()">
+
+                        <label style="width: 35px; font-size: 18px;"></label>
+                        <label style="width: 60px; font-size: 18px;">Due:</label>
+                        <label style="width: 30px; font-size: 18px;">Rs:</label>
+                        <label style="width: 150px; font-size: 18px; color: #d63333" id="due">000,000.00</label>
+                    </div>
                     <div style="display: flex; align-items: center;margin-top: 15px; ">
                         <label style="width: 405px;font-size: 18px; "></label>
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="update_payment" value="Update Payment " onclick="">

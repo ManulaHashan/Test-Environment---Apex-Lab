@@ -62,9 +62,9 @@ public function loadSampleNumber()
 
 public function loadBrachWiceTest(){
         $labBranchId = Input::get('labBranchId');
-        $labLid = $_SESSION['lid']; // Secure session retrieval
+        $labLid = $_SESSION['lid']; 
 
-        // Check if labLid is available
+       
         if (!$labLid) {
             return response()->json(['error' => 'Session expired or invalid.'], 401);
         }
@@ -108,6 +108,35 @@ public function loadBrachWiceTest(){
 
         return Response::json(['options' => $list_data]);
 }
+
+public function loadPackageTests(){
+        $packageId = explode(':', Input::get('packageId', ''))[0];
+        $labLid = $_SESSION['lid'];
+
+        $query = "SELECT c.name, a.tgid,c.price as testprice,c.testingtime
+          FROM Testgroup_has_labpackages a
+          JOIN labpackages b ON a.idlabpackages = b.idlabpackages
+          JOIN Testgroup c ON a.tgid = c.tgid
+          WHERE b.Lab_lid = ? AND a.idlabpackages = ?
+          GROUP BY c.name
+          ORDER BY c.name";
+
+        $bindings = [$labLid, $packageId];
+
+        // Execute query
+        $result = DB::select($query, $bindings);
+        $testarry = array();
+        foreach ($result as $res) {
+            $tgid = htmlspecialchars($res->tgid);
+            $testname = htmlspecialchars($res->name);
+            $price = htmlspecialchars($res->testprice);
+            $testtime = htmlspecialchars($res->testingtime);
+            $test_data = $tgid."@".$testname."@". $price."@". $testtime;
+            $testarry[] = $test_data;
+        }
+
+        return Response::json(['testData' => $testarry]);
+    }
 
     // public function getPackageTests(Request $request)
     // {
