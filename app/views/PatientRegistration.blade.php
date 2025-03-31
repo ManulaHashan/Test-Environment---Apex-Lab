@@ -113,8 +113,12 @@ Add New Patient
             <input type="checkbox" class="barcode-checkbox" checked>
         </td>
         <td align="center">-</td>  
+        <td align="center">-</td>  
         <td align="center">
-            <button type="button" class="btn btn-danger btn-sm" onclick="removeTestItemInTable('${tgid}', '${tstData}')">Remove</button>
+           <button type="button" class="btn btn-danger btn-sm" onclick="removeTestItemInTable('${tgid}', '${tstData}')">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+
         </td>
     </tr>`;
 
@@ -142,6 +146,22 @@ Add New Patient
     function load_package_tests() {
         var packageId = $('#packageDropdown').val();
         var f_time = $('#fast_time').val();
+        itemListTestData = [];
+        document.getElementById("Branch_record_tbl").innerHTML = "";
+
+        let packageParts = packageId.split(":");
+        let amount = parseFloat(packageParts[2]);
+
+        if (!isNaN(amount)) {
+            $('#total_amount').text(amount.toFixed(2));
+            $('#grand_total').text(amount.toFixed(2));
+            $('#due').text(amount.toFixed(2));
+        } else {
+            $('#total_amount').text("0.00");
+            $('#grand_total').text("0.00");
+            $('#due').text("0.00");
+        }
+
 
         $.ajax({
             type: "GET",
@@ -187,6 +207,7 @@ Add New Patient
             }
         });
     }
+
 
     // **********************record to table*******************
     // function setDataToTable(selectedValue) {
@@ -421,9 +442,38 @@ Add New Patient
 
         initialSelect.addEventListener("change", updateGender);
     });
+
+    var allRecords = [];
+
+    function getAllTableRecords() {
+
+        allRecords = [];
+
+        $('#Branch_record_tbl tr').each(function() {
+            let tgid = $(this).find('td:nth-child(1)').text().trim();
+            let group = $(this).find('td:nth-child(2)').text().trim();
+            let price = parseFloat($(this).find('td:nth-child(3)').text().trim()) || 0;
+            let time = $(this).find('td:nth-child(4)').text().trim();
+            let f_time = $(this).find('td:nth-child(5)').text().trim();
+            let bar_code = $(this).find('td:nth-child(6)').text().trim();
+            let priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
+
+            let testData = `${tgid}@${group}@${price}@${time}@${f_time}@${priority}`;
+
+            allRecords.push(testData);
+        });
+
+        return allRecords;
+        // allRecords.forEach(record => console.log(record));
+
+    }
+
     // ******************Function to save the  data*************************************************************
 
+    var testData = [];
+
     function savePatient() {
+        testData = [];
         // Get the values from the input fields
         var sampleNo = $('#sampleNo').val();
         var labbranch = $('#labBranchDropdown').val();
@@ -437,7 +487,7 @@ Add New Patient
         var years = $('#years').val();
         var months = $('#months').val();
         var days = $('#days').val();
-        var gender = $('input[name="male"]:checked').val() || $('input[name="female"]:checked').val();
+        var gender = $('input[name="gender"]:checked').val() || $('input[name="gender"]:checked').val();
         var nic = $('#nic').val();
         var address = $('#address').val();
         var refcode = $('#refcode').val();
@@ -445,6 +495,7 @@ Add New Patient
         var testname = $('#testname').val();
         var pkgname = $('#pkgname').val();
         var fast_time = $('#fast_time').val();
+        var test_data = getAllTableRecords();
         var total_amount = $('#total_amount').text();
         var discount = $('#discount').val();
         var discount_percentage = $('#discount_percentage').val();
@@ -453,8 +504,27 @@ Add New Patient
         var paid = $('#paid').val();
         var due = $('#due').text();
 
+        $('#Branch_record_tbl tr').each(function() {
+            var tgid = $(this).find('td:nth-child(1)').text().trim();
+            var group = $(this).find('td:nth-child(2)').text().trim();
+            var price = parseFloat($(this).find('td:nth-child(3)').text().trim()) || 0;
+            var time = $(this).find('td:nth-child(4)').text().trim();
+            var f_time = $(this).find('td:nth-child(5)').text().trim();
+            var bar_code = $(this).find('td:nth-child(6)').text().trim();
+            var priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
 
-        // Validation for required fields
+            testData.push({
+                tgid: tgid,
+                group: group,
+                price: price,
+                time: time,
+                f_time: f_time,
+                bar_code: bar_code,
+                priority: priority
+            });
+        });
+
+        //Validation for required fields
         if (!fname || !lname) {
             alert('First Name and Last Name are required.');
             return;
@@ -467,6 +537,17 @@ Add New Patient
             alert('Gender is required.');
             return;
         }
+
+        if (testData.length == 0) {
+            alert('Please add at least one test to the table.');
+            return;
+        }
+
+        // for (var i = 0; i < testData.length; i++) {
+        //     var test = testData[i];
+        //     var testString = `${test.tgid}@${test.group}@${test.price}@${test.time}@${test.f_time}@${test.priority}`;
+        //     alert(testString);
+        // }
 
 
 
@@ -496,6 +577,7 @@ Add New Patient
                 'testname': testname,
                 'pkgname': pkgname,
                 'fast_time': fast_time,
+                'test_data': testData,
                 'total_amount': total_amount,
                 'discount': discount,
                 'discount_percentage': discount_percentage,
@@ -504,15 +586,17 @@ Add New Patient
                 'paid': paid,
                 'due': due
 
+
             },
             success: function(response) {
-                if (response.error == "saved") {
-                    alert('Patient saved successfully!');
-                    $('#fname, #lname, #dob, #years, #months, #days, #nic, #address, #refcode, #ref, #testname, #pkgname, #fast_time').val('');
-                    $('input[name="male"], input[name="female"]').prop('checked', false);
-                } else {
-                    alert('Error in saving process.');
-                }
+                alert(response)
+                // if (response.error == "saved") {
+                //     alert('Patient saved successfully!');
+                //     $('#fname, #lname, #dob, #years, #months, #days, #nic, #address, #refcode, #ref, #testname, #pkgname, #fast_time').val('');
+                //     $('input[name="male"], input[name="female"]').prop('checked', false);
+                // } else {
+                //     alert('Error in saving process.');
+                // }
             },
             error: function(xhr) {
                 console.log('Error:', xhr);
@@ -605,8 +689,7 @@ Add New Patient
 @section('body')
 
 
-<h2 class="pageheading" style="margin-top: 15px;"> Add Patient
-</h2><br>
+
 <div class="container">
     <div class="card" style="height: 1250px; margin-top: 20px;">
         <div class="card-body">
@@ -659,15 +742,15 @@ Add New Patient
                     <input type="button" style="width: 80px" class="btn" id="ser_btn" value="Search" onclick="">
                 </div>
 
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center;">
                     <label style="width: 89px;font-size: 18px; ">Search</label>
                     <input type="text" name="ser_pdetails" class="input-text" id="ser_pdetails" style="width: 210px">
                     <label style="width: 200px;font-size: 18px;"></label>
-                    <label style="width: 50px;font-size: 18px;">Type</label>
+                    <!-- <label style="width: 50px;font-size: 18px;">Type</label>
                     <select type="text" name="type" class="input-text" id="type" style="width: 80px; height: 30px">
                         <option value="1">In</option>
                         <option value="2">Out</option>
-                    </select>
+                    </select> -->
                     <label style="width: 105px;font-size: 18px;"></label>
                     <label style="width: 80px;font-size: 16px;  "><b>Source</b></label>
                     <select type="text" name="source" disabled class="input-text" id="source" style="width: 135px; height: 30px">
@@ -678,7 +761,7 @@ Add New Patient
                     <input type="checkbox" name="ignore_date" class="ignore_date" value="1">
                     <label style="width: 140px;font-size: 16px;  "><b>Ignore Date</b></label>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center;">
                     <label style="width: 90px;font-size: 18px; ">T.P.NO</label>
                     <input type="text" name="tpno" class="input-text" id="tpno" style="width: 210px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
                     <label style="width: 850px;font-size: 18px;"></label>
@@ -701,7 +784,7 @@ Add New Patient
                             <option value="4">Dr</option>
                             <option value="5">Hons</option>
                         </select>
-                        <input type="text" name=" fname" maxlength="2" class="input-text" id="fname" style="width: 380px">
+                        <input type="text" name=" fname" class="input-text" id="fname" style="width: 380px">
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Last Name:</label>
@@ -720,8 +803,8 @@ Add New Patient
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Gender:</label>
-                        <label><input type="radio" id="male" name="gender" value="male"> Male</label>
-                        <label><input type="radio" id="female" name="gender" value="female"> Female</label>
+                        <label><input type="radio" id="male" name="gender" value="1"> Male</label>
+                        <label><input type="radio" id="female" name="gender" value="2"> Female</label>
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">NIC NO:</label>
@@ -753,6 +836,7 @@ Add New Patient
                             ?>
                         </select>
                     </div>
+                    <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none; margin-top: 20px;">
                     <!-- <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; "><b>Test Name</b>:</label>
                         <input type="text" name="testname" class="input-text" id="testname" list="testlist" oninput="setDataToTable(this.value)" style="width: 350px">
@@ -764,16 +848,27 @@ Add New Patient
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; "><b>Test Name</b>:</label>
                         <!-- Using onchange event here to trigger the function when a valid value is selected -->
-                        <input type="text" name="testname" class="input-text" id="testname" list="testlist" onchange="setDataToTable(this.value)" style="width: 350px">
+                        <input type="text" name="testname" class="input-text" id="testname" list="testlist" onchange="setDataToTable(this.value)" style="width: 220px">
                         <datalist id="testlist">
 
                         </datalist>
-                        <input type="checkbox" name="byname" id="byname" class="ref_chkbox" value="1">
-                        <label style="width: 70px;font-size: 16px;  "><b>By Name</b></label>
+                        <label style="width: 40px;font-size: 18px;margin-left: 15px"><b>Type</b></label>
+                        <select type="text" name="type" class="input-text" id="type" style="width: 70px; height: 30px">
+                            <option value="1">In</option>
+                            <option value="2">Out</option>
+                        </select>
+                        <label style="width: 100px;font-size: 18px; margin-left: 15px "><b>Fast Time</b>:</label>
+                        <input type="text" name=" fast_time" class="input-text" id="fast_time" value="0" style="width: 40px">
+                        <input type="checkbox" name="fastcheck" id="fastcheck" class="ref_chkbox" value="1">
+                        <!-- <input type="checkbox" name="byname" id="byname" class="ref_chkbox" value="1">
+                        <label style="width: 70px;font-size: 16px;  "><b>By Name</b></label> -->
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; "><b>Package Name</b>:</label>
-                        <input type="text" name="packageDropdown" class="input-text" id="packageDropdown" list="package_test_list" onchange="load_package_tests()" style="width: 350px">
+                        <input type="text" name="packageDropdown" class="input-text" id="packageDropdown"
+                            list="package_test_list"
+                            onchange="load_package_tests()"
+                            style="width: 350px">
 
                         <datalist id="package_test_list">
 
@@ -795,9 +890,9 @@ Add New Patient
 
                         </datalist>
 
-                        <label style="width: 120px;font-size: 18px; "><b>Fasting Time</b>:</label>
+                        <!-- <label style="width: 120px;font-size: 18px; "><b>Fast Time</b>:</label>
                         <input type="text" name=" fast_time" class="input-text" id="fast_time" value="0" style="width: 40px">
-                        <input type="checkbox" name="fastcheck" id="fastcheck" class="ref_chkbox" value="1">
+                        <input type="checkbox" name="fastcheck" id="fastcheck" class="ref_chkbox" value="1"> -->
                     </div>
 
                     <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none; margin-top: 20px;">
@@ -836,10 +931,11 @@ Add New Patient
                         <label style="width: 30px; font-size: 18px;">Rs: </label>
                         <label style="width: 150px; font-size: 18px; color: #d63333" id="grand_total">000,000.00</label>
 
-                        <label><input type="radio" name="payment_method" id="payment_method" value="cash"> Cash</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="cash" checked> Cash</label>
                         <label><input type="radio" name="payment_method" id="payment_method" value="card"> Card</label>
                         <label><input type="radio" name="payment_method" id="payment_method" value="credit"> Credit</label>
                         <label><input type="radio" name="payment_method" id="payment_method" value="cheque"> Cheque</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="cheque"> Voucher</label>
                         <label><input type="radio" name="payment_method" id="payment_method" value="split"> Split</label>
                     </div>
 
@@ -854,7 +950,8 @@ Add New Patient
                         <label style="width: 150px; font-size: 18px; color: #d63333" id="due">000,000.00</label>
                     </div>
                     <div style="display: flex; align-items: center;margin-top: 15px; ">
-                        <label style="width: 405px;font-size: 18px; "></label>
+                        <label style="width: 220px;font-size: 18px; "></label>
+                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="cashDrower" value="Cash Drower " onclick="">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="update_payment" value="Update Payment " onclick="">
                     </div>
 
@@ -869,13 +966,14 @@ Add New Patient
                         <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="test_tbl" width="100%" border="0" cellspacing="2" cellpadding="0">
                             <thead>
                                 <tr class="viewTHead">
-                                    <td align="center" class="fieldText" style="width: 20px;">Test Id </td>
-                                    <td align="center" class="fieldText" style="width: 250px;">Test Name</td>
+                                    <td align="center" class="fieldText" style="width: 20px;">Id </td>
+                                    <td align="center" class="fieldText" style="width: 250px; text-align:left">Test Name</td>
                                     <td align="center" class="fieldText" style="width: 20px;"> price</td>
-                                    <td align="center" class="fieldText" style="width: 10px;">Testing time</td>
-                                    <td align="center" class="fieldText" style="width: 10px;">Fasting Time</td>
-                                    <td align="center" class="fieldText" style="width: 10px;"> Barcode</td>
+                                    <td align="center" class="fieldText" style="width: 10px;">TAT</td>
+                                    <td align="center" class="fieldText" style="width: 10px;">Fast. Time</td>
+                                    <td align="center" class="fieldText" style="width: 10px;"> B.code</td>
                                     <td align="center" class="fieldText" style="width: 10px;">Priority</td>
+                                    <td align="center" class="fieldText" style="width: 10px;">Type</td>
                                     <td align="center" class="fieldText" style="width: 10px;">Action</td>
                                 </tr>
                             </thead>
@@ -909,16 +1007,17 @@ Add New Patient
                     </div>
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 230px;font-size: 18px; "><b>Report Collection Method</b></label>
-                        <select type="text" name="rep_collection" class="input-text" id="rep_collection" style="width: 120px; height: 30px; ">
-                            <option value="1">Hard Coppy</option>
-                            <option value="2">SMS</option>
-                            <option value="3">Email</option>
-                            <option value="4">Whatsapp</option>
-                        </select>
-                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1">
-                        <label style="width: 90px;font-size: 16px;  "><b>PrintBill</b></label>
+                    </div>
+                    <div style="display: flex; align-items: center;margin-top: 5px; ">
+                        <label><input type="radio" name="payment_method" id="payment_method" value="hard" checked> Hard Coppy</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="sms"> SMS</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="email"> Email</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="whatsapp"> Whatsapp</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="hard"> Package Invoice</label>
+                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1" style="margin-left: 15px;">
+                        <label style="width: 70px;font-size: 16px;  "><b>PrintBill</b></label>
                         <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1">
-                        <label style="width: 90px;font-size: 16px;  "><b>Claim Bill</b></label>
+                        <label style="width: 80px;font-size: 16px;  "><b>Claim Bill</b></label>
                         <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1">
                         <label style="width: 90px;font-size: 16px;  "><b>2 Copies</b></label>
 
@@ -928,7 +1027,7 @@ Add New Patient
 
                     <div style="display: flex; align-items: center;margin-top: 4px; ">
                         <label style="width: 50px;font-size: 16px;  "></label>
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="savebtn" value="Save" onclick="">
+                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords();savePatient()">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="updatebtn" value="Update Details " onclick="">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="getlastpatientbtn" value="Get Last patient" onclick="">
                     </div>

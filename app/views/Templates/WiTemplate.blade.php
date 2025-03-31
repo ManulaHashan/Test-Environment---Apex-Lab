@@ -21,6 +21,8 @@ if (isset($_SESSION['lid']) & isset($_SESSION['luid'])) {
             <link href="{{ asset('CSS/n_list.css') }}" rel='stylesheet' type='text/css' />
             <link href="{{ asset('CSS/workUI.css') }}" rel='stylesheet' type='text/css' />
             <link href="{{ asset('CSS/Stylie.css') }}" rel='stylesheet' type='text/css' />
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
             <script src="{{ asset('JS/jquery-3.1.0.js') }}"></script>
 
             <title>@yield('title')</title>        

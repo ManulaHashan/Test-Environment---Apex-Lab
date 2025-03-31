@@ -138,18 +138,135 @@ public function loadPackageTests(){
         return Response::json(['testData' => $testarry]);
     }
 
-    // public function getPackageTests(Request $request)
-    // {
-    //     $packageId = $request->input('packageId');
 
-    //     // Fetch tests related to the selected package
-    //     $tests = DB::table('Testgroup_has_labpackages')
-    //         ->join('tests', 'Testgroup_has_labpackages.idtest', '=', 'tests.id')
-    //         ->where('Testgroup_has_labpackages.idlabpackages', $packageId)
-    //         ->select('tests.id', 'tests.name', 'tests.amount')
-    //         ->get();
+    public function savePatientDetails(Request $request)
+    {
+        $sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        $labLid = $_SESSION['lid'];
+        $query = "SELECT idref FROM refference WHERE lid = ? AND name = ref LIMIT 1";
 
-    //     // Return the tests as a JSON response
-    //     return response()->json(['tests' => $tests]);
-    // }
+        $bindings = [$labLid, $request->input('ref')];
+
+        // Execute query
+        $result = DB::select($query, $bindings);
+
+        foreach ($result as $res) {
+            $refId = htmlspecialchars($res->idref); 
+        }
+
+
+        if (explode(":", $request->input('pkgname'))[1] != "") 
+        {
+            $labpackId = "";
+            $result_labpack = DB::select("SELECT idlabpackages FROM labpackages WHERE name = '" . explode(":", $request->input('pkgname'))[1] . "' AND Lab_lid = '" . $labLid. "'");
+            foreach ($result_labpack as $restlpk) {
+                $labpackId = htmlspecialchars($restlpk->idlabpackages);
+
+                DB::table('invoice_has_labpackages')->insert([
+                    'sno' => $request->input('sampleNo'),
+                    'pcid' => $labpackId,
+                    'lab_lid' => $labLid
+                ]);
+            }
+        }
+
+        $simpleDateFormat = date('Ymd');
+       
+        if ($request->input('ref') == "") {
+            $result = DB::select("SELECT idref FROM refference WHERE lid = ? AND name = '' LIMIT 1", $labLid);
+
+            if (!empty($result)) {
+                $reffereceId = $result[0]->idref;
+            } else {
+                $reffereceId = 0;
+            }
+        } else {
+            $reffereceId = $request->input('refcode');
+        }
+
+        
+        
+
+        $patientData = [
+            'sample_no' => $request->input('sampleNo'),
+            'lab_branch' => $request->input('labbranch'),
+            'type' => $request->input('type'),
+            'source' => $request->input('source'),
+            'tpno' => $request->input('tpno'),
+            'initial' => $request->input('initial'),
+            'first_name' => $request->input('fname'),
+            'last_name' => $request->input('lname'),
+            'dob' => $request->input('dob'),
+            'years' => $request->input('years'),
+            'months' => $request->input('months'),
+            'days' => $request->input('days'),
+            'gender' => $request->input('gender'),
+            'nic' => $request->input('nic'),
+            'address' => $request->input('address'),
+            'refcode' => $request->input('refcode'),
+            'ref' => $request->input('ref'),
+            'testname' => $request->input('testname'),
+            'pkgname' => $request->input('pkgname'),
+            'fast_time' => $request->input('fast_time'),
+            'test_data' => json_encode($request->input('test_data')),
+            'total_amount' => $request->input('total_amount'),
+            'discount' => $request->input('discount'),
+            'discount_percentage' => $request->input('discount_percentage'),
+            'grand_total' => $request->input('grand_total'),
+            'payment_method' => $request->input('payment_method'),
+            'paid' => $request->input('paid'),
+            'due' => $request->input('due')
+        ];
+
+        echo $request->input('sampleNo');
+
+        // try {
+
+        //     $patientData = [
+        //         'sample_no' => $request->input('sampleNo'),
+        //         'lab_branch' => $request->input('labbranch'),
+        //         'type' => $request->input('type'),
+        //         'source' => $request->input('source'),
+        //         'tpno' => $request->input('tpno'),
+        //         'initial' => $request->input('initial'),
+        //         'first_name' => $request->input('fname'),
+        //         'last_name' => $request->input('lname'),
+        //         'dob' => $request->input('dob'),
+        //         'years' => $request->input('years'),
+        //         'months' => $request->input('months'),
+        //         'days' => $request->input('days'),
+        //         'gender' => $request->input('gender'),
+        //         'nic' => $request->input('nic'),
+        //         'address' => $request->input('address'),
+        //         'refcode' => $request->input('refcode'),
+        //         'ref' => $request->input('ref'),
+        //         'testname' => $request->input('testname'),
+        //         'pkgname' => $request->input('pkgname'),
+        //         'fast_time' => $request->input('fast_time'),
+        //         'test_data' => json_encode($request->input('test_data')), 
+        //         'total_amount' => $request->input('total_amount'),
+        //         'discount' => $request->input('discount'),
+        //         'discount_percentage' => $request->input('discount_percentage'),
+        //         'grand_total' => $request->input('grand_total'),
+        //         'payment_method' => $request->input('payment_method'),
+        //         'paid' => $request->input('paid'),
+        //         'due' => $request->input('due')
+        //     ];
+
+        //         echo json_encode($patientData);
+
+        //     // PatientRegistration::create($patientData);
+
+
+        //     // return response()->json(['error' => 'saved']);
+        // } catch (\Exception $e) {
+
+        //     return response()->json(['error' => 'An unexpected error occurred.']);
+        // }
+    }
+
+
+ 
+
+   
 }

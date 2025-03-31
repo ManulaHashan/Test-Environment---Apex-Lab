@@ -284,6 +284,7 @@ Route::get('/patientRegistration', function () {
 Route::get('/getCurrentSampleNumber', 'PatientRegistrationController@loadSampleNumber');
 Route::get('/getTests', 'PatientRegistrationController@loadBrachWiceTest');
 Route::get('/getPackageTests', 'PatientRegistrationController@loadPackageTests');
+Route::post('/savePatient', 'PatientRegistrationController@savePatientDetails');
 
 
 
