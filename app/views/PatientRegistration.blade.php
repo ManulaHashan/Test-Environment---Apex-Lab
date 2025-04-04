@@ -91,8 +91,9 @@ Add New Patient
         var price = parseFloat(parts[2]) || 0;
         var time = parts[3];
         var f_time = $('#fast_time').val();
+        var type = $('#type').val();
 
-        var tstData = `${tgid}@${group}@${price}@${time}@${f_time}`;
+        var tstData = `${tgid}@${group}@${price}@${time}@${f_time}@${type}`;
 
         if (itemListTestData.includes(tstData)) {
             alert("This test is already added!");
@@ -113,7 +114,7 @@ Add New Patient
             <input type="checkbox" class="barcode-checkbox" checked>
         </td>
         <td align="center">-</td>  
-        <td align="center">-</td>  
+        <td align="center">${type}</td>  
         <td align="center">
            <button type="button" class="btn btn-danger btn-sm" onclick="removeTestItemInTable('${tgid}', '${tstData}')">
             <i class="fas fa-trash-alt"></i>
@@ -432,9 +433,9 @@ Add New Patient
         function updateGender() {
             var selectedValue = initialSelect.value;
 
-            if (selectedValue == "1") {
+            if (selectedValue == "Mr") {
                 document.getElementById("male").checked = true;
-            } else if (selectedValue == "2" || selectedValue == "3") {
+            } else if (selectedValue == "Miss" || selectedValue == "Mrs") {
                 document.getElementById("female").checked = true;
             }
         }
@@ -457,8 +458,8 @@ Add New Patient
             let f_time = $(this).find('td:nth-child(5)').text().trim();
             let bar_code = $(this).find('td:nth-child(6)').text().trim();
             let priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
-
-            let testData = `${tgid}@${group}@${price}@${time}@${f_time}@${priority}`;
+            let type = $(this).find('td:nth-child(8)').text().trim();
+            let testData = `${tgid}@${group}@${price}@${time}@${f_time}@${priority}@${type}`;
 
             allRecords.push(testData);
         });
@@ -470,11 +471,155 @@ Add New Patient
 
     // ******************Function to save the  data*************************************************************
 
-    var testData = [];
+    // var testData = [];
 
-    function savePatient() {
+    // function savePatientDetails() {
+    //     testData = [];
+    //     // Get the values from the input fields
+    //     var sampleNo = $('#sampleNo').val();
+    //     var labbranch = $('#labBranchDropdown').val();
+    //     var type = $('#type').val();
+    //     var source = $('#source').val();
+    //     var tpno = $('#tpno').val();
+    //     var initial = $('#initial').val();
+    //     var fname = $('#fname').val();
+    //     var lname = $('#lname').val();
+    //     var dob = $('#dob').val();
+    //     var years = $('#years').val();
+    //     var months = $('#months').val();
+    //     var days = $('#days').val();
+    //     var gender = $('input[name="gender"]:checked').val() || $('input[name="gender"]:checked').val();
+    //     var nic = $('#nic').val();
+    //     var address = $('#address').val();
+    //     var refcode = $('#refcode').val();
+    //     var ref = $('#ref').val();
+    //     var testname = $('#testname').val();
+    //     var type = $('#type').val();
+    //     var pkgname = $('#pkgname').val();
+    //     var fast_time = $('#fast_time').val();
+    //     var test_data = getAllTableRecords();
+    //     var total_amount = $('#total_amount').text();
+    //     var discount = $('#discount').val();
+    //     var discount_percentage = $('#discount_percentage').val();
+    //     var grand_total = $('#grand_total').text();
+    //     var payment_method = $('input[name="payment_method"]:checked').val();
+    //     var paid = $('#paid').val();
+    //     var due = $('#due').text();
+
+
+
+    //     $('#Branch_record_tbl tr').each(function() {
+    //         var tgid = $(this).find('td:nth-child(1)').text().trim();
+    //         var group = $(this).find('td:nth-child(2)').text().trim();
+    //         var price = parseFloat($(this).find('td:nth-child(3)').text().trim()) || 0;
+    //         var time = $(this).find('td:nth-child(4)').text().trim();
+    //         var f_time = $(this).find('td:nth-child(5)').text().trim();
+    //         var bar_code = $(this).find('td:nth-child(6)').text().trim();
+    //         var priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
+    //         var type = $(this).find('td:nth-child(8)').text().trim();
+
+    //         testData.push({
+    //             tgid: tgid,
+    //             group: group,
+    //             price: price,
+    //             time: time,
+    //             f_time: f_time,
+    //             bar_code: bar_code,
+    //             priority: priority,
+    //             type: type
+    //         });
+    //     });
+
+
+
+    //     //Validation for required fields
+    //     if (!fname || !lname) {
+    //         alert('First Name and Last Name are required.');
+    //         return;
+    //     }
+    //     if (!years) {
+    //         alert('Date of Birth is required.');
+    //         return;
+    //     }
+    //     if (!gender) {
+    //         alert('Gender is required.');
+    //         return;
+    //     }
+
+    //     if (testData.length == 0) {
+    //         alert('Please add at least one test to the table.');
+    //         return;
+    //     }
+
+
+    //     // for (var i = 0; i < testData.length; i++) {
+    //     //     var test = testData[i];
+    //     //     var testString = `${test.tgid}@${test.group}@${test.price}@${test.time}@${test.f_time}@${test.priority}`;
+    //     //     alert(testString);
+    //     // }
+
+
+
+    //     // AJAX request to save the patient data
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "savePatient", // Change this to the appropriate endpoint
+    //         data: {
+
+    //             'sampleNo': sampleNo,
+    //             'labbranch': labbranch,
+    //             'type': type,
+    //             'source': source,
+    //             'tpno': tpno,
+    //             'initial': initial,
+    //             'fname': fname,
+    //             'lname': lname,
+    //             'dob': dob,
+    //             'years': years,
+    //             'months': months,
+    //             'days': days,
+    //             'gender': gender,
+    //             'nic': nic,
+    //             'address': address,
+    //             'refcode': refcode,
+    //             'ref': ref,
+    //             'testname': testname,
+    //             'type': type,
+    //             'pkgname': pkgname,
+    //             'fast_time': fast_time,
+    //             'test_data': testData,
+    //             'total_amount': total_amount,
+    //             'discount': discount,
+    //             'discount_percentage': discount_percentage,
+    //             'grand_total': grand_total,
+    //             'payment_method': payment_method,
+    //             'paid': paid,
+    //             'due': due
+
+
+    //         },
+    //         success: function(response) {
+    //             alert(response)
+    //             // if (response.error == "saved") {
+    //             //     alert('Patient saved successfully!');
+    //             //     $('#fname, #lname, #dob, #years, #months, #days, #nic, #address, #refcode, #ref, #testname, #pkgname, #fast_time').val('');
+    //             //     $('input[name="male"], input[name="female"]').prop('checked', false);
+    //             // } else {
+    //             //     alert('Error in saving process.');
+    //             // }
+    //         },
+    //         error: function(xhr) {
+    //             console.log('Error:', xhr);
+    //             var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+    //             alert(errorMsg);
+    //         }
+    //     });
+    // }
+
+    function savePatientDetails() {
         testData = [];
-        // Get the values from the input fields
+
+
         var sampleNo = $('#sampleNo').val();
         var labbranch = $('#labBranchDropdown').val();
         var type = $('#type').val();
@@ -484,25 +629,29 @@ Add New Patient
         var fname = $('#fname').val();
         var lname = $('#lname').val();
         var dob = $('#dob').val();
-        var years = $('#years').val();
-        var months = $('#months').val();
-        var days = $('#days').val();
-        var gender = $('input[name="gender"]:checked').val() || $('input[name="gender"]:checked').val();
+
+        var years = $('#years').val().trim();
+        var months = $('#months').val().trim();
+        var days = $('#days').val().trim();
+
+        var gender = $('input[name="gender"]:checked').val();
         var nic = $('#nic').val();
         var address = $('#address').val();
         var refcode = $('#refcode').val();
-        var ref = $('#ref').val();
+        var ref = $('#refDropdown').val();
         var testname = $('#testname').val();
         var pkgname = $('#pkgname').val();
         var fast_time = $('#fast_time').val();
-        var test_data = getAllTableRecords();
-        var total_amount = $('#total_amount').text();
-        var discount = $('#discount').val();
-        var discount_percentage = $('#discount_percentage').val();
-        var grand_total = $('#grand_total').text();
-        var payment_method = $('input[name="payment_method"]:checked').val();
-        var paid = $('#paid').val();
-        var due = $('#due').text();
+
+
+        var total_amount = $('#total_amount').text().trim() || '0.00';
+        var discount = $('#discount').val().trim() || '0.00';
+        var discount_percentage = $('#discount_percentage').val().trim() || '0';
+        var grand_total = $('#grand_total').text().trim() || '0.00';
+        var payment_method = $('input[name="payment_method"]:checked').val() || 'cash';
+        var paid = $('#paid').val().trim() || '0.00';
+        var due = $('#due').text().trim() || '0.00';
+
 
         $('#Branch_record_tbl tr').each(function() {
             var tgid = $(this).find('td:nth-child(1)').text().trim();
@@ -510,8 +659,9 @@ Add New Patient
             var price = parseFloat($(this).find('td:nth-child(3)').text().trim()) || 0;
             var time = $(this).find('td:nth-child(4)').text().trim();
             var f_time = $(this).find('td:nth-child(5)').text().trim();
-            var bar_code = $(this).find('td:nth-child(6)').text().trim();
+            var bar_code = $(this).find('td:nth-child(6) input[type="checkbox"]').is(':checked') ? 'Yes' : 'No';
             var priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
+            var type = $(this).find('td:nth-child(8)').text().trim();
 
             testData.push({
                 tgid: tgid,
@@ -520,97 +670,98 @@ Add New Patient
                 time: time,
                 f_time: f_time,
                 bar_code: bar_code,
-                priority: priority
+                priority: priority,
+                type: type
             });
         });
 
-        //Validation for required fields
+
         if (!fname || !lname) {
             alert('First Name and Last Name are required.');
             return;
         }
-        if (!years) {
-            alert('Date of Birth is required.');
+        if (!years && !months && !days) {
+            alert('At least one age field (Years, Months, Days) is required.');
             return;
         }
         if (!gender) {
             alert('Gender is required.');
             return;
         }
-
         if (testData.length == 0) {
             alert('Please add at least one test to the table.');
             return;
         }
 
-        // for (var i = 0; i < testData.length; i++) {
-        //     var test = testData[i];
-        //     var testString = `${test.tgid}@${test.group}@${test.price}@${test.time}@${test.f_time}@${test.priority}`;
-        //     alert(testString);
-        // }
+
+        var postData = {
+            sampleNo: sampleNo,
+            labbranch: labbranch,
+            type: type,
+            source: source,
+            tpno: tpno,
+            initial: initial,
+            fname: fname,
+            lname: lname,
+            dob: dob,
+            years: years,
+            months: months,
+            days: days,
+            gender: gender,
+            nic: nic,
+            address: address,
+            refcode: refcode,
+            ref: ref,
+            testname: testname,
+            pkgname: pkgname,
+            fast_time: fast_time,
+            test_data: testData,
+            total_amount: total_amount,
+            discount: discount,
+            discount_percentage: discount_percentage,
+            grand_total: grand_total,
+            payment_method: payment_method,
+            paid: paid,
+            due: due
+        };
 
 
+        console.log("Data to be sent:", postData);
 
-        // AJAX request to save the patient data
         $.ajax({
             type: "POST",
-            url: "savePatient", // Change this to the appropriate endpoint
-            data: {
-
-                'sampleNo': sampleNo,
-                'labbranch': labbranch,
-                'type': type,
-                'source': source,
-                'tpno': tpno,
-                'initial': initial,
-                'fname': fname,
-                'lname': lname,
-                'dob': dob,
-                'years': years,
-                'months': months,
-                'days': days,
-                'gender': gender,
-                'nic': nic,
-                'address': address,
-                'refcode': refcode,
-                'ref': ref,
-                'testname': testname,
-                'pkgname': pkgname,
-                'fast_time': fast_time,
-                'test_data': testData,
-                'total_amount': total_amount,
-                'discount': discount,
-                'discount_percentage': discount_percentage,
-                'grand_total': grand_total,
-                'payment_method': payment_method,
-                'paid': paid,
-                'due': due
-
-
+            url: "/savePatient",
+            data: JSON.stringify(postData), // Convert data to JSON
+            contentType: "application/json", // Ensure Laravel treats it as JSON
+            dataType: "json",
+            beforeSend: function() {
+                console.log("Sending data to server...");
             },
             success: function(response) {
-                alert(response)
-                // if (response.error == "saved") {
-                //     alert('Patient saved successfully!');
-                //     $('#fname, #lname, #dob, #years, #months, #days, #nic, #address, #refcode, #ref, #testname, #pkgname, #fast_time').val('');
-                //     $('input[name="male"], input[name="female"]').prop('checked', false);
-                // } else {
-                //     alert('Error in saving process.');
-                // }
+                console.log("Server Response:", response);
+                if (response.success) {
+                    // alert('Patient saved successfully!');
+                    alert(response.message);
+                } else {
+                    alert('Error: ' + (response.message || 'Unknown error occurred'));
+                }
             },
             error: function(xhr) {
-                console.log('Error:', xhr);
-                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
-                alert(errorMsg);
+                console.error('Error:', xhr);
+                var errorMsg = xhr.responseJSON ?
+                    (xhr.responseJSON.error || xhr.responseJSON.message || 'Unknown error') :
+                    'Server communication failed';
+                alert('Error: ' + errorMsg);
             }
         });
+
     }
 
-    //*************************************************************************************************
 
     //*************************************************************************************************
 
     //*************************************************************************************************
+
     //*************************************************************************************************
     //*************************************************************************************************
     //*************************************************************************************************
@@ -620,7 +771,43 @@ Add New Patient
     //*************************************************************************************************
     //*************************************************************************************************
     //*************************************************************************************************
-    //------------------------------------------------------------------------
+    //*************************************************************************************************
+
+
+
+
+    //--------------------------Feilds validation Process----------------------------------------------
+
+    $(document).ready(function() {
+        $("#tpno").on("input", function() {
+            let value = $(this).val();
+            $(this).val(value.replace(/[^0-9]/g, ""));
+        });
+    });
+
+    $(document).ready(function() {
+        $("#fname").on("input", function() {
+            let value = $(this).val();
+            $(this).val(value.replace(/[^a-zA-Z\s]/g, ""));
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("vaucher_div").style.display = "none";
+        document.getElementById("split_div").style.display = "none";
+        const paymentRadios = document.getElementsByName("payment_method");
+        paymentRadios.forEach(radio => {
+            radio.addEventListener("change", function() {
+                document.getElementById("vaucher_div").style.display = "none";
+                document.getElementById("split_div").style.display = "none";
+                if (this.value === "voucher") {
+                    document.getElementById("vaucher_div").style.display = "flex";
+                } else if (this.value === "split") {
+                    document.getElementById("split_div").style.display = "flex";
+                }
+            });
+        });
+    });
 </script>
 
 
@@ -753,7 +940,7 @@ Add New Patient
                     </select> -->
                     <label style="width: 105px;font-size: 18px;"></label>
                     <label style="width: 80px;font-size: 16px;  "><b>Source</b></label>
-                    <select type="text" name="source" disabled class="input-text" id="source" style="width: 135px; height: 30px">
+                    <select type="text" name="source" class="input-text" id="source" style="width: 135px; height: 30px">
                         <option value="1">Walking</option>
                         <option value="2">Centers</option>
                     </select>
@@ -763,7 +950,7 @@ Add New Patient
                 </div>
                 <div style="display: flex; align-items: center;">
                     <label style="width: 90px;font-size: 18px; ">T.P.NO</label>
-                    <input type="text" name="tpno" class="input-text" id="tpno" style="width: 210px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
+                    <input type="text" name="tpno" class="input-text" id="tpno" maxlength="10" style="width: 210px" pattern="[0-9]{10}" title="" value="">
                     <label style="width: 850px;font-size: 18px;"></label>
                     <input type="button" style="width: 80px" class="btn" id="backBtn" value="Back" onclick="">
                     <input type="button" style="width: 80px" class="btn" id="frontBtn" value="Front" onclick="">
@@ -778,17 +965,17 @@ Add New Patient
                     <div style="display: flex; align-items: center;  ">
                         <label style="width: 150px;font-size: 18px; ">First Name:</label>
                         <select type="text" name="initial" class="input-text" id="initial" style="width: 80px; height: 30px; ">
-                            <option value="1">Mr</option>
-                            <option value="2">Mrs</option>
-                            <option value="3">Miss</option>
-                            <option value="4">Dr</option>
-                            <option value="5">Hons</option>
+                            <option value="Mr">Mr</option>
+                            <option value="Mrs">Mrs</option>
+                            <option value="Miss">Miss</option>
+                            <option value="Dr">Dr</option>
+                            <option value="Hons">Hons</option>
                         </select>
                         <input type="text" name=" fname" class="input-text" id="fname" style="width: 380px">
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Last Name:</label>
-                        <input type="text" name=" lname" maxlength="2" class="input-text" id="lname" style="width: 250px">
+                        <input type="text" name=" lname" class="input-text" id="lname" style="width: 250px">
                         <label style="width: 50px;font-size: 16px;  ">DOB</label>
                         <input type="date" name="dob" class="input-text" id="dob" style="width: 140px">
                     </div>
@@ -854,8 +1041,8 @@ Add New Patient
                         </datalist>
                         <label style="width: 40px;font-size: 18px;margin-left: 15px"><b>Type</b></label>
                         <select type="text" name="type" class="input-text" id="type" style="width: 70px; height: 30px">
-                            <option value="1">In</option>
-                            <option value="2">Out</option>
+                            <option value="In">In</option>
+                            <option value="Out">Out</option>
                         </select>
                         <label style="width: 100px;font-size: 18px; margin-left: 15px "><b>Fast Time</b>:</label>
                         <input type="text" name=" fast_time" class="input-text" id="fast_time" value="0" style="width: 40px">
@@ -900,14 +1087,14 @@ Add New Patient
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 125px; font-size: 18px;">Total Amount:</label>
                         <label style="width: 30px; font-size: 18px;">Rs: </label>
-                        <label id="total_amount" style="color: #d63333">000,000.00</label>
+                        <label id="total_amount" style=" padding-right: 50px; font-size: large; color: rgb(17, 17, 17); font-family: 'Times New Roman', Times, serif; font-weight: bolder;">000,000.00</label>
 
                         <br>
 
-                        <label style="width: 80px; font-size: 18px;">Discount:</label>
-                        <input type="number" name="discount" class="input-text" id="discount" style="width: 80px;" oninput="applyDiscount()">
+                        <label style="width: 80px; font-size: 18px; ">Discount:</label>
+                        <input type="number" name="discount" class="input-text" id="discount" style="width: 80px; " oninput="applyDiscount()">
 
-                        <select name="discount_percentage" class="input-text" id="discount_percentage" style="width: 80px; height: 30px" onchange="applyDiscount()">
+                        <select name="discount_percentage" class="input-text" id="discount_percentage" style="margin-left: 20px; width: 100px; height: 30px;" onchange="applyDiscount()">
                             <option value="">%</option>
                             <?php
 
@@ -929,13 +1116,13 @@ Add New Patient
                     <div style="display: flex; align-items: center; margin-top: 20px;">
                         <label style="width: 125px; font-size: 18px;"><b>Grand Total:</b></label>
                         <label style="width: 30px; font-size: 18px;">Rs: </label>
-                        <label style="width: 150px; font-size: 18px; color: #d63333" id="grand_total">000,000.00</label>
+                        <label style=" padding-right: 45px; color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="grand_total">000,000.00</label>
 
                         <label><input type="radio" name="payment_method" id="payment_method" value="cash" checked> Cash</label>
                         <label><input type="radio" name="payment_method" id="payment_method" value="card"> Card</label>
                         <label><input type="radio" name="payment_method" id="payment_method" value="credit"> Credit</label>
                         <label><input type="radio" name="payment_method" id="payment_method" value="cheque"> Cheque</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="cheque"> Voucher</label>
+                        <label><input type="radio" name="payment_method" id="payment_method" value="voucher"> Voucher</label>
                         <label><input type="radio" name="payment_method" id="payment_method" value="split"> Split</label>
                     </div>
 
@@ -947,13 +1134,34 @@ Add New Patient
                         <label style="width: 35px; font-size: 18px;"></label>
                         <label style="width: 60px; font-size: 18px;">Due:</label>
                         <label style="width: 30px; font-size: 18px;">Rs:</label>
-                        <label style="width: 150px; font-size: 18px; color: #d63333" id="due">000,000.00</label>
+                        <label style="color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="due">000,000.00</label>
                     </div>
-                    <div style="display: flex; align-items: center;margin-top: 15px; ">
-                        <label style="width: 220px;font-size: 18px; "></label>
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="cashDrower" value="Cash Drower " onclick="">
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="update_payment" value="Update Payment " onclick="">
+                    <div style="display: flex; align-items: center;margin-top: 15px;" id="vaucher_div">
+                        <label style="width: 125px; font-size: 18px;">Vaucher No:</label>
+                        <label style="width: 30px; font-size: 18px;"> </label>
+                        <input type="number" name="Voucher_No" class="input-text" id="Voucher_No" style="width: 97px;" oninput="">
+
+                        <label style="width: 150px; font-size: 18px; margin-left:35px;">Vaucher Amount</label>
+                        <label style="width: 30px; font-size: 18px;">Rs: </label>
+                        <input type="number" name="vaucher_amount" class="input-text" id="vaucher_amount" style="width: 97px;" oninput="">
+
                     </div>
+                    <div style="display: flex; align-items: center;margin-top: 15px;" id="split_div">
+
+                        <label style="width: 125px; font-size: 18px;">Cash Amount</label>
+                        <label style="width: 30px; font-size: 18px;">Rs: </label>
+                        <input type="number" name="cash_amount" class="input-text" id="cash_amount" style="width: 97px;" oninput="">
+
+                        <label style="width: 125px; font-size: 18px;margin-left:35px;">Card Amount</label>
+                        <label style="width: 30px; font-size: 18px; margin-left: 25px;">Rs: </label>
+                        <input type="number" name="card_amount" class="input-text" id="card_amount" style="width: 97px;" oninput="">
+
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                        <input type="button" style="color:black; width: 180px; height: 50px;" class="btn" id="cashDrower" value="Cash Drawer">
+                        <input type="button" style="color:black; width: 210px; height: 50px;" class="btn" id="update_payment" value="Update Payment">
+                    </div>
+
 
 
                 </div>
@@ -985,7 +1193,6 @@ Add New Patient
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 150px;font-size: 18px; ">Pending Samples:</label>
                         <input type="button" style="color:gray;" class="btn" id="make_priority" value="Make Priority" onclick="">
-                        <input type="button" style="color:gray;" class="btn" id="delete" value="Delete" onclick="">
                     </div>
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 150px;font-size: 18px; "><b>Invoice Remark:</b></label>
@@ -1003,31 +1210,55 @@ Add New Patient
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 140px;font-size: 16px;  "><b>Repeat Samples</b></label>
                         <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1">
-                        <input type="button" style="color:gray" class="btn" id="cash_drawer" value="Cash Drawer" onclick="">
                     </div>
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 230px;font-size: 18px; "><b>Report Collection Method</b></label>
                     </div>
-                    <div style="display: flex; align-items: center;margin-top: 5px; ">
-                        <label><input type="radio" name="payment_method" id="payment_method" value="hard" checked> Hard Coppy</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="sms"> SMS</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="email"> Email</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="whatsapp"> Whatsapp</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="hard"> Package Invoice</label>
-                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1" style="margin-left: 15px;">
-                        <label style="width: 70px;font-size: 16px;  "><b>PrintBill</b></label>
-                        <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1">
-                        <label style="width: 80px;font-size: 16px;  "><b>Claim Bill</b></label>
-                        <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1">
-                        <label style="width: 90px;font-size: 16px;  "><b>2 Copies</b></label>
+                    <div style="display: flex; align-items: center; gap: 20px; margin-top: 5px; flex-wrap: nowrap;">
+                        <label><input type="checkbox" name="payment_method" value="hard" checked> Hard Copy</label>
+                        <label><input type="checkbox" name="payment_method" value="sms"> SMS</label>
+                        <label><input type="checkbox" name="payment_method" value="email"> Email</label>
+                        <label><input type="checkbox" name="payment_method" value="whatsapp"> WhatsApp</label>
+                        <label><input type="checkbox" name="payment_method" value="package_invoice"> Package Invoice</label>
 
+                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1">
+                        <label for="print_bill" style="font-size: 16px;"><b>Print Bill</b></label>
+
+                        <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1">
+                        <label for="claim_bill" style="font-size: 16px;"><b>Claim Bill</b></label>
+
+                        <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1">
+                        <label for="two_copies" style="font-size: 16px;"><b>2 Copies</b></label>
                     </div>
+
+                    <!-- <div style="display: flex; align-items: center; margin-top: 5px; flex-wrap: wrap; gap: 15px;">
+                        <div style="display: flex; gap: 10px;">
+                            <label><input type="checkbox" name="payment_method" value="hard" checked> Hard Copy</label>
+                            <label><input type="checkbox" name="payment_method" value="sms"> SMS</label>
+                            <label><input type="checkbox" name="payment_method" value="email"> Email</label>
+                            <label><input type="checkbox" name="payment_method" value="whatsapp"> WhatsApp</label>
+                            <label><input type="checkbox" name="payment_method" value="package_invoice"> Package Invoice</label>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1">
+                            <label for="print_bill" style="min-width: 90px; font-size: 16px;"><b>Print Bill</b></label>
+
+                            <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1">
+                            <label for="claim_bill" style="min-width: 100px; font-size: 16px;"><b>Claim Bill</b></label>
+
+                            <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1">
+                            <label for="two_copies" style="min-width: 90px; font-size: 16px;"><b>2 Copies</b></label>
+                        </div>
+                    </div> -->
+
+
                     <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none;">
 
 
                     <div style="display: flex; align-items: center;margin-top: 4px; ">
                         <label style="width: 50px;font-size: 16px;  "></label>
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords();savePatient()">
+                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords();savePatientDetails()">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="updatebtn" value="Update Details " onclick="">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="getlastpatientbtn" value="Get Last patient" onclick="">
                     </div>

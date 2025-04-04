@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Carbon\Carbon;
+
 
 if (!isset($_SESSION)) {
     session_start();
@@ -10,36 +13,16 @@ if (!isset($_SESSION)) {
 
 class PatientRegistrationController extends Controller
 {
-public function loadSampleNumber()
-{
+    public function loadSampleNumber()
+    {
         $date = date('Y-m-d');
         $sampleNo = '';
-       
+
         $labBranchId = Input::get('labBranchId');
-        if ($labBranchId=='%') {
+        if ($labBranchId == '%') {
             $fromat = date('ymd');
 
             $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ?", [$date]);
-            if (!empty($sampleResult)) {
-                foreach ($sampleResult as $result) {
-                    $currentNo = $result->max_sample_no;
-                    if ($currentNo) {
-                        $sampleNo = $fromat . str_pad($currentNo + 1, 2, '0', STR_PAD_LEFT);
-                    }else{
-                        $sampleNo = $fromat . "01";
-                    }
-                }
-            }else{
-                $sampleNo = $fromat . "01";
-            }
-        }else{
-            
-            $branchCode = DB::select("SELECT code FROM labbranches WHERE bid = ? and Lab_lid = ?" , [$labBranchId,$_SESSION['lid']]);
-            foreach ($branchCode as $bcode) {
-                $fromat = $bcode->code;
-            }
-
-            $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ? and sampleNo like '". $fromat."%'", [$date]);
             if (!empty($sampleResult)) {
                 foreach ($sampleResult as $result) {
                     $currentNo = $result->max_sample_no;
@@ -49,22 +32,41 @@ public function loadSampleNumber()
                         $sampleNo = $fromat . "01";
                     }
                 }
-            }else{
+            } else {
+                $sampleNo = $fromat . "01";
+            }
+        } else {
+
+            $branchCode = DB::select("SELECT code FROM labbranches WHERE bid = ? and Lab_lid = ?", [$labBranchId, $_SESSION['lid']]);
+            foreach ($branchCode as $bcode) {
+                $fromat = $bcode->code;
+            }
+
+            $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ? and sampleNo like '" . $fromat . "%'", [$date]);
+            if (!empty($sampleResult)) {
+                foreach ($sampleResult as $result) {
+                    $currentNo = $result->max_sample_no;
+                    if ($currentNo) {
+                        $sampleNo = $fromat . str_pad($currentNo + 1, 2, '0', STR_PAD_LEFT);
+                    } else {
+                        $sampleNo = $fromat . "01";
+                    }
+                }
+            } else {
                 $sampleNo = $fromat . "01";
             }
         }
 
-        
-       return $sampleNo;
-        
-        
-}
 
-public function loadBrachWiceTest(){
+        return $sampleNo;
+    }
+
+    public function loadBrachWiceTest()
+    {
         $labBranchId = Input::get('labBranchId');
-        $labLid = $_SESSION['lid']; 
+        $labLid = $_SESSION['lid'];
 
-       
+
         if (!$labLid) {
             return response()->json(['error' => 'Session expired or invalid.'], 401);
         }
@@ -96,7 +98,7 @@ public function loadBrachWiceTest(){
 
         // Build options for dropdown
         $list_data = "<option value=''></option>";
-        
+
 
         foreach ($result as $res) {
             $tgid = htmlspecialchars($res->tgid);
@@ -107,9 +109,10 @@ public function loadBrachWiceTest(){
         }
 
         return Response::json(['options' => $list_data]);
-}
+    }
 
-public function loadPackageTests(){
+    public function loadPackageTests()
+    {
         $packageId = explode(':', Input::get('packageId', ''))[0];
         $labLid = $_SESSION['lid'];
 
@@ -131,7 +134,7 @@ public function loadPackageTests(){
             $testname = htmlspecialchars($res->name);
             $price = htmlspecialchars($res->testprice);
             $testtime = htmlspecialchars($res->testingtime);
-            $test_data = $tgid."@".$testname."@". $price."@". $testtime;
+            $test_data = $tgid . "@" . $testname . "@" . $price . "@" . $testtime;
             $testarry[] = $test_data;
         }
 
@@ -139,134 +142,162 @@ public function loadPackageTests(){
     }
 
 
-    public function savePatientDetails(Request $request)
+    
+
+    //*************************************
+
+    // public function savePatientDetails()
+    // {
+    //     $userUid = $_SESSION['luid']; 
+    //     $years = Input::get('years');
+    //     $months = Input::get('months');
+    //     $days = Input::get('days');
+    //     $initial = Input::get('initial');
+    //     $dob = Input::get('dob');
+
+    //     $fname = Input::get('fname');
+    //     $lname = Input::get('lname');
+    //     $tpno = Input::get('tpno');
+    //     $address = Input::get('address');
+    //     $gender = Input::get('gender');
+    //     $nic = Input::get('nic');
+
+    //     $labLid = $_SESSION['lid'];
+    //     $now = date('Y-m-d H:i:s');
+    //     $currentTimestamp = Carbon::now();
+
+    //     $id = DB::table('user')->insertGetId([
+    //         'uid' => $userUid,
+    //         'fname' => $fname,
+    //         'lname' => $lname,
+    //         'tpno' => $tpno,
+    //         'address' => $address,
+    //         'gender_idgender' => $gender,
+    //         'nic' => $nic,
+    //         'created_at' => $currentTimestamp,
+    //         'updated_at' => $currentTimestamp
+    //     ]);
+
+    //     DB::insert("insert into patient (user_uid, age, months, days, initials, dob, created_at, updated_at) 
+    //                  values (?, ?, ?, ?, ?, ?, ?, ?)", [
+    //         $id,
+    //         $years,
+    //         $months,
+    //         $days,
+    //         $initial,
+    //         $dob,
+    //         $currentTimestamp,
+    //         $currentTimestamp
+    //     ]);
+
+
+    //     DB::insert("INSERT INTO lps (patient_pid, Lab_lid, date, sampleNo, arivaltime, refby, type, refference_idref, fastingtime, entered_uid, price, Testgroup_tgid, urgent_sample, created_at, updated_at) 
+    //                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+    //         $patientId, // Assuming patientId is the last inserted ID
+    //         $labLid,
+    //         $now,
+    //         Input::get('sampleNo'),
+    //         $now,
+    //         Input::get('ref'),
+    //         Input::get('type'),
+    //         Input::get('ref'), // Assuming this is the correct reference ID
+    //         Input::get('fast_time'),
+    //         '',
+    //         Input::get('total_amount'),
+    //         Input::get('test_data')[0]['tgid'], // Assuming test_data is an array and you want the first element
+    //         Input::get('test_data')[0]['priority'], // Assuming priority is a field in the first test_data element
+    //         $now,
+    //         $now
+    //     ]);
+
+
+    //     return Response::json(['success' => true, 'message' => 'Patient details saved successfully.']);
+    // }
+
+
+    public function savePatientDetails()
     {
-        $sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        $userUid = $_SESSION['luid']; 
+        $years = Input::get('years');
+        $months = Input::get('months');
+        $days = Input::get('days');
+        $initial = Input::get('initial');
+        $dob = Input::get('dob');
+
+        $fname = Input::get('fname');
+        $lname = Input::get('lname');
+        $tpno = Input::get('tpno');
+        $address = Input::get('address');
+        $gender = Input::get('gender');
+        $nic = Input::get('nic');
+
         $labLid = $_SESSION['lid'];
-        $query = "SELECT idref FROM refference WHERE lid = ? AND name = ref LIMIT 1";
+        $now = date('Y-m-d H:i:s');
+        $currentTimestamp = Carbon::now();
+        // $sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        // $sampleNo = $this->loadSampleNumber();
+        $user = DB::table('user')->where('tpno', $tpno)->first();
 
-        $bindings = [$labLid, $request->input('ref')];
-
-        // Execute query
-        $result = DB::select($query, $bindings);
-
-        foreach ($result as $res) {
-            $refId = htmlspecialchars($res->idref); 
-        }
-
-
-        if (explode(":", $request->input('pkgname'))[1] != "") 
-        {
-            $labpackId = "";
-            $result_labpack = DB::select("SELECT idlabpackages FROM labpackages WHERE name = '" . explode(":", $request->input('pkgname'))[1] . "' AND Lab_lid = '" . $labLid. "'");
-            foreach ($result_labpack as $restlpk) {
-                $labpackId = htmlspecialchars($restlpk->idlabpackages);
-
-                DB::table('invoice_has_labpackages')->insert([
-                    'sno' => $request->input('sampleNo'),
-                    'pcid' => $labpackId,
-                    'lab_lid' => $labLid
-                ]);
-            }
-        }
-
-        $simpleDateFormat = date('Ymd');
-       
-        if ($request->input('ref') == "") {
-            $result = DB::select("SELECT idref FROM refference WHERE lid = ? AND name = '' LIMIT 1", $labLid);
-
-            if (!empty($result)) {
-                $reffereceId = $result[0]->idref;
-            } else {
-                $reffereceId = 0;
-            }
+        if ($user) {
+           
+            $patientid = DB::table('patient')->insertGetId([
+                'user_uid' => $user->uid,
+                'age' => $years,
+                'months' => $months,
+                'days' => $days,
+                'initials' => $initial,
+                'dob' => $dob,
+                'created_at' => $currentTimestamp,
+                'updated_at' => $currentTimestamp
+            ]);
         } else {
-            $reffereceId = $request->input('refcode');
+            $userid = DB::table('user')->insertGetId([
+                'fname' => $fname,
+                'lname' => $lname,
+                'tpno' => $tpno,
+                'address' => $address,
+                'gender_idgender' => $gender,
+                'nic' => $nic,
+                'created_at' => $currentTimestamp,
+                'updated_at' => $currentTimestamp
+            ]);
+
+            $patientid = DB::table('patient')->insertGetId([
+                'user_uid' => $userid,
+                'age' => $years,
+                'months' => $months,
+                'days' => $days,
+                'initials' => $initial,
+                'dob' => $dob,
+                'created_at' => $currentTimestamp,
+                'updated_at' => $currentTimestamp
+            ]);
+
+           
         }
 
-        
-        
 
-        $patientData = [
-            'sample_no' => $request->input('sampleNo'),
-            'lab_branch' => $request->input('labbranch'),
-            'type' => $request->input('type'),
-            'source' => $request->input('source'),
-            'tpno' => $request->input('tpno'),
-            'initial' => $request->input('initial'),
-            'first_name' => $request->input('fname'),
-            'last_name' => $request->input('lname'),
-            'dob' => $request->input('dob'),
-            'years' => $request->input('years'),
-            'months' => $request->input('months'),
-            'days' => $request->input('days'),
-            'gender' => $request->input('gender'),
-            'nic' => $request->input('nic'),
-            'address' => $request->input('address'),
-            'refcode' => $request->input('refcode'),
-            'ref' => $request->input('ref'),
-            'testname' => $request->input('testname'),
-            'pkgname' => $request->input('pkgname'),
-            'fast_time' => $request->input('fast_time'),
-            'test_data' => json_encode($request->input('test_data')),
-            'total_amount' => $request->input('total_amount'),
-            'discount' => $request->input('discount'),
-            'discount_percentage' => $request->input('discount_percentage'),
-            'grand_total' => $request->input('grand_total'),
-            'payment_method' => $request->input('payment_method'),
-            'paid' => $request->input('paid'),
-            'due' => $request->input('due')
-        ];
-
-        echo $request->input('sampleNo');
-
-        // try {
-
-        //     $patientData = [
-        //         'sample_no' => $request->input('sampleNo'),
-        //         'lab_branch' => $request->input('labbranch'),
-        //         'type' => $request->input('type'),
-        //         'source' => $request->input('source'),
-        //         'tpno' => $request->input('tpno'),
-        //         'initial' => $request->input('initial'),
-        //         'first_name' => $request->input('fname'),
-        //         'last_name' => $request->input('lname'),
-        //         'dob' => $request->input('dob'),
-        //         'years' => $request->input('years'),
-        //         'months' => $request->input('months'),
-        //         'days' => $request->input('days'),
-        //         'gender' => $request->input('gender'),
-        //         'nic' => $request->input('nic'),
-        //         'address' => $request->input('address'),
-        //         'refcode' => $request->input('refcode'),
-        //         'ref' => $request->input('ref'),
-        //         'testname' => $request->input('testname'),
-        //         'pkgname' => $request->input('pkgname'),
-        //         'fast_time' => $request->input('fast_time'),
-        //         'test_data' => json_encode($request->input('test_data')), 
-        //         'total_amount' => $request->input('total_amount'),
-        //         'discount' => $request->input('discount'),
-        //         'discount_percentage' => $request->input('discount_percentage'),
-        //         'grand_total' => $request->input('grand_total'),
-        //         'payment_method' => $request->input('payment_method'),
-        //         'paid' => $request->input('paid'),
-        //         'due' => $request->input('due')
-        //     ];
-
-        //         echo json_encode($patientData);
-
-        //     // PatientRegistration::create($patientData);
+        DB::insert("INSERT INTO lps (patient_pid, Lab_lid, date, sampleNo, arivaltime, refby, type, refference_idref, fastingtime, entered_uid, price, Testgroup_tgid, urgent_sample, created_at, updated_at) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+            $patientid, 
+            $labLid,
+            $now,
+            Input::get('sampleNo'),
+            $now,
+            Input::get('ref'),
+            Input::get('type'),
+            Input::get('ref'), 
+            Input::get('fast_time'),
+            '',
+            Input::get('total_amount'),
+            Input::get('test_data')[0]['tgid'], 
+            Input::get('test_data')[0]['priority'], 
+            $now,
+            $now
+        ]);
 
 
-        //     // return response()->json(['error' => 'saved']);
-        // } catch (\Exception $e) {
-
-        //     return response()->json(['error' => 'An unexpected error occurred.']);
-        // }
+        return Response::json(['success' => true, 'message' => 'Patient details saved successfully.']);
     }
 
-
- 
-
-   
 }
