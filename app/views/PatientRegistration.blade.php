@@ -471,154 +471,14 @@ Add New Patient
 
     // ******************Function to save the  data*************************************************************
 
-    // var testData = [];
-
-    // function savePatientDetails() {
-    //     testData = [];
-    //     // Get the values from the input fields
-    //     var sampleNo = $('#sampleNo').val();
-    //     var labbranch = $('#labBranchDropdown').val();
-    //     var type = $('#type').val();
-    //     var source = $('#source').val();
-    //     var tpno = $('#tpno').val();
-    //     var initial = $('#initial').val();
-    //     var fname = $('#fname').val();
-    //     var lname = $('#lname').val();
-    //     var dob = $('#dob').val();
-    //     var years = $('#years').val();
-    //     var months = $('#months').val();
-    //     var days = $('#days').val();
-    //     var gender = $('input[name="gender"]:checked').val() || $('input[name="gender"]:checked').val();
-    //     var nic = $('#nic').val();
-    //     var address = $('#address').val();
-    //     var refcode = $('#refcode').val();
-    //     var ref = $('#ref').val();
-    //     var testname = $('#testname').val();
-    //     var type = $('#type').val();
-    //     var pkgname = $('#pkgname').val();
-    //     var fast_time = $('#fast_time').val();
-    //     var test_data = getAllTableRecords();
-    //     var total_amount = $('#total_amount').text();
-    //     var discount = $('#discount').val();
-    //     var discount_percentage = $('#discount_percentage').val();
-    //     var grand_total = $('#grand_total').text();
-    //     var payment_method = $('input[name="payment_method"]:checked').val();
-    //     var paid = $('#paid').val();
-    //     var due = $('#due').text();
-
-
-
-    //     $('#Branch_record_tbl tr').each(function() {
-    //         var tgid = $(this).find('td:nth-child(1)').text().trim();
-    //         var group = $(this).find('td:nth-child(2)').text().trim();
-    //         var price = parseFloat($(this).find('td:nth-child(3)').text().trim()) || 0;
-    //         var time = $(this).find('td:nth-child(4)').text().trim();
-    //         var f_time = $(this).find('td:nth-child(5)').text().trim();
-    //         var bar_code = $(this).find('td:nth-child(6)').text().trim();
-    //         var priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
-    //         var type = $(this).find('td:nth-child(8)').text().trim();
-
-    //         testData.push({
-    //             tgid: tgid,
-    //             group: group,
-    //             price: price,
-    //             time: time,
-    //             f_time: f_time,
-    //             bar_code: bar_code,
-    //             priority: priority,
-    //             type: type
-    //         });
-    //     });
-
-
-
-    //     //Validation for required fields
-    //     if (!fname || !lname) {
-    //         alert('First Name and Last Name are required.');
-    //         return;
-    //     }
-    //     if (!years) {
-    //         alert('Date of Birth is required.');
-    //         return;
-    //     }
-    //     if (!gender) {
-    //         alert('Gender is required.');
-    //         return;
-    //     }
-
-    //     if (testData.length == 0) {
-    //         alert('Please add at least one test to the table.');
-    //         return;
-    //     }
-
-
-    //     // for (var i = 0; i < testData.length; i++) {
-    //     //     var test = testData[i];
-    //     //     var testString = `${test.tgid}@${test.group}@${test.price}@${test.time}@${test.f_time}@${test.priority}`;
-    //     //     alert(testString);
-    //     // }
-
-
-
-    //     // AJAX request to save the patient data
-    //     $.ajax({
-    //         type: "POST",
-    //         url: "savePatient", // Change this to the appropriate endpoint
-    //         data: {
-
-    //             'sampleNo': sampleNo,
-    //             'labbranch': labbranch,
-    //             'type': type,
-    //             'source': source,
-    //             'tpno': tpno,
-    //             'initial': initial,
-    //             'fname': fname,
-    //             'lname': lname,
-    //             'dob': dob,
-    //             'years': years,
-    //             'months': months,
-    //             'days': days,
-    //             'gender': gender,
-    //             'nic': nic,
-    //             'address': address,
-    //             'refcode': refcode,
-    //             'ref': ref,
-    //             'testname': testname,
-    //             'type': type,
-    //             'pkgname': pkgname,
-    //             'fast_time': fast_time,
-    //             'test_data': testData,
-    //             'total_amount': total_amount,
-    //             'discount': discount,
-    //             'discount_percentage': discount_percentage,
-    //             'grand_total': grand_total,
-    //             'payment_method': payment_method,
-    //             'paid': paid,
-    //             'due': due
-
-
-    //         },
-    //         success: function(response) {
-    //             alert(response)
-    //             // if (response.error == "saved") {
-    //             //     alert('Patient saved successfully!');
-    //             //     $('#fname, #lname, #dob, #years, #months, #days, #nic, #address, #refcode, #ref, #testname, #pkgname, #fast_time').val('');
-    //             //     $('input[name="male"], input[name="female"]').prop('checked', false);
-    //             // } else {
-    //             //     alert('Error in saving process.');
-    //             // }
-    //         },
-    //         error: function(xhr) {
-    //             console.log('Error:', xhr);
-    //             var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
-    //             alert(errorMsg);
-    //         }
-    //     });
-    // }
+   
 
     function savePatientDetails() {
-        testData = [];
+        var testData = [];
+        var rowCount = 0;
 
+        var sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        var sampleNumberPrefix = $('#sampleNo').val();
 
         var sampleNo = $('#sampleNo').val();
         var labbranch = $('#labBranchDropdown').val();
@@ -643,7 +503,6 @@ Add New Patient
         var pkgname = $('#pkgname').val();
         var fast_time = $('#fast_time').val();
 
-
         var total_amount = $('#total_amount').text().trim() || '0.00';
         var discount = $('#discount').val().trim() || '0.00';
         var discount_percentage = $('#discount_percentage').val().trim() || '0';
@@ -652,8 +511,24 @@ Add New Patient
         var paid = $('#paid').val().trim() || '0.00';
         var due = $('#due').text().trim() || '0.00';
 
+        // Validate essential fields
+        if (!fname || !lname) {
+            alert('First Name and Last Name are required.');
+            return;
+        }
 
-        $('#Branch_record_tbl tr').each(function() {
+        // if (years === '' || months === '' || days === '') {
+        //     alert('All age fields (Years, Months, Days) are required.');
+        //     return;
+        // }
+
+        if (!gender) {
+            alert('Gender is required.');
+            return;
+        }
+
+        // Build testData array
+        $('#Branch_record_tbl tr').each(function(index) {
             var tgid = $(this).find('td:nth-child(1)').text().trim();
             var group = $(this).find('td:nth-child(2)').text().trim();
             var price = parseFloat($(this).find('td:nth-child(3)').text().trim()) || 0;
@@ -661,9 +536,12 @@ Add New Patient
             var f_time = $(this).find('td:nth-child(5)').text().trim();
             var bar_code = $(this).find('td:nth-child(6) input[type="checkbox"]').is(':checked') ? 'Yes' : 'No';
             var priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
-            var type = $(this).find('td:nth-child(8)').text().trim();
+            var testType = $(this).find('td:nth-child(8)').text().trim();
+            var sampleSuffix = (index < sampleSufArray.length) ? sampleSufArray[index] : '';
+            var fullSampleNo = sampleNumberPrefix + sampleSuffix;
 
             testData.push({
+                sampleNo: fullSampleNo,
                 tgid: tgid,
                 group: group,
                 price: price,
@@ -671,31 +549,22 @@ Add New Patient
                 f_time: f_time,
                 bar_code: bar_code,
                 priority: priority,
-                type: type
+                type: testType,
+
             });
         });
 
-
-        if (!fname || !lname) {
-            alert('First Name and Last Name are required.');
-            return;
-        }
-        if (!years && !months && !days) {
-            alert('At least one age field (Years, Months, Days) is required.');
-            return;
-        }
-        if (!gender) {
-            alert('Gender is required.');
-            return;
-        }
-        if (testData.length == 0) {
+        if (testData.length === 0) {
             alert('Please add at least one test to the table.');
             return;
         }
 
+        // Laravel 4.2 CSRF token
+        var token = $('input[name="_token"]').val();
 
         var postData = {
-            sampleNo: sampleNo,
+            _token: token, // Required for Laravel 4.2
+            sampleNo: sampleNumberPrefix,
             labbranch: labbranch,
             type: type,
             source: source,
@@ -725,26 +594,21 @@ Add New Patient
             due: due
         };
 
-
         console.log("Data to be sent:", postData);
 
         $.ajax({
             type: "POST",
             url: "/savePatient",
-            data: JSON.stringify(postData), // Convert data to JSON
-            contentType: "application/json", // Ensure Laravel treats it as JSON
-            dataType: "json",
+            data: postData, // NOT JSON.stringify – Laravel 4.2 doesn't auto-handle JSON well
             beforeSend: function() {
                 console.log("Sending data to server...");
             },
             success: function(response) {
+                
                 console.log("Server Response:", response);
-                if (response.success) {
-                    // alert('Patient saved successfully!');
-                    alert(response.message);
-                } else {
-                    alert('Error: ' + (response.message || 'Unknown error occurred'));
-                }
+                alert(response.message || 'Patient saved successfully!');
+                resetForm();
+                
             },
             error: function(xhr) {
                 console.error('Error:', xhr);
@@ -754,12 +618,41 @@ Add New Patient
                 alert('Error: ' + errorMsg);
             }
         });
-
     }
 
 
-    //*************************************************************************************************
 
+    //*************************************************************************************************
+    function resetForm() {
+        $('#type').val('');
+        $('#source').val('');
+        $('#tpno').val('');
+        $('#initial').val('');
+        $('#fname').val('');
+        $('#lname').val('');
+        $('#dob').val('');
+        $('#years').val('');
+        $('#months').val('');
+        $('#days').val('');
+        $('#nic').val('');
+        $('#address').val('');
+        $('#refcode').val('');
+        $('#refDropdown').val('');
+        $('#testname').val('');
+        $('#pkgname').val('');
+        $('#fast_time').val('');
+        $('#total_amount').text('0.00');
+        $('#discount').val('0.00');
+        $('#discount_percentage').val('0');
+        $('#grand_total').text('0.00');
+        // $('input[name="payment_method"]:checked').prop('checked', false);
+        $('#paid').val('0.00');
+        $('#due').text('0.00');
+        itemListTestData = [];
+        $('#Branch_record_tbl').empty();
+        $('#Branch_record_tbl tbody').empty();
+        loadcurrentSampleNo();
+    }
     //*************************************************************************************************
 
     //*************************************************************************************************
@@ -982,11 +875,11 @@ Add New Patient
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 150px;font-size: 18px; ">Age:</label>
                         <label style="width: 50px;font-size: 18px;  ">Years</label>
-                        <input type="text" name=" years" maxlength="3" class="input-text" id="years" style="width: 60px;margin-right:15px">
+                        <input type="number" name=" years" class="input-text" id="years" style="width: 60px;margin-right:15px">
                         <label style="width: 65px;font-size: 18px; ">Months</label>
-                        <input type="text" name=" months" maxlength="2" class="input-text" id="months" style="width: 60px;margin-right:15px">
+                        <input type="number" name=" months"  class="input-text" id="months" style="width: 60px;margin-right:15px">
                         <label style="width: 45px;font-size: 18px; ">Days</label>
-                        <input type="text" name=" days" maxlength="3" class="input-text" id="days" style="width: 60px">
+                        <input type="number" name=" days"  class="input-text" id="days" style="width: 60px">
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Gender:</label>
@@ -1264,7 +1157,7 @@ Add New Patient
                     </div>
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 50px;font-size: 16px;  "></label>
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="resetbtn" value="Reset" onclick="">
+                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="resetbtn" value="Reset" onclick="resetForm()">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="view_invoicebtn" value="View Invoice" onclick="">
                     </div>

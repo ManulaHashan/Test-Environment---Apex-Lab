@@ -13,53 +13,98 @@ if (!isset($_SESSION)) {
 
 class PatientRegistrationController extends Controller
 {
+    // public function loadSampleNumber()
+    // {
+    //     $date = date('Y-m-d');
+    //     $sampleNo = '';
+    //     $format = '';
+    //     $labBranchId = Input::get('labBranchId');
+    //     if ($labBranchId == '%') {
+    //         $format = date('ymd');
+
+    //         $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ?", [$date]);
+    //         if (!empty($sampleResult)) {
+    //             foreach ($sampleResult as $result) {
+    //                 $currentNo = $result->max_sample_no;
+    //                 if ($currentNo) {
+    //                     $sampleNo = $format . str_pad($currentNo + 1, 2, '0', STR_PAD_LEFT);
+    //                 } else {
+    //                     $sampleNo = $format . "01";
+    //                 }
+    //             }
+    //         } else {
+    //             $sampleNo = $format . "01";
+    //         }
+    //     } else {
+    //         $branchCode = DB::select("SELECT code FROM labbranches WHERE bid = ? and Lab_lid = ?", [$labBranchId, $_SESSION['lid']]);
+    //         foreach ($branchCode as $bcode) {
+    //             $format = $bcode->code;
+    //         }
+
+    //         $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ? and sampleNo like '" . $format . "%'", [$date]);
+    //         if (!empty($sampleResult)) {
+    //             foreach ($sampleResult as $result) {
+    //                 $currentNo = $result->max_sample_no;
+    //                 if ($currentNo) {
+    //                     $sampleNo = $format . str_pad($currentNo + 1, 2, '0', STR_PAD_LEFT);
+    //                 } else {
+    //                     $sampleNo = $format . "01";
+    //                 }
+    //             }
+    //         } else {
+    //             $sampleNo = $format . "01";
+    //         }
+    //     }
+
+    //     return $sampleNo;
+    // }
+
+
     public function loadSampleNumber()
     {
         $date = date('Y-m-d');
         $sampleNo = '';
+        $format = ''; 
 
         $labBranchId = Input::get('labBranchId');
         if ($labBranchId == '%') {
-            $fromat = date('ymd');
 
-            $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ?", [$date]);
+            $format = date('ymd');
+
+
+            $sampleResult = DB::select("SELECT MAX(CONVERT(SUBSTRING(sampleNo, 7), UNSIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = ? AND DATE(date) = ?", [$_SESSION['lid'], $date]);
+
+
             if (!empty($sampleResult)) {
-                foreach ($sampleResult as $result) {
-                    $currentNo = $result->max_sample_no;
-                    if ($currentNo) {
-                        $sampleNo = $fromat . str_pad($currentNo + 1, 2, '0', STR_PAD_LEFT);
-                    } else {
-                        $sampleNo = $fromat . "01";
-                    }
-                }
+                $currentNo = $sampleResult[0]->max_sample_no;
+                $nextNo = $currentNo ? $currentNo + 1 : 1; 
+                $sampleNo = $format . str_pad($nextNo, 2, '0', STR_PAD_LEFT); 
             } else {
-                $sampleNo = $fromat . "01";
+                $sampleNo = $format . "01"; 
             }
         } else {
 
-            $branchCode = DB::select("SELECT code FROM labbranches WHERE bid = ? and Lab_lid = ?", [$labBranchId, $_SESSION['lid']]);
-            foreach ($branchCode as $bcode) {
-                $fromat = $bcode->code;
-            }
+            $branchCode = DB::select("SELECT code FROM labbranches WHERE bid = ? AND Lab_lid = ?", [$labBranchId, $_SESSION['lid']]);
+            $format = !empty($branchCode) ? $branchCode[0]->code : '';
 
-            $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ? and sampleNo like '" . $fromat . "%'", [$date]);
+
+            $sampleResult = DB::select("SELECT MAX(CONVERT(SUBSTRING(sampleNo, LENGTH(?) + 1), UNSIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = ? AND DATE(date) = ? AND sampleNo LIKE ?", [$format, $_SESSION['lid'], $date, $format . '%']);
+
+
             if (!empty($sampleResult)) {
-                foreach ($sampleResult as $result) {
-                    $currentNo = $result->max_sample_no;
-                    if ($currentNo) {
-                        $sampleNo = $fromat . str_pad($currentNo + 1, 2, '0', STR_PAD_LEFT);
-                    } else {
-                        $sampleNo = $fromat . "01";
-                    }
-                }
+                $currentNo = $sampleResult[0]->max_sample_no;
+                $nextNo = $currentNo ? $currentNo + 1 : 1; 
+                $sampleNo = $format . str_pad($nextNo, 2, '0', STR_PAD_LEFT); 
             } else {
-                $sampleNo = $fromat . "01";
+                $sampleNo = $format . "01"; 
             }
         }
 
-
         return $sampleNo;
     }
+
+    
+
 
     public function loadBrachWiceTest()
     {
@@ -142,82 +187,14 @@ class PatientRegistrationController extends Controller
     }
 
 
-    
+
 
     //*************************************
-
-    // public function savePatientDetails()
-    // {
-    //     $userUid = $_SESSION['luid']; 
-    //     $years = Input::get('years');
-    //     $months = Input::get('months');
-    //     $days = Input::get('days');
-    //     $initial = Input::get('initial');
-    //     $dob = Input::get('dob');
-
-    //     $fname = Input::get('fname');
-    //     $lname = Input::get('lname');
-    //     $tpno = Input::get('tpno');
-    //     $address = Input::get('address');
-    //     $gender = Input::get('gender');
-    //     $nic = Input::get('nic');
-
-    //     $labLid = $_SESSION['lid'];
-    //     $now = date('Y-m-d H:i:s');
-    //     $currentTimestamp = Carbon::now();
-
-    //     $id = DB::table('user')->insertGetId([
-    //         'uid' => $userUid,
-    //         'fname' => $fname,
-    //         'lname' => $lname,
-    //         'tpno' => $tpno,
-    //         'address' => $address,
-    //         'gender_idgender' => $gender,
-    //         'nic' => $nic,
-    //         'created_at' => $currentTimestamp,
-    //         'updated_at' => $currentTimestamp
-    //     ]);
-
-    //     DB::insert("insert into patient (user_uid, age, months, days, initials, dob, created_at, updated_at) 
-    //                  values (?, ?, ?, ?, ?, ?, ?, ?)", [
-    //         $id,
-    //         $years,
-    //         $months,
-    //         $days,
-    //         $initial,
-    //         $dob,
-    //         $currentTimestamp,
-    //         $currentTimestamp
-    //     ]);
-
-
-    //     DB::insert("INSERT INTO lps (patient_pid, Lab_lid, date, sampleNo, arivaltime, refby, type, refference_idref, fastingtime, entered_uid, price, Testgroup_tgid, urgent_sample, created_at, updated_at) 
-    //                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-    //         $patientId, // Assuming patientId is the last inserted ID
-    //         $labLid,
-    //         $now,
-    //         Input::get('sampleNo'),
-    //         $now,
-    //         Input::get('ref'),
-    //         Input::get('type'),
-    //         Input::get('ref'), // Assuming this is the correct reference ID
-    //         Input::get('fast_time'),
-    //         '',
-    //         Input::get('total_amount'),
-    //         Input::get('test_data')[0]['tgid'], // Assuming test_data is an array and you want the first element
-    //         Input::get('test_data')[0]['priority'], // Assuming priority is a field in the first test_data element
-    //         $now,
-    //         $now
-    //     ]);
-
-
-    //     return Response::json(['success' => true, 'message' => 'Patient details saved successfully.']);
-    // }
 
 
     public function savePatientDetails()
     {
-        $userUid = $_SESSION['luid']; 
+        $userUid = $_SESSION['luid'];
         $years = Input::get('years');
         $months = Input::get('months');
         $days = Input::get('days');
@@ -234,12 +211,13 @@ class PatientRegistrationController extends Controller
         $labLid = $_SESSION['lid'];
         $now = date('Y-m-d H:i:s');
         $currentTimestamp = Carbon::now();
-        // $sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-        // $sampleNo = $this->loadSampleNumber();
+        $sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        //$sampleNo = $this->loadSampleNumber();
         $user = DB::table('user')->where('tpno', $tpno)->first();
+        $testData = Input::get('test_data');
 
+        // Patient and User Insertion Logic
         if ($user) {
-           
             $patientid = DB::table('patient')->insertGetId([
                 'user_uid' => $user->uid,
                 'age' => $years,
@@ -272,32 +250,139 @@ class PatientRegistrationController extends Controller
                 'created_at' => $currentTimestamp,
                 'updated_at' => $currentTimestamp
             ]);
+        }
+
+        // Inserting into the invoice table
+        $totalAmount = Input::get('total_amount');
+        $grandTotal = Input::get('grand_total');
+        $paid = Input::get('paid');
+        $paymentMethod = Input::get('payment_method');
+        $invoiceRemark = Input::get('inv_remark');
+        $source = Input::get('source'); 
+
+
+        if ($paid == 0.0) {
+            $paymentStatus = "Not Paid";
+        } elseif ($paid >= $grandTotal) {
+            $paymentStatus = "Payment Done";
+        } else {
+            $paymentStatus = "Pending Due";
+        }
+
+        // Insert into invoice table
+        // $invoiceId = DB::table('invoice')->insertGetId([
+        //     'lps_lpsid' => $patientid, 
+        //     'date' => $now,
+        //     'total' => $totalAmount,
+        //     'gtotal' => $grandTotal,
+        //     'paid' => $paid,
+        //     'status' => $paymentStatus,
+        //     'paymentmethod' => $paymentMethod,
+        //     'cashier' => $userUid, 
+        //     'cost' => 0, 
+        //     // 'remark' => $invoiceRemark,
+        //     // 'source' => $source,
+        //     // 'created_at' => $now,
+        //     // 'updated_at' => $now
+        // ]);
+
+        // Inserting into invoice_payments table if paid amount is greater than 0
+        // if ($paid > 0.0) {
+        //     DB::table('invoice_payments')->insert([
+        //         'date' => $now,
+        //         'amount' => $paid,
+        //         'user_uid' => $userUid,
+        //         'paymethod' => $paymentMethod, 
+        //         'invoice_iid' => $invoiceId,
+        //         // 'created_at' => $now,
+        //         // 'updated_at' => $now
+        //     ]);
+        // }
+
+        // Inserting tests into lps and lps_has_test tables
+        foreach ($testData as $index => $test) {
+            // $fullSampleNo = $sampleNo . ($index < count($sampleSufArray) ? $sampleSufArray[$index] : '');
+
+            $lpsId = DB::table('lps')->insertGetId([
+                'patient_pid' => $patientid,
+                'Lab_lid' => $labLid,
+                'date' => $now,
+                'sampleNo' => $test['sampleNo'],
+                'arivaltime' => $now,
+                'refby' => Input::get('ref'),
+                'type' => Input::get('type'),
+                'refference_idref' => Input::get('ref'),
+                'fastingtime' => Input::get('fast_time'),
+                'entered_uid' => '',
+                'price' => $test['price'],
+                'Testgroup_tgid' => $test['tgid'],
+                'urgent_sample' => $test['priority'],
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+
+
+            if ($index == '0') {
+                $invoiceId = DB::table('invoice')->insertGetId([
+                    'lps_lpsid' => $lpsId,
+                    'date' => $now,
+                    'total' => $totalAmount,
+                    'gtotal' => $grandTotal,
+                    'paid' => $paid,
+                    'status' => $paymentStatus,
+                    'paymentmethod' => $paymentMethod,
+                    'cashier' => $userUid,
+                    'cost' => 0,
+                    // 'remark' => $invoiceRemark,
+                    // 'source' => $source,
+                    // 'created_at' => $now,
+                    // 'updated_at' => $now
+                ]);
+
+                if ($paid > 0.0) {
+                    DB::table('invoice_payments')->insert([
+                        'date' => $now,
+                        'amount' => $paid,
+                        'user_uid' => $userUid,
+                        'paymethod' => $paymentMethod,
+                        'invoice_iid' => $invoiceId,
+                        // 'created_at' => $now,
+                        // 'updated_at' => $now
+                    ]);
+                }
+            }
+
+            $lpsId = DB::getPdo()->lastInsertId();
+            $testRecords = DB::table('Lab_has_test')
+                ->where('Lab_lid', $labLid)
+                ->where('Testgroup_tgid', $test['tgid'])
+                ->get();
+
+            $lpsHasTestData = [];
+            foreach ($testRecords as $testRecord) {
+                $lpsHasTestData[] = [
+                    'lps_lpsid' => $lpsId,
+                    'test_tid' => $testRecord->test_tid,
+                    'state' => 'pending',
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ];
+            }
+
+            if (!empty($lpsHasTestData)) {
+                DB::table('lps_has_test')->insert($lpsHasTestData);
+            }
+
+            
 
            
         }
 
-
-        DB::insert("INSERT INTO lps (patient_pid, Lab_lid, date, sampleNo, arivaltime, refby, type, refference_idref, fastingtime, entered_uid, price, Testgroup_tgid, urgent_sample, created_at, updated_at) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-            $patientid, 
-            $labLid,
-            $now,
-            Input::get('sampleNo'),
-            $now,
-            Input::get('ref'),
-            Input::get('type'),
-            Input::get('ref'), 
-            Input::get('fast_time'),
-            '',
-            Input::get('total_amount'),
-            Input::get('test_data')[0]['tgid'], 
-            Input::get('test_data')[0]['priority'], 
-            $now,
-            $now
-        ]);
-
-
         return Response::json(['success' => true, 'message' => 'Patient details saved successfully.']);
     }
+
+
+         
+    
 
 }
