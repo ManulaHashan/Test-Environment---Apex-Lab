@@ -626,37 +626,41 @@ Add New Patient
 
 
     //*************************************************************************************************
-    function resetForm() {
-        $('#type').val('');
-        $('#source').val('');
-        $('#tpno').val('');
-        $('#initial').val('');
-        $('#fname').val('');
-        $('#lname').val('');
-        $('#dob').val('');
-        $('#years').val('');
-        $('#months').val('');
-        $('#days').val('');
-        $('#nic').val('');
-        $('#address').val('');
-        $('#refcode').val('');
-        $('#refDropdown').val('');
-        $('#testname').val('');
-        $('#pkgname').val('');
-        $('#Ser_tpno').val('');
-        $('#fast_time').val('');
-        $('#total_amount').text('0.00');
-        $('#discount').val('0.00');
-        $('#discount_percentage').val('0');
-        $('#grand_total').text('0.00');
-        // $('input[name="payment_method"]:checked').prop('checked', false);
-        $('#paid').val('0.00');
-        $('#due').text('0.00');
-        itemListTestData = [];
-        $('#Branch_record_tbl').empty();
-        $('#Branch_record_tbl tbody').empty();
-        loadcurrentSampleNo();
+    function resetPage() {
+        location.reload();
     }
+
+    // function resetForm() {
+    //     $('#type').val('');
+    //     $('#source').val('');
+    //     $('#tpno').val('');
+    //     $('#initial').val('');
+    //     $('#fname').val('');
+    //     $('#lname').val('');
+    //     $('#dob').val('');
+    //     $('#years').val('');
+    //     $('#months').val('');
+    //     $('#days').val('');
+    //     $('#nic').val('');
+    //     $('#address').val('');
+    //     $('#refcode').val('');
+    //     $('#refDropdown').val('');
+    //     $('#testname').val('');
+    //     $('#pkgname').val('');
+    //     $('#Ser_tpno').val('');
+    //     $('#fast_time').val('');
+    //     $('#total_amount').text('0.00');
+    //     $('#discount').val('0.00');
+    //     $('#discount_percentage').val('0');
+    //     $('#grand_total').text('0.00');
+    //     // $('input[name="payment_method"]:checked').prop('checked', false);
+    //     $('#paid').val('0.00');
+    //     $('#due').text('0.00');
+    //     itemListTestData = [];
+    //     $('#Branch_record_tbl').empty();
+    //     $('#Branch_record_tbl tbody').empty();
+    //     loadcurrentSampleNo();
+    // }
     //*************************************************************************************************
 
     //   ***********#######TP Search########*************
@@ -1301,7 +1305,7 @@ Add New Patient
                     </div>
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 50px;font-size: 16px;  "></label>
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="resetbtn" value="Reset" onclick="resetForm()">
+                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="resetbtn" value="Reset" onclick="resetPage()">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="">
                         <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="view_invoicebtn" value="View Invoice" onclick="">
                     </div>
