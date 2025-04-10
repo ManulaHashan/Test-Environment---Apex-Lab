@@ -457,7 +457,7 @@ Add New Patient
             let time = $(this).find('td:nth-child(4)').text().trim();
             let f_time = $(this).find('td:nth-child(5)').text().trim();
             let bar_code = $(this).find('td:nth-child(6)').text().trim();
-            let priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
+            let priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? '1' : '0';
             let type = $(this).find('td:nth-child(8)').text().trim();
             let testData = `${tgid}@${group}@${price}@${time}@${f_time}@${priority}@${type}`;
 
@@ -471,7 +471,7 @@ Add New Patient
 
     // ******************Function to save the  data*************************************************************
 
-   
+
 
     function savePatientDetails() {
         var testData = [];
@@ -480,11 +480,13 @@ Add New Patient
         var sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
         var sampleNumberPrefix = $('#sampleNo').val();
 
+        var user_uid_data = $('#user_Uid').val();
+
         var sampleNo = $('#sampleNo').val();
         var labbranch = $('#labBranchDropdown').val();
         var type = $('#type').val();
         var source = $('#source').val();
-        var tpno = $('#tpno').val();
+        var tpno = $('#Ser_tpno').val();
         var initial = $('#initial').val();
         var fname = $('#fname').val();
         var lname = $('#lname').val();
@@ -535,7 +537,7 @@ Add New Patient
             var time = $(this).find('td:nth-child(4)').text().trim();
             var f_time = $(this).find('td:nth-child(5)').text().trim();
             var bar_code = $(this).find('td:nth-child(6) input[type="checkbox"]').is(':checked') ? 'Yes' : 'No';
-            var priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'Yes' : 'No';
+            var priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? '1' : '0';
             var testType = $(this).find('td:nth-child(8)').text().trim();
             var sampleSuffix = (index < sampleSufArray.length) ? sampleSufArray[index] : '';
             var fullSampleNo = sampleNumberPrefix + sampleSuffix;
@@ -564,6 +566,7 @@ Add New Patient
 
         var postData = {
             _token: token, // Required for Laravel 4.2
+            userUID: user_uid_data,
             sampleNo: sampleNumberPrefix,
             labbranch: labbranch,
             type: type,
@@ -604,11 +607,11 @@ Add New Patient
                 console.log("Sending data to server...");
             },
             success: function(response) {
-                
+
                 console.log("Server Response:", response);
                 alert(response.message || 'Patient saved successfully!');
                 resetForm();
-                
+
             },
             error: function(xhr) {
                 console.error('Error:', xhr);
@@ -640,6 +643,7 @@ Add New Patient
         $('#refDropdown').val('');
         $('#testname').val('');
         $('#pkgname').val('');
+        $('#Ser_tpno').val('');
         $('#fast_time').val('');
         $('#total_amount').text('0.00');
         $('#discount').val('0.00');
@@ -654,6 +658,117 @@ Add New Patient
         loadcurrentSampleNo();
     }
     //*************************************************************************************************
+
+    //   ***********#######TP Search########*************
+    document.addEventListener('click', function(event) {
+        var inputField = document.getElementById('Ser_tpno');
+        var suggestionBox = document.getElementById('tpno_suggestions');
+
+        if (!inputField.contains(event.target) && !suggestionBox.contains(event.target)) {
+            suggestionBox.style.display = 'none';
+        }
+    });
+
+    function searchUserRecords() {
+        var Usertpno = $('#Ser_tpno').val();
+
+        if (Usertpno.length < 3) {
+            $('#tpno_suggestions').hide();
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/getAllUsers",
+            data: {
+                Usertpno: Usertpno
+            },
+            success: function(data) {
+                var suggestionsHtml = '';
+                if (data.length > 0) {
+
+                    $.each(data, function(index, user) {
+                        suggestionsHtml += '<div class="suggestion-item" onclick="selectTP(\'' + user.tpno + '\', \'' + user.uid + '\')">' +
+                            user.tpno + ' - ' + user.fname + ' ' + user.lname + '</div>';
+                    });
+
+                    $('#tpno_suggestions').html(suggestionsHtml).show();
+                } else {
+                    $('#tpno_suggestions').hide();
+                }
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr.statusText);
+            }
+        });
+    }
+
+    function selectTP(tpno, userID) {
+        $('#Ser_tpno').val(tpno);
+        $('#tpno_suggestions').hide();
+        $('#user_Uid').val(userID);
+        $.ajax({
+            type: "GET",
+            url: "/getUserDetailsByTP",
+            data: {
+                useruid: userID
+            },
+            success: function(data) {
+                $('#initial').val(data.initials);
+                $('#fname').val(data.fname);
+                $('#lname').val(data.lname);
+                $('#dob').val(data.dob || '');
+                $('#nic').val(data.nic);
+                $('#address').val(data.address);
+                $('input[name="gender"]').prop('checked', false);
+                if (data.gender_idgender == 1) {
+                    $('#male').prop('checked', true);
+                } else if (data.gender_idgender == 2) {
+                    $('#female').prop('checked', true);
+                }
+
+
+                if (data.dob) {
+
+                    var dob = new Date(data.dob);
+                    var today = new Date();
+
+                    var ageYears = today.getFullYear() - dob.getFullYear();
+                    var ageMonths = today.getMonth() - dob.getMonth();
+                    var ageDays = today.getDate() - dob.getDate();
+
+                    if (ageDays < 0) {
+                        ageMonths--;
+                        var lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+                        ageDays += lastMonth.getDate();
+                    }
+
+                    if (ageMonths < 0) {
+                        ageYears--;
+                        ageMonths += 12;
+                    }
+
+                    $('#years').val(ageYears);
+                    $('#months').val(ageMonths);
+                    $('#days').val(ageDays);
+                } else {
+
+                    $('#years').val(data.age || '');
+                    $('#months').val(data.months || '');
+                    $('#days').val(data.days || '');
+                }
+            },
+            error: function(xhr) {
+                alert('Error loading user data: ' + xhr.statusText);
+            }
+        });
+    }
+
+
+
+
+
+
 
     //*************************************************************************************************
     //*************************************************************************************************
@@ -763,6 +878,27 @@ Add New Patient
         background-color: #1977c9 !important;
         /* Light blue color */
     }
+
+    /* //--------------- */
+    .suggestion-box {
+        position: absolute;
+        background: #fff;
+        border: 1px solid #ccc;
+        max-height: 150px;
+        overflow-y: auto;
+        width: 210px;
+        z-index: 1000;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .suggestion-item {
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .suggestion-item:hover {
+        background-color: #f0f0f0;
+    }
 </style>
 @stop
 
@@ -842,12 +978,20 @@ Add New Patient
                     <label style="width: 140px;font-size: 16px;  "><b>Ignore Date</b></label>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    <label style="width: 90px;font-size: 18px; ">T.P.NO</label>
-                    <input type="text" name="tpno" class="input-text" id="tpno" maxlength="10" style="width: 210px" pattern="[0-9]{10}" title="" value="">
-                    <label style="width: 850px;font-size: 18px;"></label>
+                    <label style="width: 90px; font-size: 18px;">T.P.NO</label>
+                    <input type="hidden" id="user_Uid">
+                    <input type="text" id="Ser_tpno" class="input-text" oninput="searchUserRecords()" maxlength="10" autocomplete="off" placeholder="Enter TP Number" style="width: 210px;">
+                    <div id="tpno_suggestions"
+                        style="position: absolute; background: #fff; 
+                    border: 1px solid #ccc; max-height: 150px; 
+                    overflow-y: auto; width: 510px; z-index: 1100; 
+                    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); display:none; top: 250px; left: 50px;"></div>
+
+                    <label style="width: 850px; font-size: 18px;"></label>
                     <input type="button" style="width: 80px" class="btn" id="backBtn" value="Back" onclick="">
                     <input type="button" style="width: 80px" class="btn" id="frontBtn" value="Front" onclick="">
                 </div>
+
             </div>
 
             <!-- --------------*********************************************************************************-------------------->
@@ -877,9 +1021,9 @@ Add New Patient
                         <label style="width: 50px;font-size: 18px;  ">Years</label>
                         <input type="number" name=" years" class="input-text" id="years" style="width: 60px;margin-right:15px">
                         <label style="width: 65px;font-size: 18px; ">Months</label>
-                        <input type="number" name=" months"  class="input-text" id="months" style="width: 60px;margin-right:15px">
+                        <input type="number" name=" months" class="input-text" id="months" style="width: 60px;margin-right:15px">
                         <label style="width: 45px;font-size: 18px; ">Days</label>
-                        <input type="number" name=" days"  class="input-text" id="days" style="width: 60px">
+                        <input type="number" name=" days" class="input-text" id="days" style="width: 60px">
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Gender:</label>
@@ -897,7 +1041,7 @@ Add New Patient
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Ref.Code:</label>
                         <input type="text" name=" refcode" class="input-text" id="refcode" style="width: 250px">
-                        <input type="button" style="color:gray" class="btn" id="resetbtn" value="Add New Reference" onclick="">
+                        <input type="button" style="color:gray" class="btn" id="resetbtn" value="Add New Reference" onclick="window.location.href='{{ url('/doc-reference') }}';">
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Refered:</label>

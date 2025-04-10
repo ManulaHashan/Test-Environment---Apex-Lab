@@ -350,6 +350,7 @@ class PatientController extends Controller {
             if ($teststate == "Not Collected") {
                 $testStatus = "and a.status like 'Done' and a.repcollected IS NULL ";
             }
+            
 
             $status = "";
             if (Input::get('status') != null) {

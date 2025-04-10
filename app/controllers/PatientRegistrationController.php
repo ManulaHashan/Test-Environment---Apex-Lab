@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 
 if (!isset($_SESSION)) {
@@ -187,6 +188,75 @@ class PatientRegistrationController extends Controller
     }
 
 
+    // public function getAllUsers()
+    // {
+    //     $tpno = Input::get('Usertpno'); 
+
+    //     $query = DB::table('user')->select('fname', 'lname', 'tpno');
+
+
+    //     if (!empty($tpno)) {
+    //         $query->where('tpno', 'LIKE', '%' . $tpno . '%');
+    //     }
+
+    //     $Result = $query->orderBy('fname', 'ASC')->get();
+
+    //     return Response::json($Result);
+    // }
+
+    public function getAllUsers()
+    {
+        $tpno = Input::get('Usertpno');
+
+        // $query = DB::table('user')
+        //     ->where('tpno', 'LIKE', '%' . $tpno . '%')
+        //     ->select(
+        //         'uid',
+        //         'fname',
+        //         'lname',
+        //         'tpno'
+        //     )
+        //     ->orderBy('fname', 'ASC')->get();
+
+
+        $user = DB::table('user as a')
+            ->select('a.uid','a.fname', 'a.lname', 'a.tpno', 'b.initials')
+            ->from(DB::raw('user as a, patient as b, lps as c'))
+            ->whereRaw('a.uid = b.user_uid')
+            ->whereRaw('b.pid = c.patient_pid')
+            ->where('c.Lab_lid', $_SESSION['lid'])
+            ->where('a.tpno', 'like', $tpno . '%')
+            ->groupBy('a.uid')
+            ->get();
+
+        return Response::json($user);
+    }
+    public function getUserDetailsByTP()
+    {
+        $user_ID = Input::get('useruid');
+
+        $user = DB::table('user as u')
+            ->join('patient as p', 'u.uid', '=', 'p.user_uid')
+            ->where('u.uid', $user_ID)
+            ->select(
+                'u.fname',
+                'u.lname',
+                'u.gender_idgender',
+                'u.address',
+                'u.tpno',
+                'u.nic',
+                'p.age',
+                'p.months',
+                'p.days',
+                'p.initials',
+                'p.dob'
+                
+            )
+            ->first();
+
+        return Response::json($user);
+    }
+
 
 
     //*************************************
@@ -212,11 +282,16 @@ class PatientRegistrationController extends Controller
         $now = date('Y-m-d H:i:s');
         $currentTimestamp = Carbon::now();
         $sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-        //$sampleNo = $this->loadSampleNumber();
-        $user = DB::table('user')->where('tpno', $tpno)->first();
+        //*#*#*#*##**#$sampleNo = $this->loadSampleNumber();*#*#*#*##**#
+
+        
+        $useruid = Input::get('userUID');
+
+        $user = DB::table('user')->where('uid', $useruid)->first();
+         
         $testData = Input::get('test_data');
 
-        // Patient and User Insertion Logic
+        // *#*#*#*##**# Patient and User Insertion Logic *#*#*#*##**#
         if ($user) {
             $patientid = DB::table('patient')->insertGetId([
                 'user_uid' => $user->uid,
@@ -235,6 +310,7 @@ class PatientRegistrationController extends Controller
                 'tpno' => $tpno,
                 'address' => $address,
                 'gender_idgender' => $gender,
+                'usertype_idusertype' => '2',
                 'nic' => $nic,
                 'created_at' => $currentTimestamp,
                 'updated_at' => $currentTimestamp
@@ -317,6 +393,7 @@ class PatientRegistrationController extends Controller
                 'price' => $test['price'],
                 'Testgroup_tgid' => $test['tgid'],
                 'urgent_sample' => $test['priority'],
+                'status' => 'pending',
                 'created_at' => $now,
                 'updated_at' => $now
             ]);
@@ -352,7 +429,7 @@ class PatientRegistrationController extends Controller
                 }
             }
 
-            $lpsId = DB::getPdo()->lastInsertId();
+            // $lpsId = DB::getPdo()->lastInsertId();
             $testRecords = DB::table('Lab_has_test')
                 ->where('Lab_lid', $labLid)
                 ->where('Testgroup_tgid', $test['tgid'])
@@ -360,21 +437,15 @@ class PatientRegistrationController extends Controller
 
             $lpsHasTestData = [];
             foreach ($testRecords as $testRecord) {
-                $lpsHasTestData[] = [
+
+                DB::table('lps_has_test')->insert([
                     'lps_lpsid' => $lpsId,
                     'test_tid' => $testRecord->test_tid,
                     'state' => 'pending',
                     'created_at' => $now,
                     'updated_at' => $now
-                ];
+                ]);
             }
-
-            if (!empty($lpsHasTestData)) {
-                DB::table('lps_has_test')->insert($lpsHasTestData);
-            }
-
-            
-
            
         }
 

@@ -285,6 +285,9 @@ Route::get('/getCurrentSampleNumber', 'PatientRegistrationController@loadSampleN
 Route::get('/getTests', 'PatientRegistrationController@loadBrachWiceTest');
 Route::get('/getPackageTests', 'PatientRegistrationController@loadPackageTests');
 Route::post('/savePatient', 'PatientRegistrationController@savePatientDetails');
+Route::get('/getAllUsers', 'PatientRegistrationController@getAllUsers');
+Route::get('/getUserDetailsByTP', 'PatientRegistrationController@getUserDetailsByTP');
+
 
 
 
