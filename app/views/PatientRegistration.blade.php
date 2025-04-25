@@ -77,7 +77,8 @@ Add New Patient
     // ----------------------------*******Add tests to the patient Registration Table**********---------------- 
     var itemListTestData = [];
 
-    function setDataToTable(selectedValue) {
+    function setDataToTable(selectedValue) 
+    {
         if (!selectedValue) return;
 
         var parts = selectedValue.split(":");
@@ -281,39 +282,57 @@ Add New Patient
 
     //*************************************************************************************************
     // Apply discount
-    function applyDiscount() {
-        var totalAmount = parseFloat($('#total_amount').text()) || 0;
-        var discountAmount = parseFloat($('#discount').val()) || 0;
-        var discountPercentage = parseFloat($('#discount_percentage').val()) || 0;
+    function applyDiscount() 
+    {
 
+    var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
+    var totalAmount = parseFloat(totalAmountText) || 0;
 
-        if (discountAmount > 0) {
-            $('#discount_percentage').val('');
-        } else if (discountPercentage > 0) {
-            $('#discount').val('');
-            discountAmount = (discountPercentage / 100) * totalAmount;
-        }
+    
 
+  
+    
+    
+    var discountData = $('#discount_percentage').val().split(":");
 
-        if (discountAmount > totalAmount) {
-            alert("Discount cannot exceed total amount!");
-            discountAmount = 0;
-            $('#discount, #discount_percentage').val('');
-        }
+    var discountPercentage = parseFloat(discountData[1]) || 0;  
 
-        var grandTotal = totalAmount - discountAmount;
-        $('#grand_total').text(grandTotal.toFixed(2));
+    var manualDiscount = parseFloat($('#discount').val()) || 0;
 
+    
 
-        $('#paid').val('');
-        $('#due').text(grandTotal.toFixed(2));
+    let discountAmount = 0;
+
+    if (discountPercentage > 0) {
+        discountAmount = (totalAmount * discountPercentage) / 100;
+        $('#discount').val(discountAmount.toFixed(2)); 
+    } else if (manualDiscount > 0) {
+    
+        discountAmount = manualDiscount;
+        $('#discount_percentage').val('');
+    }
+
+   
+    if (discountAmount > totalAmount) {
+        alert("Discount cannot exceed total amount!");
+        discountAmount = 0;
+        $('#discount, #discount_percentage').val('');
     }
 
 
+    var grandTotal = totalAmount - discountAmount;
 
-    $('#discount, #discount_percentage').on('input', function() {
-        applyDiscount();
-    });
+ 
+    $('#grand_total').text(grandTotal.toFixed(2));
+    $('#paid').val('');
+    $('#due').text(grandTotal.toFixed(2));
+}
+
+
+
+$('#discount, #discount_percentage').on('input change', function() {
+    applyDiscount();
+});
 
 
     //*************************************************************************************************
@@ -444,6 +463,24 @@ Add New Patient
         initialSelect.addEventListener("change", updateGender);
     });
 
+    //split method total amount set process
+    document.addEventListener("DOMContentLoaded", function () {
+    const splitCashInput = document.getElementById("split_cash_amount");
+    const splitCardInput = document.getElementById("split_card_amount");
+    const paidInput = document.getElementById("paid");
+
+    function updatePaidAmount() {
+        const cash = parseFloat(splitCashInput.value) || 0;
+        const card = parseFloat(splitCardInput.value) || 0;
+        paidInput.value = (cash + card).toFixed(2);
+        calculateDue(); // Recalculate due if needed
+    }
+
+    splitCashInput.addEventListener("input", updatePaidAmount);
+    splitCardInput.addEventListener("input", updatePaidAmount);
+});
+
+
     var allRecords = [];
 
     function getAllTableRecords() {
@@ -473,7 +510,8 @@ Add New Patient
 
 
 
-    function savePatientDetails() {
+    function savePatientDetails() 
+    {
         var testData = [];
         var rowCount = 0;
 
@@ -506,9 +544,15 @@ Add New Patient
         var fast_time = $('#fast_time').val();
 
         var total_amount = $('#total_amount').text().trim() || '0.00';
-        var discount = $('#discount').val().trim() || '0.00';
-        var discount_percentage = $('#discount_percentage').val().trim() || '0';
+        var discount = $('#discount').val().trim() || '0.00'; // Get discount value
+        var discount_percentage = $('#discount_percentage').val().trim() || '0'; // Get discount percentage
+        var discountId = $('#discount_percentage option:selected').val().split(":")[0]; // Get selected discount ID
+        var split_cash_amount = $('#split_cash_amount').val().trim() || '0.00';
+        var split_card_amount = $('#split_card_amount').val().trim() || '0.00';
+        var vaucher_amount = $('#vaucher_amount').val().trim() || '0.00';
+
         var grand_total = $('#grand_total').text().trim() || '0.00';
+    
         var payment_method = $('input[name="payment_method"]:checked').val() || 'cash';
         var paid = $('#paid').val().trim() || '0.00';
         var due = $('#due').text().trim() || '0.00';
@@ -518,7 +562,6 @@ Add New Patient
             alert('First Name and Last Name are required.');
             return;
         }
-
         // if (years === '' || months === '' || days === '') {
         //     alert('All age fields (Years, Months, Days) are required.');
         //     return;
@@ -561,11 +604,11 @@ Add New Patient
             return;
         }
 
-        // Laravel 4.2 CSRF token
+   
         var token = $('input[name="_token"]').val();
 
         var postData = {
-            _token: token, // Required for Laravel 4.2
+            _token: token, 
             userUID: user_uid_data,
             sampleNo: sampleNumberPrefix,
             labbranch: labbranch,
@@ -589,8 +632,11 @@ Add New Patient
             fast_time: fast_time,
             test_data: testData,
             total_amount: total_amount,
-            discount: discount,
-            discount_percentage: discount_percentage,
+            discount: discount, // Include discount value
+            discountId: discountId, // Include discount ID
+            split_cash_amount: split_cash_amount,
+            split_card_amount: split_card_amount,
+            vaucher_amount: vaucher_amount,
             grand_total: grand_total,
             payment_method: payment_method,
             paid: paid,
@@ -610,7 +656,7 @@ Add New Patient
 
                 console.log("Server Response:", response);
                 alert(response.message || 'Patient saved successfully!');
-                resetForm();
+                resetPage();
 
             },
             error: function(xhr) {
@@ -804,22 +850,29 @@ Add New Patient
         });
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("vaucher_div").style.display = "none";
-        document.getElementById("split_div").style.display = "none";
-        const paymentRadios = document.getElementsByName("payment_method");
-        paymentRadios.forEach(radio => {
-            radio.addEventListener("change", function() {
-                document.getElementById("vaucher_div").style.display = "none";
-                document.getElementById("split_div").style.display = "none";
-                if (this.value === "voucher") {
-                    document.getElementById("vaucher_div").style.display = "flex";
-                } else if (this.value === "split") {
-                    document.getElementById("split_div").style.display = "flex";
-                }
-            });
+    document.addEventListener("DOMContentLoaded", function()
+     {
+   
+    document.getElementById("vaucher_div").style.display = "none";
+    document.getElementById("split_div").style.display = "none";
+
+    const paymentRadios = document.getElementsByName("payment_method");
+    
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener("change", function() {
+            // Hide both divs initially
+            document.getElementById("vaucher_div").style.display = "none";
+            document.getElementById("split_div").style.display = "none";
+
+            if (this.value === "6") {
+                document.getElementById("vaucher_div").style.display = "flex";
+            } else if (this.value === "5") {
+                document.getElementById("split_div").style.display = "flex";
+            }
         });
     });
+});
 </script>
 
 
@@ -1125,83 +1178,83 @@ Add New Patient
 
                     <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none; margin-top: 20px;">
 
-                    <div style="display: flex; align-items: center; margin-top: 5px;">
-                        <label style="width: 125px; font-size: 18px;">Total Amount:</label>
-                        <label style="width: 30px; font-size: 18px;">Rs: </label>
-                        <label id="total_amount" style=" padding-right: 50px; font-size: large; color: rgb(17, 17, 17); font-family: 'Times New Roman', Times, serif; font-weight: bolder;">000,000.00</label>
+                        <div style="display: flex; align-items: center; margin-top: 5px;">
+                            <label style="width: 125px; font-size: 18px;">Total Amount:</label>
+                            <label style="width: 30px; font-size: 18px;">Rs: </label>
+                            <label id="total_amount" style=" padding-right: 50px; font-size: large; color: rgb(17, 17, 17); font-family: 'Times New Roman', Times, serif; font-weight: bolder;">000,000.00</label>
 
-                        <br>
+                            <br>
 
-                        <label style="width: 80px; font-size: 18px; ">Discount:</label>
-                        <input type="number" name="discount" class="input-text" id="discount" style="width: 80px; " oninput="applyDiscount()">
+                            <label style="width: 80px; font-size: 18px; ">Discount:</label>
+                            <input type="number" name="discount" class="input-text" id="discount" style="width: 80px; " oninput="applyDiscount()" readonly>
 
-                        <select name="discount_percentage" class="input-text" id="discount_percentage" style="margin-left: 20px; width: 100px; height: 30px;" onchange="applyDiscount()">
-                            <option value="">%</option>
-                            <?php
+                            <select name="discount_percentage" class="input-text" id="discount_percentage" style="margin-left: 20px; width: 100px; height: 30px;" onchange="applyDiscount()">
+                                <option value="">%</option>
+                                <?php
 
-                            $Result = DB::select("select did, name, value FROM Discount WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+                                $Result = DB::select("select did, name, value FROM Discount WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
 
-                            foreach ($Result as $res) {
-                                $discountId = $res->did;
-                                $discountName = $res->name;
-                                $discountValue = $res->value;
-                            ?>
-                                <option value="<?= $discountValue ?>"><?= $discountName ?> (<?= $discountValue ?>%)</option>
-                            <?php
-                            }
-                            ?>
-                        </select>
+                                foreach ($Result as $res) {
+                                    $discountId = $res->did;
+                                    $discountName = $res->name;
+                                    $discountValue = $res->value;
+                                ?>
+                                    <option value="<?= $discountId.":".$discountValue ?>"><?= $discountName ?> (<?= $discountValue ?>%)</option>
+                                    <?php
+                                }
+                                ?>
+                            </select>
 
-                    </div>
+                        </div>
 
-                    <div style="display: flex; align-items: center; margin-top: 20px;">
-                        <label style="width: 125px; font-size: 18px;"><b>Grand Total:</b></label>
-                        <label style="width: 30px; font-size: 18px;">Rs: </label>
-                        <label style=" padding-right: 45px; color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="grand_total">000,000.00</label>
+                        <div style="display: flex; align-items: center; margin-top: 20px;">
+                            <label style="width: 125px; font-size: 18px;"><b>Grand Total:</b></label>
+                            <label style="width: 30px; font-size: 18px;">Rs: </label>
+                            <label style=" padding-right: 45px; color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="grand_total">000,000.00</label>
 
-                        <label><input type="radio" name="payment_method" id="payment_method" value="cash" checked> Cash</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="card"> Card</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="credit"> Credit</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="cheque"> Cheque</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="voucher"> Voucher</label>
-                        <label><input type="radio" name="payment_method" id="payment_method" value="split"> Split</label>
-                    </div>
+                            <label><input type="radio" name="payment_method" id="cash" value="1" checked> Cash</label>
+                            <label><input type="radio" name="payment_method" id="card" value="2"> Card</label>
+                            <label><input type="radio" name="payment_method" id="credit" value="credit"> Credit</label>
+                            <label><input type="radio" name="payment_method" id="cheque" value="3"> Cheque</label>
+                            <label><input type="radio" name="payment_method" id="voucher" value="6"> Voucher</label>
+                            <label><input type="radio" name="payment_method" id="split" value="5"> Split</label>
+                        </div>
 
-                    <div style="display: flex; align-items: center; margin-top: 20px;">
-                        <label style="width: 125px; font-size: 18px;">Payment:</label>
-                        <label style="width: 30px; font-size: 18px;">Rs: </label>
-                        <input type="number" name="paid" class="input-text" id="paid" style="width: 97px;" oninput="calculateDue()">
+                        <div style="display: flex; align-items: center; margin-top: 20px;">
+                            <label style="width: 125px; font-size: 18px;">Payment:</label>
+                            <label style="width: 30px; font-size: 18px;">Rs: </label>
+                            <input type="number" name="paid" class="input-text" id="paid" style="width: 97px;" oninput="calculateDue()">
 
-                        <label style="width: 35px; font-size: 18px;"></label>
-                        <label style="width: 60px; font-size: 18px;">Due:</label>
-                        <label style="width: 30px; font-size: 18px;">Rs:</label>
-                        <label style="color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="due">000,000.00</label>
-                    </div>
-                    <div style="display: flex; align-items: center;margin-top: 15px;" id="vaucher_div">
-                        <label style="width: 125px; font-size: 18px;">Vaucher No:</label>
-                        <label style="width: 30px; font-size: 18px;"> </label>
-                        <input type="number" name="Voucher_No" class="input-text" id="Voucher_No" style="width: 97px;" oninput="">
+                            <label style="width: 35px; font-size: 18px;"></label>
+                            <label style="width: 60px; font-size: 18px;">Due:</label>
+                            <label style="width: 30px; font-size: 18px;">Rs:</label>
+                            <label style="color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="due">000,000.00</label>
+                        </div>
+                        <div style="display: flex; align-items: center;margin-top: 15px;" id="vaucher_div">
+                            <label style="width: 125px; font-size: 18px;">Vaucher No:</label>
+                            <label style="width: 30px; font-size: 18px;"> </label>
+                            <input type="number" name="Voucher_No" class="input-text" id="Voucher_No" style="width: 97px;" oninput="">
 
-                        <label style="width: 150px; font-size: 18px; margin-left:35px;">Vaucher Amount</label>
-                        <label style="width: 30px; font-size: 18px;">Rs: </label>
-                        <input type="number" name="vaucher_amount" class="input-text" id="vaucher_amount" style="width: 97px;" oninput="">
+                            <label style="width: 150px; font-size: 18px; margin-left:35px;">Vaucher Amount</label>
+                            <label style="width: 30px; font-size: 18px;">Rs: </label>
+                            <input type="number" name="vaucher_amount" class="input-text" id="vaucher_amount" style="width: 97px;" oninput="">
 
-                    </div>
-                    <div style="display: flex; align-items: center;margin-top: 15px;" id="split_div">
+                        </div>
+                        <div style="display: flex; align-items: center;margin-top: 15px;" id="split_div">
 
-                        <label style="width: 125px; font-size: 18px;">Cash Amount</label>
-                        <label style="width: 30px; font-size: 18px;">Rs: </label>
-                        <input type="number" name="cash_amount" class="input-text" id="cash_amount" style="width: 97px;" oninput="">
+                            <label style="width: 125px; font-size: 18px;">Cash Amount</label>
+                            <label style="width: 30px; font-size: 18px;">Rs: </label>
+                            <input type="number" name="cash_amount" class="input-text" id="split_cash_amount" style="width: 97px;" oninput="">
 
-                        <label style="width: 125px; font-size: 18px;margin-left:35px;">Card Amount</label>
-                        <label style="width: 30px; font-size: 18px; margin-left: 25px;">Rs: </label>
-                        <input type="number" name="card_amount" class="input-text" id="card_amount" style="width: 97px;" oninput="">
+                            <label style="width: 125px; font-size: 18px;margin-left:35px;">Card Amount</label>
+                            <label style="width: 30px; font-size: 18px; margin-left: 25px;">Rs: </label>
+                            <input type="number" name="card_amount" class="input-text" id="split_card_amount" style="width: 97px;" oninput="">
 
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-                        <input type="button" style="color:black; width: 180px; height: 50px;" class="btn" id="cashDrower" value="Cash Drawer">
-                        <input type="button" style="color:black; width: 210px; height: 50px;" class="btn" id="update_payment" value="Update Payment">
-                    </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                            <input type="button" style="color:black; width: 180px; height: 50px;" class="btn" id="cashDrower" value="Cash Drawer">
+                            <input type="button" style="color:black; width: 210px; height: 50px;" class="btn" id="update_payment" value="Update Payment">
+                        </div>
 
 
 

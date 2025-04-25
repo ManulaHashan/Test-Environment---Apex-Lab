@@ -278,6 +278,13 @@ class PatientRegistrationController extends Controller
         $gender = Input::get('gender');
         $nic = Input::get('nic');
 
+        $discount = Input::get('discount'); 
+        $discountId = Input::get('discountId'); 
+        $cashAmount = Input::get('split_cash_amount');
+        $cardAmount = Input::get('split_card_amount');
+        $voucherAmount = Input::get('vaucher_amount');
+        
+
         $labLid = $_SESSION['lid'];
         $now = date('Y-m-d H:i:s');
         $currentTimestamp = Carbon::now();
@@ -345,40 +352,12 @@ class PatientRegistrationController extends Controller
             $paymentStatus = "Pending Due";
         }
 
-        // Insert into invoice table
-        // $invoiceId = DB::table('invoice')->insertGetId([
-        //     'lps_lpsid' => $patientid, 
-        //     'date' => $now,
-        //     'total' => $totalAmount,
-        //     'gtotal' => $grandTotal,
-        //     'paid' => $paid,
-        //     'status' => $paymentStatus,
-        //     'paymentmethod' => $paymentMethod,
-        //     'cashier' => $userUid, 
-        //     'cost' => 0, 
-        //     // 'remark' => $invoiceRemark,
-        //     // 'source' => $source,
-        //     // 'created_at' => $now,
-        //     // 'updated_at' => $now
-        // ]);
-
-        // Inserting into invoice_payments table if paid amount is greater than 0
-        // if ($paid > 0.0) {
-        //     DB::table('invoice_payments')->insert([
-        //         'date' => $now,
-        //         'amount' => $paid,
-        //         'user_uid' => $userUid,
-        //         'paymethod' => $paymentMethod, 
-        //         'invoice_iid' => $invoiceId,
-        //         // 'created_at' => $now,
-        //         // 'updated_at' => $now
-        //     ]);
-        // }
-
         // Inserting tests into lps and lps_has_test tables
         foreach ($testData as $index => $test) {
             // $fullSampleNo = $sampleNo . ($index < count($sampleSufArray) ? $sampleSufArray[$index] : '');
 
+
+            // Inserting lps tables
             $lpsId = DB::table('lps')->insertGetId([
                 'patient_pid' => $patientid,
                 'Lab_lid' => $labLid,
@@ -398,8 +377,18 @@ class PatientRegistrationController extends Controller
                 'updated_at' => $now
             ]);
 
-
+             // Inserting invoice tables
             if ($index == '0') {
+                $paymentMethodRaw = Input::get('payment_method');
+                $paymentMethodMap  = [
+                    '1' => 'cash',
+                    '2' => 'card',
+                    'credit' => 'credit',
+                    '3' => 'cheque',
+                    '6' => 'voucher',
+                    '5' => 'split'
+                ];
+                $paymentMethod = isset($paymentMethodMap[$paymentMethodRaw]) ? $paymentMethodMap[$paymentMethodRaw] : 'cash';
                 $invoiceId = DB::table('invoice')->insertGetId([
                     'lps_lpsid' => $lpsId,
                     'date' => $now,
@@ -410,23 +399,83 @@ class PatientRegistrationController extends Controller
                     'paymentmethod' => $paymentMethod,
                     'cashier' => $userUid,
                     'cost' => 0,
+                    'discount' => Input::get('discount'), 
+                    'Discount_did' => Input::get('discountId'), 
                     // 'remark' => $invoiceRemark,
                     // 'source' => $source,
                     // 'created_at' => $now,
                     // 'updated_at' => $now
                 ]);
 
+
+                // insert invoce_payments table
+                // if ($paid > 0.0) 
+                // {
+                //     DB::table('invoice_payments')->insert([
+                //         'date' => $now,
+                //         'amount' => $paid,
+                //         'user_uid' => $userUid,
+                //         'paymethod' => $paymentMethod,
+                //         'invoice_iid' => $invoiceId,
+                //         // 'created_at' => $now,
+                //         // 'updated_at' => $now
+                //     ]);
+                // }
+
+
+                // insert invoce_payments table
                 if ($paid > 0.0) {
-                    DB::table('invoice_payments')->insert([
-                        'date' => $now,
-                        'amount' => $paid,
-                        'user_uid' => $userUid,
-                        'paymethod' => $paymentMethod,
-                        'invoice_iid' => $invoiceId,
-                        // 'created_at' => $now,
-                        // 'updated_at' => $now
-                    ]);
+                    if ($paymentMethodRaw == '5') { // Split
+                        $cashAmount = Input::get('split_cash_amount');
+                        $cardAmount = Input::get('split_card_amount'); 
+                
+                        if ($cashAmount > 0) {
+                            DB::table('invoice_payments')->insert([
+                                'date' => $now,
+                                'amount' => $cashAmount,
+                                'user_uid' => $userUid,
+                                'paymethod' => 1, // Cash
+                                'invoice_iid' => $invoiceId,
+                            ]);
+                        }
+                
+                        if ($cardAmount > 0) {
+                            DB::table('invoice_payments')->insert([
+                                'date' => $now,
+                                'amount' => $cardAmount,
+                                'user_uid' => $userUid,
+                                'paymethod' => 2, // Card
+                                'invoice_iid' => $invoiceId,
+                            ]);
+                        }
+                
+                    } elseif ($paymentMethodRaw == '6') { // Voucher
+                        $voucherAmount = Input::get('vaucher_amount');
+                
+                        if ($voucherAmount > 0) {
+                            DB::table('invoice_payments')->insert([
+                                'date' => $now,
+                                'amount' => $voucherAmount,
+                                'user_uid' => $userUid,
+                                'paymethod' => 6, // Voucher
+                                'invoice_iid' => $invoiceId,
+                            ]);
+                        }
+                
+                    } else {
+                        // For Cash, Card, Cheque, Credit
+                        DB::table('invoice_payments')->insert([
+                            'date' => $now,
+                            'amount' => $paid,
+                            'user_uid' => $userUid,
+                            'paymethod' => $paymentMethodRaw, // Save numeric value or 'credit'
+                            'invoice_iid' => $invoiceId,
+                        ]);
+                    }
                 }
+                
+                
+                
             }
 
             // $lpsId = DB::getPdo()->lastInsertId();
