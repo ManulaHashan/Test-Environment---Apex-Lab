@@ -408,20 +408,6 @@ class PatientRegistrationController extends Controller
                 ]);
 
 
-                // insert invoce_payments table
-                // if ($paid > 0.0) 
-                // {
-                //     DB::table('invoice_payments')->insert([
-                //         'date' => $now,
-                //         'amount' => $paid,
-                //         'user_uid' => $userUid,
-                //         'paymethod' => $paymentMethod,
-                //         'invoice_iid' => $invoiceId,
-                //         // 'created_at' => $now,
-                //         // 'updated_at' => $now
-                //     ]);
-                // }
-
 
                 // insert invoce_payments table
                 if ($paid > 0.0) {
@@ -463,12 +449,12 @@ class PatientRegistrationController extends Controller
                         }
                 
                     } else {
-                        // For Cash, Card, Cheque, Credit
+                       
                         DB::table('invoice_payments')->insert([
                             'date' => $now,
                             'amount' => $paid,
                             'user_uid' => $userUid,
-                            'paymethod' => $paymentMethodRaw, // Save numeric value or 'credit'
+                            'paymethod' => $paymentMethodRaw, 
                             'invoice_iid' => $invoiceId,
                         ]);
                     }
