@@ -473,11 +473,26 @@ $('#discount, #discount_percentage').on('input change', function() {
         const cash = parseFloat(splitCashInput.value) || 0;
         const card = parseFloat(splitCardInput.value) || 0;
         paidInput.value = (cash + card).toFixed(2);
-        calculateDue(); // Recalculate due if needed
+        calculateDue(); 
     }
 
     splitCashInput.addEventListener("input", updatePaidAmount);
     splitCardInput.addEventListener("input", updatePaidAmount);
+});
+
+ //voucher method total amount set process
+document.addEventListener("DOMContentLoaded", function () {
+
+    const voucherAmountInput = document.getElementById("vaucher_amount");
+    const paidInput = document.getElementById("paid");
+
+    function updatePaidAmount() {
+        const voucherAmount = parseFloat(voucherAmountInput.value) || 0;
+        paidInput.value = (voucherAmount).toFixed(2);
+        calculateDue(); 
+    }
+
+    voucherAmountInput.addEventListener("input", updatePaidAmount);
 });
 
 

@@ -395,6 +395,7 @@ class PatientRegistrationController extends Controller
                     'total' => $totalAmount,
                     'gtotal' => $grandTotal,
                     'paid' => $paid,
+                    'paiddate' => $now,
                     'status' => $paymentStatus,
                     'paymentmethod' => $paymentMethod,
                     'cashier' => $userUid,
