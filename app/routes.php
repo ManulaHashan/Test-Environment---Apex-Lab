@@ -123,7 +123,12 @@ Route::get('/expmanage', function() {
 
 
 
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To View Invoice Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Route::get('/viewinvoices', function() {
+    return View::make('ViewInvoice');
+});
 // **************************************Manula's Development Routes************************************************************
 //~~~~~~~~~~~~~~~~~~~~~~~~Route To DOC Refference Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/doc-reference', function () {
@@ -193,6 +198,7 @@ Route::post('/activePackage', 'PackageCreateController@actiate_Package');
 Route::get('/createDiscount', function () {
     return View::make('DiscountCreate');
 });
+Route::get('/getAllInvoices', 'ViewInvoiceController@getAllInvoices');
 //~~~~~~~~~~~~~~~~~~~~~~~~Route To load discount data~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/getAllDiscount', 'DiscountCreateController@getAllDetails');
 
