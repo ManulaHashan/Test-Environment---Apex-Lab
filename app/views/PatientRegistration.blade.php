@@ -979,7 +979,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 <div class="container">
-    <div class="card" style="height: 1250px; margin-top: 20px;">
+    <div class="card" style="height: 1250px; margin-top: 20px; background-color:rgb(222, 222, 223);">
         <div class="card-body">
             <div style="width: 1350px; display: inline-block;">
                 <!-- Input group container -->
@@ -1113,7 +1113,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Ref.Code:</label>
                         <input type="text" name=" refcode" class="input-text" id="refcode" style="width: 250px">
-                        <input type="button" style="color:gray" class="btn" id="resetbtn" value="Add New Reference" onclick="window.location.href='{{ url('/doc-reference') }}';">
+                        <input type="button" style="color:green" class="btn" id="resetbtn" value="Add New Reference" onclick="window.location.href='{{ url('/doc-reference') }}';">
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Refered:</label>
@@ -1367,15 +1367,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <div style="display: flex; align-items: center;margin-top: 4px; ">
                         <label style="width: 50px;font-size: 16px;  "></label>
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords();savePatientDetails()">
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="updatebtn" value="Update Details " onclick="">
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="getlastpatientbtn" value="Get Last patient" onclick="">
+                        <input type="button" style="color:green; width: 210px; height: 50px" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords();savePatientDetails()">
+                        <input type="button" style="color:rgb(245, 168, 34); width: 210px; height: 50px" class="btn" id="updatebtn" value="Update Details " onclick="">
+                        <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="getlastpatientbtn" value="Get Last patient" onclick="">
                     </div>
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 50px;font-size: 16px;  "></label>
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="resetbtn" value="Reset" onclick="resetPage()">
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="">
-                        <input type="button" style="color:black; width: 210px; height: 50px" class="btn" id="view_invoicebtn" value="View Invoice" onclick="">
+                        <input type="button" style="color:gray; width: 210px; height: 50px" class="btn" id="resetbtn" value="Reset" onclick="resetPage()">
+                        <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="">
+                        <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="view_invoicebtn" value="View Invoice" onclick="">
                     </div>
 
                 </div>
