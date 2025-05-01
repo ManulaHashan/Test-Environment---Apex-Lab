@@ -264,7 +264,7 @@ class PatientRegistrationController extends Controller
 
     public function savePatientDetails()
     {
-        $userUid = $_SESSION['luid'];
+        $userUid = $_SESSION['uid'];
         $years = Input::get('years');
         $months = Input::get('months');
         $days = Input::get('days');
@@ -378,6 +378,15 @@ class PatientRegistrationController extends Controller
             ]);
 
              // Inserting invoice tables
+             $cashier = DB::table('user')->where('uid', '=', $userUid)->first();
+
+             if ($cashier) {
+                 $cashierName = $cashier->fname . ' ' . $cashier->lname;
+             }else{
+                $cashierName = '';
+             } 
+             
+
             if ($index == '0') {
                 $paymentMethodRaw = Input::get('payment_method');
                 $paymentMethodMap  = [
@@ -398,7 +407,7 @@ class PatientRegistrationController extends Controller
                     'paiddate' => $now,
                     'status' => $paymentStatus,
                     'paymentmethod' => $paymentMethod,
-                    'cashier' => $userUid,
+                    'cashier' => $cashierName,
                     'cost' => 0,
                     'discount' => Input::get('discount'), 
                     'Discount_did' => Input::get('discountId'), 

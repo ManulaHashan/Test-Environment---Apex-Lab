@@ -14,41 +14,61 @@ View Invices
 <script src="{{ asset('JS/ReportCalculations.js') }}"></script>
 
 <script>
-    $(document).ready(function() {
-        loadRecordToTable();
-    });
+    $(document).ready(function () {
+    const today = new Date().toISOString().split('T')[0];
+    $('#idate').val(today);
+
+    loadRecordToTable();
+});
 
     // Function to load data into the table
-    function loadRecordToTable() {
-
-        $.ajax({
-            type: "GET",
-            url: "getAllInvoices",
-            success: function(tbl_records) {
-                // alert('Successfully loaded data.');
-                $('#inv_record_tbl').html(tbl_records);
-            },
-            error: function(xhr, status, error) {
-                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
-                console.error('Error details:', {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText,
-                    error: error
-                });
-            }
-
-        });
-    }
 
 
+function loadRecordToTable() {
+    var center = $('#labbranch').val();
+    var withOtherBranches = $('#with_other_branches').is(':checked') ? 1 : 0;
+    var dueBillsOnly = $('#due_bills_only').is(':checked') ? 1 : 0;
+    var byDate = $('#by_date').is(':checked') ? 1 : 0;
+    var idate = $('#idate').val();
+    var invoiceNo = $('#invoice_no').val();
+    var firstName = $('#first_name').val();
+    var lastName = $('#last_name').val();
+    var contact = $('#contact').val();
+    var patientType = $('#type').val();
 
-
-
-
-
+    $.ajax({
+        type: "GET",
+        url: "getAllInvoices",
+        data: {
+            center: center,
+            withOtherBranches: withOtherBranches,
+            dueBillsOnly: dueBillsOnly,
+            byDate: byDate,
+            idate: idate, 
+            invoiceNo: invoiceNo,
+            firstName: firstName,
+            lastName: lastName,
+            contact: contact,
+            patientType: patientType
+        },
+        success: function (tbl_records) {
+            $('#inv_record_tbl').html(tbl_records);
+        },
+        error: function (xhr, status, error) {
+            alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
+            console.error('Error details:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                error: error
+            });
+        }
+    });
+}
 
     //*************************************************************************************************
+   
+
     //*************************************************************************************************
     //*************************************************************************************************
     //*************************************************************************************************
@@ -163,8 +183,8 @@ View Invices
                 <div style="display: flex; align-items: center; margin-top: 5px;">
                    
                     <label style="width: 70px;font-size: 18px;margin-left: 15px"><b>Center</b></label>
-                    <select name="labbranch" style="width: 250px; height: 30px" class="input-text" id="labBranchDropdown" onchange="loadcurrentSampleNo(); load_test();">
-                        <option value="%" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
+                    <select name="labbranch" style="width: 250px; height: 30px" class="input-text" id="labbranch" onchange="">
+                        <option value="%:@" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
                         <?php
                         $Result = DB::select("SELECT name, code, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
 
@@ -176,37 +196,37 @@ View Invices
 
                             $displayText = $branchCode . " : " . $branchName;
                         ?>
-                            <option value="<?= $bid ?>"><?= $displayText ?></option>
+                            <option value="<?= $bid . ":" . $branchCode ?>"><?= $displayText ?></option>
                         <?php
                         }
                         ?>
                     </select>
-                    <input type="checkbox" name="edit" id="edit1" class="ref_chkbox" value="1">
+                    <input type="checkbox" name="with_other_branches" id="with_other_branches" class="ref_chkbox" value="0">
                     <label style="font-size: 16px; margin-left: 5px;"><b>With Other Branches</b></label>
                     <label style="font-size: 16px; margin-left: 5px; width: 570px;"></label>
-                    <input type="checkbox" name="edit" id="edit2" class="ref_chkbox" value="1">
+                    <input type="checkbox" name="due_bills_only" id="due_bills_only" class="ref_chkbox" value="0">
                     <label style="font-size: 16px; margin-left: 5px;"><b>Due Bills Only</b></label>
                 </div>
 
                 <div style="display: flex; align-items: center; margin-top: 5px;">
                    
-                    <input type="checkbox" name="edit" id="edit2" class="ref_chkbox" style="margin-bottom: 5px;" value="1" checked>
+                    <input type="checkbox" name="by_date" id="by_date" class="ref_chkbox" style="margin-bottom: 5px;" value="1" checked>
                     <label style="font-size: 14px; margin-left: 3px; width: 70px;"><b>By Date </b></label>
-                    <input type="date" name="ser_date" class="input-text" id="ser_date" style="width: 100px">
+                    <input type="date" name="idate" class="input-text" id="idate" style="width: 100px">
                     <label style="font-size: 16px; margin-left: 5px;"><b>Invoice No </b></label>
-                    <input type="text" name="lname" class="input-text" id="lname" style="width: 90px">
+                    <input type="text" name="invoice_no" class="input-text" id="invoice_no" style="width: 90px">
                     <label style="font-size: 16px; margin-left: 5px;"><b>First Name </b></label>
-                    <input type="text" name="lname" class="input-text" id="lname" style="width: 90px">
+                    <input type="text" name="first_name" class="input-text" id="first_name" style="width: 90px">
                     <label style="font-size: 16px; margin-left: 5px;"><b>Last Name </b></label>
-                    <input type="text" name="lname" class="input-text" id="lname" style="width: 90px">
+                    <input type="text" name="last_name" class="input-text" id="last_name" style="width: 90px">
                     <label style="font-size: 16px; margin-left: 5px;"><b>Contact </b></label>
-                    <input type="text" name="lname" class="input-text" id="lname" style="width: 90px">
+                    <input type="text" name="contact" class="input-text" id="contact" style="width: 90px">
                     <label style="font-size: 16px; margin-left: 5px;"><b>Patient Type </b></label>
                     <select type="text" name="type" class="input-text" id="type" style="width: 70px; height: 30px">
                         <option value="In">In</option>
                         <option value="Out">Out</option>
                     </select>
-                    <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="ser_btn" value="Search" onclick="">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="ser_btn" value="Search" onclick="loadRecordToTable()">
                 </div>
             </div>
         
