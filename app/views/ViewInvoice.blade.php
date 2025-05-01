@@ -14,15 +14,56 @@ View Invices
 <script src="{{ asset('JS/ReportCalculations.js') }}"></script>
 
 <script>
-    $(document).ready(function () {
-    const today = new Date().toISOString().split('T')[0];
-    $('#idate').val(today);
+    $(document).ready(function ()
+     {
+        const today = new Date().toISOString().split('T')[0];
+        $('#idate').val(today);
 
-    loadRecordToTable();
+        loadRecordToTable();
+
+        $(document).on('click', '#inv_record_tbl tr', function () 
+        {
+            $('#inv_record_tbl tr').removeClass('selected');
+            $(this).addClass('selected');
+
+            var sampleNo = $(this).find('td:eq(0)').text().trim();
+            var date = $(this).data('date');
+
+                if (sampleNo && date) {
+                    $.ajax({
+                        type: "GET",
+                        url: "getSampleTestData",
+                        data: {
+                            sampleNo: sampleNo,
+                            date: date
+                        },
+                        success: function (sampleDataHtml) {
+                            $('#sample_record_tbl').html(sampleDataHtml);
+                        },
+                        error: function (xhr) {
+                            alert("Failed to load sample data.");
+                            console.log(xhr.responseText);
+                        }
+                    });
+                }
+    });
 });
+
+
+
+
 
     // Function to load data into the table
 
+    function formatCurrency(num) {
+        num = parseFloat(num);
+        if (isNaN(num)) return "0.00";
+        return num.toLocaleString('en-LK', {
+            style: 'currency',
+            currency: 'LKR',
+            minimumFractionDigits: 2
+        }).replace("LKR", "").trim();
+    }
 
 function loadRecordToTable() {
     var center = $('#labbranch').val();
@@ -53,6 +94,35 @@ function loadRecordToTable() {
         },
         success: function (tbl_records) {
             $('#inv_record_tbl').html(tbl_records);
+
+            let rowCount = 0;
+            let totalAmount = 0;
+            let totalPaid = 0;
+            let totalDue = 0;
+            let totalExpenses = 0;
+
+            
+            $('#inv_record_tbl tr').each(function () {
+                rowCount++;
+                const cols = $(this).find('td');
+
+                const amount = parseFloat($(cols[4]).text().replace(/,/g, '')) || 0;
+                const paid = parseFloat($(cols[5]).text().replace(/,/g, '')) || 0;
+                const due = parseFloat($(cols[6]).text().replace(/,/g, '')) || 0;
+
+                totalAmount += amount;
+                totalPaid += paid;
+                totalDue += due;
+            });
+
+            const cashierBalance = totalAmount - totalDue - totalExpenses;
+
+            $('#lblTotalBillCount').text(rowCount);
+            $('#lblTotalAmount').text(formatCurrency(totalAmount));
+            $('#lblTotalExpenses').text(formatCurrency(totalExpenses));
+            $('#lblTotalPaid').text(formatCurrency(totalPaid));
+            $('#lblTotalDue').text(formatCurrency(totalDue));
+            $('#lblCashierBalance').text(formatCurrency(cashierBalance));
         },
         error: function (xhr, status, error) {
             alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
@@ -66,8 +136,44 @@ function loadRecordToTable() {
     });
 }
 
+function sampleRecordToTableClear() {
+    $('#sample_record_tbl').html(''); 
+}
     //*************************************************************************************************
-   
+    function cancelInvoice() {
+
+        var selectedRow = $('#invdataTable tbody tr.selected');
+        if (selectedRow.length === 0) {
+            alert("Please select a row to cancel.");
+            return;
+        }
+
+        var sampleNo = selectedRow.find('td:eq(0)').text(); 
+        var lpsId = selectedRow.data('lpsid'); 
+
+        if (!confirm("Are you sure you want to cancel invoice for Sample No: " + sampleNo + "?")) {
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "cancelInvoice",
+            data: {
+                sampleNo: sampleNo,
+                lpsId: lpsId
+            },
+            success: function (response) {
+                alert(response.message);
+                loadRecordToTable(); 
+                $('#sample_record_tbl').html(''); 
+            },
+            error: function (xhr) {
+                alert("Error: " + xhr.status + " - " + xhr.statusText);
+            }
+        });
+ 
+    }
+
 
     //*************************************************************************************************
     //*************************************************************************************************
@@ -118,54 +224,17 @@ function loadRecordToTable() {
         font-size: 14px;
     }
 
-    .warning-container {
-        display: flex;
-        align-items: center;
-        margin: 5px 0;
-        padding: 5px;
-        border: 1px solid #f5c2c2;
-        background-color: #f8d7da;
-        border-radius: 4px;
-        font-size: 16px;
-        color: #842029;
-        width: 100%;
+    #invdataTable table tr:hover {
+    background-color: #e0f7fa; /* light cyan on hover */
+    cursor: pointer;
     }
 
-    .warning-icon {
-        font-size: 20px;
-        margin-right: 10px;
-        color: #d63333;
+    #invdataTable tbody tr.selected {
+        background-color: #a5d6a7 !important; /* green for selected row */
     }
 
-    .warning-text {
-        font-weight: bold;
-    }
+    
 
-    .selected-row {
-        background-color: #1977c9 !important;
-        /* Light blue color */
-    }
-
-    /* //--------------- */
-    .suggestion-box {
-        position: absolute;
-        background: #fff;
-        border: 1px solid #ccc;
-        max-height: 150px;
-        overflow-y: auto;
-        width: 210px;
-        z-index: 1000;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .suggestion-item {
-        padding: 5px 10px;
-        cursor: pointer;
-    }
-
-    .suggestion-item:hover {
-        background-color: #f0f0f0;
-    }
 </style>
 @stop
 
@@ -226,12 +295,10 @@ function loadRecordToTable() {
                         <option value="In">In</option>
                         <option value="Out">Out</option>
                     </select>
-                    <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="ser_btn" value="Search" onclick="loadRecordToTable()">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="ser_btn" value="Search" onclick="loadRecordToTable();sampleRecordToTableClear();">
                 </div>
             </div>
         
-           
-           
         </div>
 
         <div class="pageTableScope" style="display: flex; height: 350px; margin-top: 10px; width: 100%;">
@@ -266,12 +333,100 @@ function loadRecordToTable() {
         
             <!-- Right Side: Additional Content -->
             <div style="flex: 0 0 20%; padding-left: 10px;">
-                <h3>Additional Information</h3>
-                <p>This section can be used for additional information, links, or any other content you want to display.</p>
+                <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="sampledataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
+                    <tbody>
+                        <tr>
+                            <td valign="top">
+                                <table border="1" style="border-color: #ffffff;" cellpadding="0" cellspacing="0" class="TableWithBorder" width="100%">
+                                    <thead>
+                                        <tr class="viewTHead">
+                                            <td width="12%" class="fieldText" align="center">Sample No</td>
+                                            <td width="18%" class="fieldText" align="center">Test</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sample_record_tbl">
+                                        <!-- Dynamic content goes here -->
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        
-        
+
+
+{{-- ############################################################################################################# --}}
+
+
+        <div class="" style="display: flex; height: 350px; margin-top: 10px; width: 100%;">
+            <!-- Left Side:  -->
+            <div style="flex: 1; padding-right: 10px;">
+                <div style="display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+                    <label style="width: auto; font-size: 18px; margin-left: 15px;"><b>Total Cashier Balance</b></label>
+                    <label style="width: auto; font-size: 18px; margin-left: 15px;">Cashier</label>
+                    <select name="labuser" style="width: 250px; height: 30px; margin-left: 15px;" class="input-text" id="labuser">
+                        <option value="%">All</option>
+                        <?php
+                        $query = "SELECT a.uid, a.fname, a.lname 
+                            FROM user a
+                            INNER JOIN labUser b ON a.uid = b.user_uid
+                            INNER JOIN Lab_labUser c ON b.luid = c.labUser_luid
+                            INNER JOIN gender d ON a.gender_idgender = d.idgender
+                            INNER JOIN country e ON b.country_idcountry = e.idcountry
+                            INNER JOIN loginDetails f ON a.loginDetails_idlogindetails = f.idlogindetails
+                            WHERE c.lab_lid = '" . $_SESSION['lid'] . "' ORDER BY a.fname ASC";
+                        
+                        $Result = DB::select($query);
+                        
+                        foreach ($Result as $res) {
+                            $uid = $res->uid;
+                            $fullName = $res->fname . ' ' . $res->lname;
+                            $displayText = $uid . " : " . $fullName;
+                            echo "<option value='{$uid}'>{$displayText}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+            
+                {{-- justify-content: space-between; can add for more alignments --}}
+                <div style="display: flex; width: 100%;"> 
+                    <label style="font-size: 18px; margin-left: 15px; width:150px;">Total Bill Count:</label>
+                    <label id="lblTotalBillCount" style="font-size: 18px; margin-left: 15px; width:150px;">0</label>
+                
+                    <label style="font-size: 18px; width:150px;">Total Amount Rs:</label>
+                    <label id="lblTotalAmount" style="font-size: 18px; margin-left: 15px; width:150px;">00,000.00</label>
+                
+                    <label style="font-size: 18px; margin-right: 15px; width:160px;">Total Expences Rs:</label>
+                    <label id="lblTotalExpenses" style="font-size: 18px; margin-left: 15px; width:150px;">00,000.00</label>
+                </div>
+                
+                <div style="margin-top: 20px; display: flex; width: 100%;">
+                    <label style="font-size: 18px; margin-left:15px; width:150px;">Total Paid Rs:</label>
+                    <label id="lblTotalPaid" style="font-size: 18px; margin-left:15px; width:150px;">00,000.00</label>
+                
+                    <label style="font-size: 18px; width:150px;">Total Due Rs:</label>
+                    <label id="lblTotalDue" style="font-size: 18px; margin-left: 15px; width:150px;">00,000.00</label>
+                
+                    <label style="font-size: 18px; margin-right: 15px; width:160px;">Cashier Balance Rs:</label>
+                    <label id="lblCashierBalance" style="font-size: 18px; margin-left: 15px; width:150px;">00,000.00</label>
+                </div>
+                
+            </div>
+            
+            
+            
+            <!-- Right Side:-->
+            <div style="flex: 0 0 20%; padding-left: 10px;">
+                <div id="button-container">
+                    <input type="button" style="flex: 0 0 80px;width: 175px; height: 50px;" class="btn" id="ser_btn" value="View Selected Invoice" onclick="viewSelectedInvoice()">
+                  </div>
+                  <div id="button-container">
+                    <input type="button" style="flex: 0 0 80px; width: 175px; height: 50px; color: red" class="btn" id="ser_btn" value="Cancel Invoice" onclick="cancelInvoice()">
+                  </div>
+            </div>
+  
+        </div>
     </div>
 
 </div>

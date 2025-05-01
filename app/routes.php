@@ -129,6 +129,15 @@ Route::get('/expmanage', function() {
 Route::get('/viewinvoices', function() {
     return View::make('ViewInvoice');
 });
+Route::get('getSampleTestData', 'ViewInvoiceController@getSampleTestData');
+Route::post('cancelInvoice', 'ViewInvoiceController@cancelInvoice');
+
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To View Invoice Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/invoicePayments', function() {
+    return View::make('invoicePayment');
+});
+
 // **************************************Manula's Development Routes************************************************************
 //~~~~~~~~~~~~~~~~~~~~~~~~Route To DOC Refference Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/doc-reference', function () {

@@ -43,11 +43,11 @@ class ViewInvoiceController extends Controller
                 $query->where('l.sampleno', 'like', $center[1] . '%');
             }
         } 
-    if( $dueBillsOnly == "1"){
-        $query->whereRaw('i.total - i.paid > 0');
-    }
+        if( $dueBillsOnly == "1"){
+            $query->whereRaw('i.total - i.paid > 0');
+        }
 
-        // Optional filters
+        
         
         
         if (!empty($idate)) {
@@ -76,6 +76,8 @@ class ViewInvoiceController extends Controller
     
         // Select relevant fields
         $records = $query->select(
+            'l.lpsid',
+            'l.date',
             'l.sampleNo',
             'l.type',
             'u.fname',
@@ -86,12 +88,12 @@ class ViewInvoiceController extends Controller
             'i.cashier'
         )->get();
     
-        // Output HTML
+        
         if (count($records) > 0) {
             $output = '';
             foreach ($records as $row) {
                 $due = $row->total - $row->paid;
-                $output .= '<tr>
+                $output .= '<tr class="invoiceRow" data-lpsid="' . $row->lpsid . '" data-date="' . htmlspecialchars($row->date) . '">
                                 <td align="center">' . htmlspecialchars($row->sampleNo) . '</td>
                                 <td align="left">' . htmlspecialchars($row->fname) . '</td>
                                 <td align="left">' . htmlspecialchars($row->lname) . '</td>
@@ -109,7 +111,68 @@ class ViewInvoiceController extends Controller
     }
     
     
+    public function getSampleTestData()
+{
+    $sampleNo = Input::get('sampleNo');
+    $date = Input::get('date');
+
+    $data = DB::table('lps as l')
+        ->join('Testgroup as t', 'l.Testgroup_tgid', '=', 't.tgid')
+        ->select('l.sampleNo', 't.name')
+        ->where('l.date', '=', $date)
+        ->where('l.sampleNo', 'like', $sampleNo . '%')
+        ->get();
+
+    if (count($data) > 0) {
+        $html = '';
+        foreach ($data as $item) {
+            $html .= '<tr>
+                        <td align="center">' . htmlspecialchars($item->sampleNo) . '</td>
+                        <td align="left">' . htmlspecialchars($item->name) . '</td>
+                      </tr>';
+        }
+        echo $html;
+    } else {
+        echo '<tr><td colspan="2" style="text-align:center;">No Related Test Found</td></tr>';
+    }
+}
+
+public function cancelInvoice()
+{
+    $sampleNo = Input::get('sampleNo'); 
+    $lpsId = Input::get('lpsId');
+
+    try {
+        DB::transaction(function () use ($sampleNo, $lpsId) {
+            DB::table('lps')
+                ->where('sampleNo', 'like', $sampleNo . '%')
+                ->update(['date' => '0000-00-00']);
     
+    
+            $invoiceIds = DB::table('invoice')
+                ->where('lps_lpsid', $lpsId)
+                ->pluck('iid');
+    
+           
+            $invoiceIds = (array) $invoiceIds;
+    
+          
+            DB::table('invoice')
+                ->where('lps_lpsid', $lpsId)
+                ->update(['date' => '0000-00-00']);
+    
+           
+            DB::table('invoice_payments')
+                ->whereIn('invoice_iid', $invoiceIds)  
+                ->update(['date' => '0000-00-00']);
+        });
+
+        return Response::json(['message' => 'Invoice successfully cancelled.']);
+    } catch (Exception $e) {
+        return Response::json(['message' => 'Error cancelling invoice: ' . $e->getMessage()], 500);
+    }
+}
+
 
 
 
