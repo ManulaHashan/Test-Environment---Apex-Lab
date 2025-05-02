@@ -57,8 +57,9 @@ Add New Patient
             if (response.success) {
                 const patientData = response.data.patient;
                 const testData = response.data.tests;
-                const invoiceData = response.data.invoice; // Get invoice data
-
+                const invoiceData = response.data.invoice;
+                const lpsRecords = response.data.lpsRecords;
+                const firstRecord = lpsRecords[0] || {};
                 // Populate patient fields
                 $('#initial').val(patientData.initials || ''); // Use empty string if null
                 $('#fname').val(patientData.fname || '');
@@ -71,7 +72,9 @@ Add New Patient
                 $('#months').val(patientData.months || '');
                 $('#days').val(patientData.days || '');
                 $('#Ser_tpno').val(patientData.tpno || '');
-                $('#refDropdown').val(patientData.refby || ''); 
+                $('#refDropdown').val(firstRecord.refby || '');
+                $('#refcode').val(firstRecord.code || '');
+
 
                 
                 $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00'); 
@@ -83,6 +86,29 @@ Add New Patient
              
                 $('input[name="payment_method"]').prop('checked', false); 
                 $('input[name="payment_method"][value="' + invoiceData.paymentmethod + '"]').prop('checked', true); 
+
+                // Handle delivery methods checkboxes
+                    if (invoiceData && invoiceData.multiple_delivery_methods) {
+                        try {
+                            console.log("Raw delivery methods:", invoiceData.multiple_delivery_methods);
+                            const deliveryMethods = invoiceData.multiple_delivery_methods
+                                .split(',')
+                                .map(method => method.trim());
+                            
+                            console.log("Parsed methods:", deliveryMethods);
+                            $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
+                            deliveryMethods.forEach(method => {
+                                $(`#${method.toLowerCase().replace(' ', '_')}`).prop('checked', true);
+                            });
+                            
+                        } catch (e) {
+                            console.error("Error parsing delivery methods:", e);
+                            $('#hard_copy').prop('checked', true);
+                        }
+                    } else {
+                        console.log("No delivery methods found, using default");
+                        $('#hard_copy').prop('checked', true);
+                    }
 
                
                 $('#Branch_record_tbl').empty();
@@ -309,46 +335,6 @@ Add New Patient
     }
 
 
-    // **********************record to table*******************
-    // function setDataToTable(selectedValue) {
-    //     if (!selectedValue) return;
-
-    //     var parts = selectedValue.split(":");
-    //     if (parts.length < 4) return;
-
-    //     var tgid = parts[0];
-    //     var group = parts[1];
-    //     var price = parseFloat(parts[2]) || 0;
-    //     var time = parts[3];
-
-    //     if ($("#Branch_record_tbl tr[data-id='" + tgid + "']").length > 0) {
-    //         alert("This test is already added!");
-    //         $('#testname').val('');
-    //         return;
-    //     }
-
-    //     var newRow = `
-    //     <tr data-id="${tgid}">
-    //         <td align="center">${tgid}</td>
-    //         <td align="center">${group}</td>
-    //         <td align="center" class="price-column">${price.toFixed(2)}</td>
-    //         <td align="center">${time}</td>
-    //         <td align="center">-</td>  
-    //        <td align="center">
-    //             <input type="checkbox" class="barcode-checkbox" checked>
-    //         </td>
-    //         <td align="center">-</td>  
-    //         <td align="center">
-    //             <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
-    //         </td>
-    //     </tr>
-    // `;
-
-    //     $('#Branch_record_tbl').append(newRow);
-    //     updateTotalAmount();
-    //     $('#testname').val('');
-    // }
-
     // **********************grand total genereting*******************
     function updateTotalAmount() {
         let total = 0;
@@ -563,21 +549,22 @@ $('#discount, #discount_percentage').on('input change', function()
     });
 
     //split method total amount set process
-    document.addEventListener("DOMContentLoaded", function () {
-    const splitCashInput = document.getElementById("split_cash_amount");
-    const splitCardInput = document.getElementById("split_card_amount");
-    const paidInput = document.getElementById("paid");
+    document.addEventListener("DOMContentLoaded", function () 
+    {
+        const splitCashInput = document.getElementById("split_cash_amount");
+        const splitCardInput = document.getElementById("split_card_amount");
+        const paidInput = document.getElementById("paid");
 
-    function updatePaidAmount() {
-        const cash = parseFloat(splitCashInput.value) || 0;
-        const card = parseFloat(splitCardInput.value) || 0;
-        paidInput.value = (cash + card).toFixed(2);
-        calculateDue(); 
-    }
+        function updatePaidAmount() {
+            const cash = parseFloat(splitCashInput.value) || 0;
+            const card = parseFloat(splitCardInput.value) || 0;
+            paidInput.value = (cash + card).toFixed(2);
+            calculateDue(); 
+        }
 
-    splitCashInput.addEventListener("input", updatePaidAmount);
-    splitCardInput.addEventListener("input", updatePaidAmount);
-});
+        splitCashInput.addEventListener("input", updatePaidAmount);
+        splitCardInput.addEventListener("input", updatePaidAmount);
+    });
 
  //voucher method total amount set process
 document.addEventListener("DOMContentLoaded", function () 
@@ -673,6 +660,18 @@ document.addEventListener("DOMContentLoaded", function ()
         var paid = $('#paid').val().trim() || '0.00';
         var due = $('#due').text().trim() || '0.00';
 
+        var inv_remark = $('#inv_remark').val();
+
+        // Collect delivery methods
+            var deliveryMethods = [];
+            if ($('#hard_copy').is(':checked')) deliveryMethods.push('Hard Copy');
+            if ($('#sms').is(':checked')) deliveryMethods.push('SMS');
+            if ($('#email').is(':checked')) deliveryMethods.push('Email');
+            if ($('#whatsapp').is(':checked')) deliveryMethods.push('WhatsApp');
+
+        // Join with comma if multiple methods selected
+        var deliveryMethodsString = deliveryMethods.join(', ');
+
         // Validate essential fields
         if (!fname || !lname) {
             alert('First Name and Last Name are required.');
@@ -756,7 +755,9 @@ document.addEventListener("DOMContentLoaded", function ()
             grand_total: grand_total,
             payment_method: payment_method,
             paid: paid,
-            due: due
+            due: due,
+            inv_remark: inv_remark,
+            delivery_methods: deliveryMethodsString
         };
 
         console.log("Data to be sent:", postData);
@@ -835,6 +836,13 @@ document.addEventListener("DOMContentLoaded", function ()
         if (!inputField.contains(event.target) && !suggestionBox.contains(event.target)) {
             suggestionBox.style.display = 'none';
         }
+
+        var inputField = document.getElementById('refcode');
+        var suggestionBox = document.getElementById('refcode_suggestions');
+
+        if (!inputField.contains(event.target) && !suggestionBox.contains(event.target)) {
+            suggestionBox.style.display = 'none';
+        }
     });
 
     function searchUserRecords()
@@ -872,6 +880,7 @@ document.addEventListener("DOMContentLoaded", function ()
         });
     }
 
+    
     function selectTP(tpno, userID) 
     {
         $('#Ser_tpno').val(tpno);
@@ -933,6 +942,85 @@ document.addEventListener("DOMContentLoaded", function ()
             }
         });
     }
+
+    function searchRefferenceCode() 
+    {
+        var refCode = $('#refcode').val();
+
+        if (refCode.length < 1) {
+            $('#refcode_suggestions').hide();
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/getRefCode",
+            data: {
+                keyword: refCode
+            },
+            success: function(data) {
+                var suggestionsHtml = '';
+                if (data.length > 0) {
+                    $.each(data, function(index, ref) {
+                        suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\')">' +
+                            ref.code + ' - ' + ref.name + '</div>';
+                    });
+                    $('#refcode_suggestions').html(suggestionsHtml).show();
+                } else {
+                    $('#refcode_suggestions').hide();
+                }
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr.statusText);
+            }
+        });
+    }
+
+    function selectRef(code, idref) 
+    {
+
+        $('#refcode').val(code);
+        $('#refcode_suggestions').hide();
+        $('#hidden_idref').val(idref);
+        $('#refDropdown').val(idref);
+    }
+//-----------------------------------------------------------------------
+    $('#refDropdown').on('change', function() {
+    var selectedOption = $(this).find('option:selected');
+    var selectedCode = selectedOption.data('code');
+    
+    $('#refcode').val(selectedCode || '');
+    
+    if($('#hidden_idref').length) {
+        $('#hidden_idref').val($(this).val());
+    }
+});
+
+    // document.getElementById('refDropdown').addEventListener('change', function ()
+    //  {
+    //     var selectedOption = this.options[this.selectedIndex];
+    //     var selectedCode = selectedOption.getAttribute('data-code');
+
+    //     if (selectedCode) {
+    //         document.getElementById('refcode').value = selectedCode;
+    //     } else {
+    //         document.getElementById('refcode').value = '';
+    //     }
+    //     document.getElementById('hidden_idref').value = this.value;
+    // });
+
+//-----------------------------------------------------------------------
+
+    function updateRefCode() 
+    {
+        var dropdown = document.getElementById("refDropdown");
+        var selectedOption = dropdown.options[dropdown.selectedIndex];
+        var refCode = selectedOption.getAttribute("data-code") || '';
+        document.getElementById("refcode").value = refCode; 
+    }
+
+
+
 
 
 
@@ -1084,6 +1172,7 @@ document.addEventListener("DOMContentLoaded", function ()
         z-index: 1000;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
+   
 
     .suggestion-item {
         padding: 5px 10px;
@@ -1091,8 +1180,23 @@ document.addEventListener("DOMContentLoaded", function ()
     }
 
     .suggestion-item:hover {
-        background-color: #f0f0f0;
+        background-color: #4b9bf0;
     }
+
+    .autocomplete-suggestions {
+    border: 1px solid #e1dede;
+    border-radius: 15px;
+    background-color: white;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 1000;
+    width: 250px;
+    margin-top: 120px;
+    margin-left: 150px;
+    
+    
+}
 </style>
 @stop
 
@@ -1234,12 +1338,15 @@ document.addEventListener("DOMContentLoaded", function ()
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Ref.Code:</label>
-                        <input type="text" name=" refcode" class="input-text" id="refcode" style="width: 250px">
+                        <input type="text" name="refcode" class="input-text" id="refcode" style="width: 250px" oninput="searchRefferenceCode()">
+                        <div id="refcode_suggestions" class="autocomplete-suggestions"></div>
+                        <input type="hidden" id="hidden_idref" name="idref">
                         <input type="button" style="color:green" class="btn" id="resetbtn" value="Add New Reference" onclick="window.location.href='{{ url('/doc-reference') }}';">
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Refered:</label>
-                        <select name="ref" style="width: 450px; height: 30px" class="input-text" id="refDropdown">
+                        <select name="ref" style="width: 450px; height: 30px" class="input-text" id="refDropdown" onchange="updateRefCode()">
+
                             <option value=""></option>
                             <?php
                             $Result = DB::select("select idref, name,code from refference where lid = '" . $_SESSION['lid'] . "' AND name IS NOT NULL ORDER BY name ASC");
@@ -1249,7 +1356,10 @@ document.addEventListener("DOMContentLoaded", function ()
                                 $refName = $res->name;
                                 $refCode = $res->code;
                             ?>
-                               <option value="<?= $refId ?>" data-code="<?= $refCode ?>"><?= $refName ?> <?= $refCode ?></option>
+                             
+                               <option value="<?= $refId ?>" data-code="<?= $refCode ?>"><?= $refName ?> </option>
+                               
+
 
                             <?php
                             }
@@ -1447,43 +1557,42 @@ document.addEventListener("DOMContentLoaded", function ()
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 230px;font-size: 18px; "><b>Report Collection Method</b></label>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 20px; margin-top: 5px; flex-wrap: nowrap;">
-                        <label><input type="checkbox" name="payment_method" value="hard" checked> Hard Copy</label>
-                        <label><input type="checkbox" name="payment_method" value="sms"> SMS</label>
-                        <label><input type="checkbox" name="payment_method" value="email"> Email</label>
-                        <label><input type="checkbox" name="payment_method" value="whatsapp"> WhatsApp</label>
-                        <label><input type="checkbox" name="payment_method" value="package_invoice"> Package Invoice</label>
-
-                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1">
-                        <label for="print_bill" style="font-size: 16px;"><b>Print Bill</b></label>
-
-                        <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1">
-                        <label for="claim_bill" style="font-size: 16px;"><b>Claim Bill</b></label>
-
-                        <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1">
-                        <label for="two_copies" style="font-size: 16px;"><b>2 Copies</b></label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 15px;">
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <label>Hard Copy</label>
+                            <input type="checkbox" name="hard_copy" id="hard_copy" value="Hard Copy" checked style="margin-top: 5px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <label>SMS</label>
+                            <input type="checkbox" name="sms" id="sms" value="SMS" style="margin-top: 5px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <label>Email</label>
+                            <input type="checkbox" name="email" id="email" value="Email" style="margin-top: 5px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <label>WhatsApp</label>
+                            <input type="checkbox" name="whatsapp" id="whatsapp" value="WhatsApp" style="margin-top: 5px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <label>Package Invoice</label>
+                            <input type="checkbox" name="package_invoice" id="package_invoice" value="package_invoice" style="margin-top: 5px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <label for="print_bill" style="font-size: 16px;">Print Bill</label>
+                            <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1" style="margin-top: 5px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <label for="claim_bill" style="font-size: 16px;">Claim Bill</label>
+                            <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1" style="margin-top: 5px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <label for="two_copies" style="font-size: 16px;">2 Copies</label>
+                            <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1" style="margin-top: 5px;">
+                        </div>
                     </div>
 
-                    <!-- <div style="display: flex; align-items: center; margin-top: 5px; flex-wrap: wrap; gap: 15px;">
-                        <div style="display: flex; gap: 10px;">
-                            <label><input type="checkbox" name="payment_method" value="hard" checked> Hard Copy</label>
-                            <label><input type="checkbox" name="payment_method" value="sms"> SMS</label>
-                            <label><input type="checkbox" name="payment_method" value="email"> Email</label>
-                            <label><input type="checkbox" name="payment_method" value="whatsapp"> WhatsApp</label>
-                            <label><input type="checkbox" name="payment_method" value="package_invoice"> Package Invoice</label>
-                        </div>
-
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1">
-                            <label for="print_bill" style="min-width: 90px; font-size: 16px;"><b>Print Bill</b></label>
-
-                            <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1">
-                            <label for="claim_bill" style="min-width: 100px; font-size: 16px;"><b>Claim Bill</b></label>
-
-                            <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1">
-                            <label for="two_copies" style="min-width: 90px; font-size: 16px;"><b>2 Copies</b></label>
-                        </div>
-                    </div> -->
+              
 
 
                     <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none;">

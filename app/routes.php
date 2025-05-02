@@ -298,6 +298,8 @@ Route::post('/savePatient', 'PatientRegistrationController@savePatientDetails');
 Route::get('/getAllUsers', 'PatientRegistrationController@getAllUsers');
 Route::get('/getUserDetailsByTP', 'PatientRegistrationController@getUserDetailsByTP');
 Route::get('/getSelectedInvoice', 'PatientRegistrationController@getSampleTestData');
+Route::get('/getRefCode', 'PatientRegistrationController@getRefCode');
+
 
 
 // **************************************Manula's Development Routes************************************************************

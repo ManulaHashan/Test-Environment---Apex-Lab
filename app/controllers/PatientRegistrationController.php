@@ -257,6 +257,20 @@ class PatientRegistrationController extends Controller
         return Response::json($user);
     }
 
+    public function getRefCode()
+    {
+        $keyword = Input::get('keyword');
+       
+    
+        $references = DB::table('refference')
+            ->where('lid', '=', $_SESSION['lid'])
+            ->where('code', 'LIKE', '%' . $keyword . '%')
+            ->select('code', 'name', 'idref')
+            ->get();
+    
+        return Response::json($references);
+    }
+    
 
 
     //*************************************
@@ -303,6 +317,7 @@ class PatientRegistrationController extends Controller
 
         $reference = DB::table('refference')->where('idref', $refId)->first();
         $refName = $reference ? $reference->name : null;
+        $inv_remark = Input::get('inv_remark');
 
         // *#*#*#*##**# Patient and User Insertion Logic *#*#*#*##**#
         if ($user) {
@@ -378,6 +393,7 @@ class PatientRegistrationController extends Controller
                 'price' => $test['price'],
                 'Testgroup_tgid' => $test['tgid'],
                 'urgent_sample' => $test['priority'],
+                'specialnote' =>Input::get('inv_remark'),
                 'status' => 'pending',
                 'created_at' => $now,
                 'updated_at' => $now
@@ -417,6 +433,7 @@ class PatientRegistrationController extends Controller
                     'cost' => 0,
                     'discount' => Input::get('discount'), 
                     'Discount_did' => Input::get('discountId'), 
+                    'multiple_delivery_methods' => Input::get('delivery_methods'),
                     // 'remark' => $invoiceRemark,
                     // 'source' => $source,
                     // 'created_at' => $now,
@@ -511,13 +528,26 @@ class PatientRegistrationController extends Controller
         
         // Retrieve all lps records matching the sampleNo, date, and Lab ID
         $lpsRecords = DB::table('lps as a')
-            ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
-            ->join('patient as c', 'a.patient_pid', '=', 'c.pid')
-            ->where('a.sampleNo', 'like', $sampleNo . '%')
-            ->where('a.date', $date)
-            ->where('a.Lab_lid', $_SESSION['lid'])
-            ->select('a.lpsid', 'a.patient_pid', 'a.date', 'a.sampleNo', 'a.type', 'a.urgent_sample', 'a.Testgroup_tgid', 'b.name','a.refby')
-            ->get();
+        ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
+        ->join('refference as r', 'a.refference_idref', '=', 'r.idref')
+        ->join('patient as p', 'a.patient_pid', '=', 'p.pid')
+        ->where('a.sampleNo', 'like', $sampleNo . '%')
+        ->where('a.date', $date)
+        ->where('a.Lab_lid', $_SESSION['lid'])
+        ->select(
+            'a.lpsid',
+            'a.patient_pid',
+            'a.date',
+            'a.sampleNo',
+            'a.type',
+            'a.urgent_sample',
+            'a.Testgroup_tgid',
+            'b.name',
+            'a.refby',
+            'r.code'
+        )
+        ->get();
+    
         
         if (empty($lpsRecords)) {
             return Response::json(['success' => false, 'message' => 'Sample not found']);
@@ -538,7 +568,16 @@ class PatientRegistrationController extends Controller
             ->where('a.sampleNo', 'like', $sampleNo . '%')
             ->where('a.date', $date)
             ->where('a.Lab_lid', $_SESSION['lid'])
-            ->select('i.iid', 'i.total', 'i.paid', 'i.gtotal', 'i.discount', 'i.status', 'i.paymentmethod')
+            ->select(
+                    'i.iid', 
+                    'i.total', 
+                    'i.paid', 
+                    'i.gtotal',
+                    'i.discount',
+                    'i.status', 
+                    'i.paymentmethod',
+                    'i.multiple_delivery_methods'
+            )
             ->first();    
         
         // Collect all lps IDs that belong to this sampleNo, date, and patient
@@ -587,7 +626,8 @@ class PatientRegistrationController extends Controller
             'data' => [
                 'patient' => $patientData,
                 'tests'   => $testData,
-                'invoice' => $invoiceData
+                'invoice' => $invoiceData,
+                'lpsRecords' => $lpsRecords
             ]
         ]);
     }
