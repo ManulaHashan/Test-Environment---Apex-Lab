@@ -14,11 +14,109 @@ Add New Patient
 <script src="{{ asset('JS/ReportCalculations.js') }}"></script>
 
 <script>
-    $(document).ready(function() {
-        loadcurrentSampleNo();
+       $(document).ready(function() {
+        const params = new URLSearchParams(window.location.search);
+
+        const sampleNo = params.get('sampleNo');
+        const date = params.get('date');
+
+        if (sampleNo) {
+            document.getElementById('sampleNo').value = sampleNo;
+            view_selected_patient(sampleNo,date);
+            
+        }else {
+            loadcurrentSampleNo();
+        }
+
+        if (date) {
+            document.getElementById('selected_date').value = date;
+        }
+
         load_test();
+        
+
+        // if (!sampleNo && date) {
+        //     loadcurrentSampleNo();
+        //     load_test();
+        // }
+        
 
     });
+
+    //view selected invoice
+    function view_selected_patient(sampleNo, date) {
+    $.ajax({
+        type: "GET",
+        url: "getSelectedInvoice",
+        data: {
+            'sampleNo': sampleNo,
+            'date': date
+        },
+        dataType: "json",
+        success: function(response) {
+            if (response.success) {
+                const patientData = response.data.patient;
+                const testData = response.data.tests;
+                const invoiceData = response.data.invoice; // Get invoice data
+
+                // Populate patient fields
+                $('#initial').val(patientData.initials || ''); // Use empty string if null
+                $('#fname').val(patientData.fname || '');
+                $('#lname').val(patientData.lname || '');
+                $('#dob').val(patientData.dob || '');
+                $('#nic').val(patientData.nic || '');
+                $('#address').val(patientData.address || '');
+                $('input[name="gender"][value="' + patientData.gender_idgender + '"]').prop('checked', true);
+                $('#years').val(patientData.age || '');
+                $('#months').val(patientData.months || '');
+                $('#days').val(patientData.days || '');
+                $('#Ser_tpno').val(patientData.tpno || '');
+                $('#refDropdown').val(patientData.refby || ''); 
+
+                
+                $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00'); 
+                $('#discount').val(invoiceData.discount || 0); 
+                $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00'); 
+                $('#paid').val(invoiceData.paid || 0); 
+                $('#due').text((invoiceData.gtotal - invoiceData.paid).toFixed(2)); 
+
+             
+                $('input[name="payment_method"]').prop('checked', false); 
+                $('input[name="payment_method"][value="' + invoiceData.paymentmethod + '"]').prop('checked', true); 
+
+               
+                $('#Branch_record_tbl').empty();
+                testData.forEach(test => {
+                    const newRow = `
+                        <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}">
+                            <td align="left">${test.tgid}</td>
+                            <td align="left">${test.group}</td>
+                            <td align="right" class="price-column">${test.price.toFixed(2)}</td>
+                            <td align="left">${test.time}</td>
+                            <td align="right">${test.f_time}</td>
+                            <td align="left">
+                                <input type="checkbox" class="barcode-checkbox" checked>
+                            </td>
+                            <td align="center">${test.urgent_sample}</td>  
+                            <td align="center">${test.type}</td>  
+                        </tr>`;
+                    $('#Branch_record_tbl').append(newRow);
+                });
+
+              
+            } else {
+                alert(response.message || 'No data found.');
+            }
+        },
+        error: function(xhr) {
+            console.log('Error:', xhr);
+            var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+            alert(errorMsg);
+        }
+    });
+}
+
+
 
     function load_test() {
         var labBranchDropdown = $('#labBranchDropdown').val();
@@ -105,24 +203,24 @@ Add New Patient
         itemListTestData.push(tstData);
 
         var newRow = `
-    <tr data-id="${tgid}">
-        <td align="center">${tgid}</td>
-        <td align="center">${group}</td>
-        <td align="center" class="price-column">${price.toFixed(2)}</td>
-        <td align="center">${time}</td>
-        <td align="center">${f_time}</td>
-        <td align="center">
-            <input type="checkbox" class="barcode-checkbox" checked>
-        </td>
-        <td align="center">-</td>  
-        <td align="center">${type}</td>  
-        <td align="center">
-           <button type="button" class="btn btn-danger btn-sm" onclick="removeTestItemInTable('${tgid}', '${tstData}')">
-            <i class="fas fa-trash-alt"></i>
-        </button>
+            <tr data-id="${tgid}">
+                <td align="center">${tgid}</td>
+                <td align="center">${group}</td>
+                <td align="center" class="price-column">${price.toFixed(2)}</td>
+                <td align="center">${time}</td>
+                <td align="center">${f_time}</td>
+                <td align="center">
+                    <input type="checkbox" class="barcode-checkbox" checked>
+                </td>
+                <td align="center">-</td>  
+                <td align="center">${type}</td>  
+                <td align="center">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeTestItemInTable('${tgid}', '${tstData}')">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
 
-        </td>
-    </tr>`;
+                </td>
+            </tr>`;
 
         $('#Branch_record_tbl').append(newRow);
         updateTotalAmount();
@@ -285,54 +383,55 @@ Add New Patient
     function applyDiscount() 
     {
 
-    var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
-    var totalAmount = parseFloat(totalAmountText) || 0;
+        var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
+        var totalAmount = parseFloat(totalAmountText) || 0;
+
+        
 
     
+        
+        
+        var discountData = $('#discount_percentage').val().split(":");
 
-  
+        var discountPercentage = parseFloat(discountData[1]) || 0;  
+
+        var manualDiscount = parseFloat($('#discount').val()) || 0;
+
+        
+
+        let discountAmount = 0;
+
+        if (discountPercentage > 0) {
+            discountAmount = (totalAmount * discountPercentage) / 100;
+            $('#discount').val(discountAmount.toFixed(2)); 
+        } else if (manualDiscount > 0) {
+        
+            discountAmount = manualDiscount;
+            $('#discount_percentage').val('');
+        }
+
     
+        if (discountAmount > totalAmount) {
+            alert("Discount cannot exceed total amount!");
+            discountAmount = 0;
+            $('#discount, #discount_percentage').val('');
+        }
+
+
+        var grandTotal = totalAmount - discountAmount;
+
     
-    var discountData = $('#discount_percentage').val().split(":");
-
-    var discountPercentage = parseFloat(discountData[1]) || 0;  
-
-    var manualDiscount = parseFloat($('#discount').val()) || 0;
-
-    
-
-    let discountAmount = 0;
-
-    if (discountPercentage > 0) {
-        discountAmount = (totalAmount * discountPercentage) / 100;
-        $('#discount').val(discountAmount.toFixed(2)); 
-    } else if (manualDiscount > 0) {
-    
-        discountAmount = manualDiscount;
-        $('#discount_percentage').val('');
+        $('#grand_total').text(grandTotal.toFixed(2));
+        $('#paid').val('');
+        $('#due').text(grandTotal.toFixed(2));
     }
 
-   
-    if (discountAmount > totalAmount) {
-        alert("Discount cannot exceed total amount!");
-        discountAmount = 0;
-        $('#discount, #discount_percentage').val('');
-    }
 
 
-    var grandTotal = totalAmount - discountAmount;
-
- 
-    $('#grand_total').text(grandTotal.toFixed(2));
-    $('#paid').val('');
-    $('#due').text(grandTotal.toFixed(2));
-}
-
-
-
-$('#discount, #discount_percentage').on('input change', function() {
-    applyDiscount();
-});
+$('#discount, #discount_percentage').on('input change', function() 
+    {
+        applyDiscount();
+    });
 
 
     //*************************************************************************************************
@@ -481,7 +580,8 @@ $('#discount, #discount_percentage').on('input change', function() {
 });
 
  //voucher method total amount set process
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () 
+{
 
     const voucherAmountInput = document.getElementById("vaucher_amount");
     const paidInput = document.getElementById("paid");
@@ -498,7 +598,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var allRecords = [];
 
-    function getAllTableRecords() {
+    function getAllTableRecords() 
+    {
 
         allRecords = [];
 
@@ -687,8 +788,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     //*************************************************************************************************
-    function resetPage() {
-        location.reload();
+    function resetPage() 
+    {
+        window.location.href = '/patientRegistration';
     }
 
     // function resetForm() {
@@ -725,7 +827,8 @@ document.addEventListener("DOMContentLoaded", function () {
     //*************************************************************************************************
 
     //   ***********#######TP Search########*************
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function(event) 
+    {
         var inputField = document.getElementById('Ser_tpno');
         var suggestionBox = document.getElementById('tpno_suggestions');
 
@@ -734,7 +837,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    function searchUserRecords() {
+    function searchUserRecords()
+    {
         var Usertpno = $('#Ser_tpno').val();
 
         if (Usertpno.length < 3) {
@@ -768,7 +872,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function selectTP(tpno, userID) {
+    function selectTP(tpno, userID) 
+    {
         $('#Ser_tpno').val(tpno);
         $('#tpno_suggestions').hide();
         $('#user_Uid').val(userID);
@@ -851,14 +956,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //--------------------------Feilds validation Process----------------------------------------------
 
-    $(document).ready(function() {
+    $(document).ready(function() 
+    {
         $("#tpno").on("input", function() {
             let value = $(this).val();
             $(this).val(value.replace(/[^0-9]/g, ""));
         });
     });
 
-    $(document).ready(function() {
+    $(document).ready(function() 
+    {
         $("#fname").on("input", function() {
             let value = $(this).val();
             $(this).val(value.replace(/[^a-zA-Z\s]/g, ""));
@@ -866,28 +973,43 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.addEventListener("DOMContentLoaded", function()
-     {
+    {
    
-    document.getElementById("vaucher_div").style.display = "none";
-    document.getElementById("split_div").style.display = "none";
+        document.getElementById("vaucher_div").style.display = "none";
+        document.getElementById("split_div").style.display = "none";
 
-    const paymentRadios = document.getElementsByName("payment_method");
-    
+        const paymentRadios = document.getElementsByName("payment_method");
+        
 
-    paymentRadios.forEach(radio => {
-        radio.addEventListener("change", function() {
-            // Hide both divs initially
-            document.getElementById("vaucher_div").style.display = "none";
-            document.getElementById("split_div").style.display = "none";
+        paymentRadios.forEach(radio => {
+            radio.addEventListener("change", function() {
+                // Hide both divs initially
+                document.getElementById("vaucher_div").style.display = "none";
+                document.getElementById("split_div").style.display = "none";
 
-            if (this.value === "6") {
-                document.getElementById("vaucher_div").style.display = "flex";
-            } else if (this.value === "5") {
-                document.getElementById("split_div").style.display = "flex";
-            }
+                if (this.value === "6") {
+                    document.getElementById("vaucher_div").style.display = "flex";
+                } else if (this.value === "5") {
+                    document.getElementById("split_div").style.display = "flex";
+                }
+            });
         });
     });
-});
+
+    function goToViewInvoice() 
+    {
+        window.location.href = '/viewinvoices';
+    }
+
+    // document.getElementById('refDropdown').addEventListener('change', function () {
+    //     var selectedOption = this.options[this.selectedIndex];
+    //     var refCode = selectedOption.getAttribute('data-code') || '';
+    //     document.getElementById('refcode').value = refCode;
+    // });
+
+
+
+
 </script>
 
 
@@ -1120,13 +1242,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         <select name="ref" style="width: 450px; height: 30px" class="input-text" id="refDropdown">
                             <option value=""></option>
                             <?php
-                            $Result = DB::select("select idref, name from refference where lid = '" . $_SESSION['lid'] . "' AND name IS NOT NULL ORDER BY name ASC");
+                            $Result = DB::select("select idref, name,code from refference where lid = '" . $_SESSION['lid'] . "' AND name IS NOT NULL ORDER BY name ASC");
 
                             foreach ($Result as $res) {
                                 $refId = $res->idref;
                                 $refName = $res->name;
+                                $refCode = $res->code;
                             ?>
-                                <option value="<?= $refId ?>"><?= $refName ?></option>
+                               <option value="<?= $refId ?>" data-code="<?= $refCode ?>"><?= $refName ?> <?= $refCode ?></option>
+
                             <?php
                             }
                             ?>
@@ -1375,7 +1499,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <label style="width: 50px;font-size: 16px;  "></label>
                         <input type="button" style="color:gray; width: 210px; height: 50px" class="btn" id="resetbtn" value="Reset" onclick="resetPage()">
                         <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="">
-                        <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="view_invoicebtn" value="View Invoice" onclick="">
+                        <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="view_invoicebtn" value="View Invoice" onclick="goToViewInvoice()">
                     </div>
 
                 </div>

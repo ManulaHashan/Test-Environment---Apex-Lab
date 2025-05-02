@@ -123,20 +123,15 @@ Route::get('/expmanage', function() {
 
 
 
-// **************************************Manula's Development Routes************************************************************
-//~~~~~~~~~~~~~~~~~~~~~~~~Route To View Invoice Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Route::get('/viewinvoices', function() {
-    return View::make('ViewInvoice');
-});
-Route::get('getSampleTestData', 'ViewInvoiceController@getSampleTestData');
-Route::post('cancelInvoice', 'ViewInvoiceController@cancelInvoice');
 
 // **************************************Manula's Development Routes************************************************************
-//~~~~~~~~~~~~~~~~~~~~~~~~Route To View Invoice Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To Invoice payment Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/invoicePayments', function() {
     return View::make('invoicePayment');
 });
+Route::get('getAllpayments', 'invoicePaymentController@getAllPayments');
+
 
 // **************************************Manula's Development Routes************************************************************
 //~~~~~~~~~~~~~~~~~~~~~~~~Route To DOC Refference Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -302,7 +297,17 @@ Route::get('/getPackageTests', 'PatientRegistrationController@loadPackageTests')
 Route::post('/savePatient', 'PatientRegistrationController@savePatientDetails');
 Route::get('/getAllUsers', 'PatientRegistrationController@getAllUsers');
 Route::get('/getUserDetailsByTP', 'PatientRegistrationController@getUserDetailsByTP');
+Route::get('/getSelectedInvoice', 'PatientRegistrationController@getSampleTestData');
 
+
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To View Invoice Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Route::get('/viewinvoices', function() {
+    return View::make('ViewInvoice');
+});
+Route::get('getSampleTestData', 'ViewInvoiceController@getSampleTestData');
+Route::post('cancelInvoice', 'ViewInvoiceController@cancelInvoice');
 
 
 

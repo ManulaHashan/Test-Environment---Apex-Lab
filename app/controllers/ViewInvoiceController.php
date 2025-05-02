@@ -94,14 +94,14 @@ class ViewInvoiceController extends Controller
             foreach ($records as $row) {
                 $due = $row->total - $row->paid;
                 $output .= '<tr class="invoiceRow" data-lpsid="' . $row->lpsid . '" data-date="' . htmlspecialchars($row->date) . '">
-                                <td align="center">' . htmlspecialchars($row->sampleNo) . '</td>
+                                <td align="left">' . htmlspecialchars($row->sampleNo) . '</td>
                                 <td align="left">' . htmlspecialchars($row->fname) . '</td>
                                 <td align="left">' . htmlspecialchars($row->lname) . '</td>
                                 <td align="left">' . htmlspecialchars($row->status) . '</td>
                                 <td align="right">' . number_format($row->total, 2) . '</td>
                                 <td align="right">' . number_format($row->paid, 2) . '</td>
                                 <td align="right">' . number_format($due, 2) . '</td>
-                                <td align="center">' . htmlspecialchars($row->cashier) . '</td> 
+                                <td align="left">' . htmlspecialchars($row->cashier) . '</td> 
                             </tr>';
             }
             echo $output;

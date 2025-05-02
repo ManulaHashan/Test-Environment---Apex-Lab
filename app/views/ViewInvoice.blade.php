@@ -29,6 +29,8 @@ View Invices
             var sampleNo = $(this).find('td:eq(0)').text().trim();
             var date = $(this).data('date');
 
+            // $('#selected_sampleNo').val(sampleNo + " : " + date);
+
                 if (sampleNo && date) {
                     $.ajax({
                         type: "GET",
@@ -38,7 +40,10 @@ View Invices
                             date: date
                         },
                         success: function (sampleDataHtml) {
+
+                            
                             $('#sample_record_tbl').html(sampleDataHtml);
+                            
                         },
                         error: function (xhr) {
                             alert("Failed to load sample data.");
@@ -139,6 +144,23 @@ function loadRecordToTable() {
 function sampleRecordToTableClear() {
     $('#sample_record_tbl').html(''); 
 }
+    //*************************************************************************************************
+function viewSelectedInvoice() {
+        var selectedRow = $('#invdataTable tbody tr.selected');
+        if (selectedRow.length === 0) {
+            alert("Please select a row to view.");
+            return;
+        }
+
+        var sampleNo = selectedRow.find('td:eq(0)').text(); 
+
+
+        window.open("patientRegistration?sampleNo=" + sampleNo+ "&date=" + $('#idate').val(), "_blank");
+        
+      
+    }
+
+
     //*************************************************************************************************
     function cancelInvoice() {
 
@@ -303,6 +325,7 @@ function sampleRecordToTableClear() {
 
         <div class="pageTableScope" style="display: flex; height: 350px; margin-top: 10px; width: 100%;">
             <!-- Left Side: Table -->
+          {{-- <input type="text" id="selected_sampleNo"> --}}
             <div style="flex: 1; padding-right: 10px;">
                 <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="invdataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
                     <tbody>

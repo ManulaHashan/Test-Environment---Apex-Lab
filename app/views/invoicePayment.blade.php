@@ -15,7 +15,54 @@ Invoice Payments
 
 <script>
 
+$(document).ready(function ()
+     {
+         loadRecordToInvPaymentTable();
+        const today = new Date().toISOString().split('T')[0];
+        $('#inv_date').val(today);
 
+     
+});
+// function loadRecordToInvPaymentTable(invoiceId) {
+//     $.ajax({
+//         type: "GET",
+//         url: "getAllpayments",
+//         data: { invoice_iid: invoiceId },
+//         success: function(tbl_records) {
+//             $('#inv_record_tbl').html(tbl_records);
+//         },
+//         error: function(xhr, status, error) {
+//             alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
+//             console.error('Error details:', {
+//                 status: xhr.status,
+//                 statusText: xhr.statusText,
+//                 responseText: xhr.responseText,
+//                 error: error
+//             });
+//         }
+//     });
+// }
+function loadRecordToInvPaymentTable() {
+    const invoiceId = 429836; // hardcoded
+
+    $.ajax({
+        type: "GET",
+        url: "getAllpayments",
+        data: { invoice_iid: invoiceId },
+        success: function(tbl_records) {
+            $('#inv_record_tbl').html(tbl_records);
+        },
+        error: function(xhr, status, error) {
+            alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
+            console.error('Error details:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                error: error
+            });
+        }
+    });
+}
 
 
 
@@ -88,106 +135,92 @@ Invoice Payments
 
 <div class="container">
     <div class="card" style="height: 850px; margin-top: 50px; background-color:rgb(222, 222, 223);">
-        <div class="card-body" style="display: flex; max-width: 1350px; margin: auto; padding: 20px;">
-            <!-- Main Content Area (70%) -->
-            <div style="flex: 0 0 100%; padding-right: 20px;">
-                <div style="flex: 0 0 70%; padding-right: 20px;">
-                </div>
-                <div style="display: flex; align-items: center; margin-top: 5px;">
-                   
-                    <label style="width: 70px;font-size: 18px;margin-left: 15px"><b>Center</b></label>
-                    <select name="labbranch" style="width: 250px; height: 30px" class="input-text" id="labbranch" onchange="">
-                        <option value="%:@" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
-                        <?php
-                        $Result = DB::select("SELECT name, code, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
-
-                        foreach ($Result as $res) {
-                            $branchName = $res->name;
-                            $branchCode = $res->code;
-                            $bid = $res->bid;
-
-
-                            $displayText = $branchCode . " : " . $branchName;
-                        ?>
-                            <option value="<?= $bid . ":" . $branchCode ?>"><?= $displayText ?></option>
-                        <?php
-                        }
-                        ?>
-                    </select>
-                    <input type="checkbox" name="with_other_branches" id="with_other_branches" class="ref_chkbox" value="0">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>With Other Branches</b></label>
-                    <label style="font-size: 16px; margin-left: 5px; width: 570px;"></label>
-                    <input type="checkbox" name="due_bills_only" id="due_bills_only" class="ref_chkbox" value="0">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>Due Bills Only</b></label>
-                </div>
-
-                <div style="display: flex; align-items: center; margin-top: 5px;">
-                   
-                    <input type="checkbox" name="by_date" id="by_date" class="ref_chkbox" style="margin-bottom: 5px;" value="1" checked>
-                    <label style="font-size: 14px; margin-left: 3px; width: 70px;"><b>By Date </b></label>
-                    <input type="date" name="idate" class="input-text" id="idate" style="width: 100px">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>Invoice No </b></label>
-                    <input type="text" name="invoice_no" class="input-text" id="invoice_no" style="width: 90px">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>First Name </b></label>
-                    <input type="text" name="first_name" class="input-text" id="first_name" style="width: 90px">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>Last Name </b></label>
-                    <input type="text" name="last_name" class="input-text" id="last_name" style="width: 90px">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>Contact </b></label>
-                    <input type="text" name="contact" class="input-text" id="contact" style="width: 90px">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>Patient Type </b></label>
-                    <select type="text" name="type" class="input-text" id="type" style="width: 70px; height: 30px">
-                        <option value="In">In</option>
-                        <option value="Out">Out</option>
-                    </select>
-                    <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="ser_btn" value="Search" onclick="loadRecordToTable();sampleRecordToTableClear();">
-                </div>
-            </div>
-        
-        </div>
-        
-
+            <h1>Invoice Payments</h1>
         <div class="pageTableScope" style="display: flex; height: 350px; margin-top: 10px; width: 100%;">
             <!-- Left Side: Table -->
-
             <div style="flex: 0 0 30%; padding-left: 10px;">
-                <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="sampledataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
-                    <tbody>
-                        <tr>
-                            <td valign="top">
-                                <table border="1" style="border-color: #ffffff;" cellpadding="0" cellspacing="0" class="TableWithBorder" width="100%">
-                                    <thead>
-                                        <tr class="viewTHead">
-                                            <td width="12%" class="fieldText" align="center">Sample No</td>
-                                            <td width="18%" class="fieldText" align="center">Test</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="sample_record_tbl">
-                                        <!-- Dynamic content goes here -->
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        
+               
+                <!-- Invoice ID -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  <label for="inv_id" style="font-size: 14px; min-width: 90px;"><b>Inv ID:</b></label>
+                  <label id="inv_id" style="font-size: 18px;"><b>0</b></label>
+                </div>
+              
+                <!-- Date -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  <label for="inv_date" style="font-size: 14px; min-width: 90px;"><b>By Date:</b></label>
+                  <input type="date" name="inv_date" id="inv_date" class="input-text" 
+                         style="width: 180px; height: 30px; font-size: 14px;">
+                </div>
+              
+                <!-- Payment Method -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  <label for="Payment_method" style="font-size: 14px; min-width: 90px;"><b>Method:</b></label>
+                  <select name="Payment_method" id="Payment_method" class="input-text" 
+                          style="width: 200px; height: 30px; font-size: 14px;">
+                    <?php
+                    $Result = DB::select("SELECT idpaymethod, name FROM paymethod");
+                    foreach ($Result as $res) {
+                        $paymentName = $res->name;
+                        $paymentId = $res->idpaymethod;
+                        $displayText = $paymentId . " : " . $paymentName;
+                    ?>
+                      <option value="<?= $paymentId . ":" . $paymentName ?>" <?= $paymentId == 1 ? 'selected' : '' ?>>
+                        <?= $displayText ?>
+                      </option>
+                    <?php } ?>
+                  </select>
+                </div>
+              
+                <!-- Tender -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  <label for="tender" style="font-size: 14px; min-width: 90px;"><b>Tender:</b></label>
+                  <input type="text" name="tender" id="tender" class="input-text" 
+                         style="width: 180px; height: 30px; font-size: 14px;">
+                </div>
+              
+                <!-- Paid Amount -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  <label for="paid_amount" style="font-size: 14px; min-width: 90px;"><b>Paid:</b></label>
+                  <input type="text" name="paid_amount" id="paid_amount" class="input-text" 
+                         style="width: 180px; height: 30px; font-size: 14px;">
+                </div>
+              
+                <!-- Due Amount -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  <label for="due_amount" style="font-size: 14px; min-width: 90px;"><b>Due:</b></label>
+                  <label id="due_amount" style="font-size: 18px;"><b>0</b></label>
+                </div>
+              
+                <!-- Cheque No -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  <label for="cheque_amount" style="font-size: 14px; min-width: 90px;"><b>Cheque No:</b></label>
+                  <input type="text" name="cheque_amount" id="cheque_amount" class="input-text" 
+                         style="width: 180px; height: 30px; font-size: 14px;">
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:green" class="btn" id="ser_btn" value="Save" onclick="">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:rgb(23, 43, 179)" class="btn" id="ser_btn" value="Print Bill" onclick="">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:red" class="btn" id="ser_btn" value="Delete" onclick="">
+                  </div>
+              
+              </div>
+              
             <!-- Right Side: Additional Content -->
             <div style="flex: 1; padding-right: 10px;">
-                <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="invdataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
+                <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="inv_paymet_record_tbl" width="100%" border="0" cellspacing="2" cellpadding="0">
                     <tbody>
                         <tr>
                             <td valign="top">
                                 <table border="1" style="border-color: #ffffff;" cellpadding="0" cellspacing="0" class="TableWithBorder" width="100%">
                                     <thead>
                                         <tr class="viewTHead">
-                                            <td width="12%" class="fieldText" align="center">Sample No</td>
-                                            <td width="18%" class="fieldText" align="center">First Name</td>
-                                            <td width="18%" class="fieldText" align="center">Last Name</td>
-                                            <td width="10%" class="fieldText" align="center">Status</td>
-                                            <td width="8%" class="fieldText" align="center">Total Amount</td>
-                                            <td width="10%" class="fieldText" align="center">Paid</td>
-                                            <td width="10%" class="fieldText" align="center">Due</td>
-                                            <td width="10%" class="fieldText" align="center">User</td>
+                                            <td width="15%" class="fieldText" align="center">ID</td>
+                                            <td width="15%" class="fieldText" align="center">Date</td>
+                                            <td width="15%" class="fieldText" align="center">Method</td>
+                                            <td width="15%" class="fieldText" align="center">Amount Rs</td>
+                                            <td width="15%" class="fieldText" align="center">Cheque No</td>
+                                            <td width="25%" class="fieldText" align="center">User</td>
                                         </tr>
                                     </thead>
                                     <tbody id="inv_record_tbl">
