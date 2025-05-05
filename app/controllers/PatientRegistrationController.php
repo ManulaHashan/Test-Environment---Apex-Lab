@@ -544,6 +544,8 @@ class PatientRegistrationController extends Controller
             'a.Testgroup_tgid',
             'b.name',
             'a.refby',
+            'r.idref as ref_id',
+            'a.specialnote',
             'r.code'
         )
         ->get();
@@ -565,20 +567,24 @@ class PatientRegistrationController extends Controller
 
             $invoiceData = DB::table('invoice as i')
             ->join('lps as a', 'i.lps_lpsid', '=', 'a.lpsid')
+            ->join('Discount as d', 'i.Discount_did', '=', 'd.did')
             ->where('a.sampleNo', 'like', $sampleNo . '%')
             ->where('a.date', $date)
             ->where('a.Lab_lid', $_SESSION['lid'])
             ->select(
-                    'i.iid', 
-                    'i.total', 
-                    'i.paid', 
-                    'i.gtotal',
-                    'i.discount',
-                    'i.status', 
-                    'i.paymentmethod',
-                    'i.multiple_delivery_methods'
+                'i.iid', 
+                'i.total', 
+                'i.paid', 
+                'i.gtotal',
+                'i.discount',
+                'i.status', 
+                'i.paymentmethod',
+                'i.multiple_delivery_methods',
+                'd.value',
+                 'd.did'
             )
-            ->first();    
+            ->first();
+        
         
         // Collect all lps IDs that belong to this sampleNo, date, and patient
         $filteredLpsIds = array();

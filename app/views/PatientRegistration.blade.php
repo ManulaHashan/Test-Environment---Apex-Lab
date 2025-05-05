@@ -72,11 +72,24 @@ Add New Patient
                 $('#months').val(patientData.months || '');
                 $('#days').val(patientData.days || '');
                 $('#Ser_tpno').val(patientData.tpno || '');
-                $('#refDropdown').val(firstRecord.refby || '');
+
+
+                $('#refDropdown').val(firstRecord.ref_id || '');  
+                $('#refDropdown option').filter(function() {
+                    return $(this).text().trim() === firstRecord.refby;
+                }).prop('selected', true);
+
+
                 $('#refcode').val(firstRecord.code || '');
+                $('#inv_remark').val(firstRecord.specialnote || '');
 
 
-                
+               // Set the discount dropdown value
+                if (invoiceData && invoiceData.did && invoiceData.value) {
+                    $('#discount_percentage').val(invoiceData.did + ":" + invoiceData.value);
+                } else {
+                    $('#discount_percentage').val(''); 
+                }
                 $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00'); 
                 $('#discount').val(invoiceData.discount || 0); 
                 $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00'); 
