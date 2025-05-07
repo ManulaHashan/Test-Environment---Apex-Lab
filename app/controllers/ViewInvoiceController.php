@@ -8,8 +8,7 @@ if (!isset($_SESSION)) {
 
 //error_reporting(0);
 
-class ViewInvoiceController extends Controller
-{
+class ViewInvoiceController extends Controller{
     // Function to get all details 
     public function getAllInvoices()
     {
@@ -53,7 +52,7 @@ class ViewInvoiceController extends Controller
         if (!empty($idate)) {
             $query->where('l.date', '=', $idate);
         }
-       
+    
     
         if (!empty($invoiceNo)) {
             $query->where('l.sampleNo', '=', $invoiceNo);
@@ -109,70 +108,145 @@ class ViewInvoiceController extends Controller
             echo '<tr><td colspan="8" style="text-align: center;">No Invoice Records Found</td></tr>';
         }
     }
-    
-    
+        
+        
     public function getSampleTestData()
-{
-    $sampleNo = Input::get('sampleNo');
-    $date = Input::get('date');
+    {
+        $sampleNo = Input::get('sampleNo');
+        $date = Input::get('date');
 
-    $data = DB::table('lps as l')
-        ->join('Testgroup as t', 'l.Testgroup_tgid', '=', 't.tgid')
-        ->select('l.sampleNo', 't.name')
-        ->where('l.date', '=', $date)
-        ->where('l.sampleNo', 'like', $sampleNo . '%')
-        ->get();
+        $data = DB::table('lps as l')
+            ->join('Testgroup as t', 'l.Testgroup_tgid', '=', 't.tgid')
+            ->select('l.sampleNo', 't.name','l.status')
+            ->where('l.date', '=', $date)
+            ->where('l.sampleNo', 'like', $sampleNo . '%')
+            ->get();
 
-    if (count($data) > 0) {
-        $html = '';
-        foreach ($data as $item) {
-            $html .= '<tr>
-                        <td align="center">' . htmlspecialchars($item->sampleNo) . '</td>
-                        <td align="left">' . htmlspecialchars($item->name) . '</td>
-                      </tr>';
+        if (count($data) > 0) {
+            $html = '';
+            foreach ($data as $item) {
+                if($item->status=='pending'){
+                    $html .= '<tr style="background-color:rgb(245, 201, 40);">
+                            <td align="center">' . htmlspecialchars($item->sampleNo) . '</td>
+                            <td align="left">' . htmlspecialchars($item->name) . '</td>
+                        </tr>';
+                }else if($item->status=='Accepted'){
+                    $html .= '<tr style="background-color:rgb(55, 105, 241);">
+                    <td align="center">' . htmlspecialchars($item->sampleNo) . '</td>
+                    <td align="left">' . htmlspecialchars($item->name) . '</td>
+                </tr>';
+                }else{
+                    $html .= '<tr style="background-color:rgb(82, 241, 74);">
+                    <td align="center">' . htmlspecialchars($item->sampleNo) . '</td>
+                    <td align="left">' . htmlspecialchars($item->name) . '</td>
+                </tr>';
+                }
+
+                
+
+                
+            }
+            echo $html;
+        } else {
+            echo '<tr><td colspan="2" style="text-align:center;">No Related Test Found</td></tr>';
         }
-        echo $html;
-    } else {
-        echo '<tr><td colspan="2" style="text-align:center;">No Related Test Found</td></tr>';
     }
-}
 
-public function cancelInvoice()
-{
-    $sampleNo = Input::get('sampleNo'); 
-    $lpsId = Input::get('lpsId');
-
-    try {
-        DB::transaction(function () use ($sampleNo, $lpsId) {
-            DB::table('lps')
-                ->where('sampleNo', 'like', $sampleNo . '%')
-                ->update(['date' => '0000-00-00']);
+    public function cancelInvoice()
+    {
+        $sampleNo = Input::get('sampleNo'); 
+        $lpsId = Input::get('lpsId');
     
+        try {
+            DB::transaction(function () use ($sampleNo, $lpsId) {
+                // Update the lps table
+                DB::table('lps')
+                    ->where('sampleNo', 'like', $sampleNo . '%')
+                    ->update(['date' => '0000-00-00']);
     
-            $invoiceIds = DB::table('invoice')
-                ->where('lps_lpsid', $lpsId)
-                ->pluck('iid');
+                // Retrieve invoice IDs
+                $invoiceIds = DB::table('invoice')
+                    ->where('lps_lpsid', $lpsId)
+                    ->pluck('iid');
+                $invoiceIds = (array) $invoiceIds;
     
-           
-            $invoiceIds = (array) $invoiceIds;
+                // Update the invoice table
+                DB::table('invoice')
+                    ->where('lps_lpsid', $lpsId)
+                    ->update(['date' => '0000-00-00']);
     
-          
-            DB::table('invoice')
-                ->where('lps_lpsid', $lpsId)
-                ->update(['date' => '0000-00-00']);
+                // Update the invoice_payments table
+                DB::table('invoice_payments')
+                    ->whereIn('invoice_iid', $invoiceIds)
+                    ->update(['date' => '0000-00-00']);
+            });
+            
+            // Insert into canceled_invoices table after successful cancellation
+            $lps_id = $lpsId;
+            $invoiceDate = date('Y-m-d'); // Replace with actual invoice date if available
+            $today_date = date('Y-m-d');
+            $today_time = date('H:i:s');
+            $labId = $_SESSION['lid'];
+            $uId = $_SESSION['uid'];
     
-           
-            DB::table('invoice_payments')
-                ->whereIn('invoice_iid', $invoiceIds)  
-                ->update(['date' => '0000-00-00']);
-        });
-
-        return Response::json(['message' => 'Invoice successfully cancelled.']);
-    } catch (Exception $e) {
-        return Response::json(['message' => 'Error cancelling invoice: ' . $e->getMessage()], 500);
+            DB::table('canceled_invoices')->insert([
+                'lps_lpsid' => $lps_id,
+                'invoiced_date' => $invoiceDate,
+                'canceled_date' => $today_date,
+                'canceled_time' => $today_time,
+                'user' => $uId,
+                'approved' => $uId, 
+                'note' => 'Invoice canceled by user.', 
+                'Lab_lid' =>  $labId,
+            ]);
+    
+            return Response::json(['message' => 'Invoice successfully cancelled.']);
+        } catch (Exception $e) {
+            return Response::json(['message' => 'Error cancelling invoice: ' . $e->getMessage()], 500);
+        }
     }
-}
+    
 
+    
+    public function getCashierBalanceData()
+    {
+        $cashierId = Input::get('cashier_id');
+        $date = Input::get('date');
+    
+        $query = DB::table('invoice as a')
+            ->join('lps as b', 'a.lps_lpsid', '=', 'b.lpsid')
+            ->select(
+                DB::raw('COALESCE(count(a.lps_lpsid), 0) as total_bill_count'),
+                'a.date',
+                DB::raw('COALESCE(sum(a.gtotal), 0) as gtotal'),
+                DB::raw('COALESCE(sum(a.paid), 0) as paid'),
+                DB::raw('COALESCE(sum(a.gtotal - a.paid), 0) as total_due')
+            )
+            ->where('a.date', '=', $date)
+            ->where('a.cashier', 'like', $cashierId . '%')
+            ->where('b.Lab_lid', '=', $_SESSION['lid'])
+            ->groupBy('a.date');
+    
+        $results = $query->first();
+    
+        // Initialize values to zero if the query result is null
+        $totalBillCount = $results->total_bill_count ?? 0;
+        $totalAmount = number_format($results->gtotal ?? 0, 2);
+        $totalExpenses = '00.00';
+        $totalPaid = number_format($results->paid ?? 0, 2);
+        $totalDue = number_format($results->total_due ?? 0, 2);
+        $cashierBalance = number_format($results->paid ?? 0, 2);
+    
+        return Response::json([
+            'totalBillCount' => $totalBillCount,
+            'totalAmount' => $totalAmount,
+            'totalExpenses' => $totalExpenses,
+            'totalPaid' => $totalPaid,
+            'totalDue' => $totalDue,
+            'cashierBalance' => $cashierBalance
+        ]);
+    }
+    
 
 
 

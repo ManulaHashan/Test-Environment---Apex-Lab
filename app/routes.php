@@ -125,12 +125,6 @@ Route::get('/expmanage', function() {
 
 
 
-// **************************************Manula's Development Routes************************************************************
-//~~~~~~~~~~~~~~~~~~~~~~~~Route To Invoice payment Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/invoicePayments', function() {
-    return View::make('invoicePayment');
-});
-Route::get('getAllpayments', 'invoicePaymentController@getAllPayments');
 
 
 // **************************************Manula's Development Routes************************************************************
@@ -299,6 +293,7 @@ Route::get('/getAllUsers', 'PatientRegistrationController@getAllUsers');
 Route::get('/getUserDetailsByTP', 'PatientRegistrationController@getUserDetailsByTP');
 Route::get('/getSelectedInvoice', 'PatientRegistrationController@getSampleTestData');
 Route::get('/getRefCode', 'PatientRegistrationController@getRefCode');
+Route::get('/getSearchPatient', 'PatientRegistrationController@getSearchSampleData');
 
 
 
@@ -310,9 +305,16 @@ Route::get('/viewinvoices', function() {
 });
 Route::get('getSampleTestData', 'ViewInvoiceController@getSampleTestData');
 Route::post('cancelInvoice', 'ViewInvoiceController@cancelInvoice');
+Route::get('getCashierInvoiceSummary', 'ViewInvoiceController@getCashierBalanceData');
 
 
 
+// **************************************Manula's Development Routes************************************************************
+//~~~~~~~~~~~~~~~~~~~~~~~~Route To Invoice payment Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/invoicePayments', function() {
+    return View::make('invoicePayment');
+});
+Route::get('getAllpayments', 'invoicePaymentController@getAllPayments');
 
 
 

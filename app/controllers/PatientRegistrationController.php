@@ -529,7 +529,7 @@ class PatientRegistrationController extends Controller
         // Retrieve all lps records matching the sampleNo, date, and Lab ID
         $lpsRecords = DB::table('lps as a')
         ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
-        ->join('refference as r', 'a.refference_idref', '=', 'r.idref')
+        ->leftJoin('refference as r', 'a.refference_idref', '=', 'r.idref')
         ->join('patient as p', 'a.patient_pid', '=', 'p.pid')
         ->where('a.sampleNo', 'like', $sampleNo . '%')
         ->where('a.date', $date)
@@ -567,7 +567,7 @@ class PatientRegistrationController extends Controller
 
             $invoiceData = DB::table('invoice as i')
             ->join('lps as a', 'i.lps_lpsid', '=', 'a.lpsid')
-            ->join('Discount as d', 'i.Discount_did', '=', 'd.did')
+            ->leftJoin('Discount as d', 'i.Discount_did', '=', 'd.did')
             ->where('a.sampleNo', 'like', $sampleNo . '%')
             ->where('a.date', $date)
             ->where('a.Lab_lid', $_SESSION['lid'])
@@ -639,7 +639,124 @@ class PatientRegistrationController extends Controller
     }
     
     
+    public function getSearchSampleData()
+    {
+        $searchDate = Input::get('searchDate');
+        $searchSampleNo = Input::get('searchSampleNo');
+        
+        
+        // Retrieve all lps records matching the sampleNo, date, and Lab ID
+        $lpsRecords = DB::table('lps as a')
+        ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
+        ->leftJoin('refference as r', 'a.refference_idref', '=', 'r.idref')
+        ->join('patient as p', 'a.patient_pid', '=', 'p.pid')
+        ->where('a.sampleNo', 'like', $searchSampleNo . '%')
+        ->where('a.date', $searchDate)
+        ->where('a.Lab_lid', $_SESSION['lid'])
+        ->select(
+            'a.lpsid',
+            'a.patient_pid',
+            'a.date',
+            'a.sampleNo',
+            'a.type',
+            'a.urgent_sample',
+            'a.Testgroup_tgid',
+            'b.name',
+            'a.refby',
+            'r.idref as ref_id',
+            'a.specialnote',
+            'r.code'
+        )
+        ->get();
     
+        
+        if (empty($lpsRecords)) {
+            return Response::json(['success' => false, 'message' => 'Sample not found']);
+        }
+        
+        // Use the first lps record to get patient info
+        $firstLps = $lpsRecords[0];
+        $patientId = $firstLps->patient_pid;
+        
+        $patientData = DB::table('patient as p')
+            ->join('user as u', 'p.user_uid', '=', 'u.uid')
+            ->where('p.pid', $patientId)
+            ->select('u.fname', 'u.lname', 'u.nic', 'u.address', 'u.gender_idgender', 'u.tpno', 'p.age', 'p.months', 'p.days', 'p.initials', 'p.dob')
+            ->first();
+
+            $invoiceData = DB::table('invoice as i')
+            ->join('lps as a', 'i.lps_lpsid', '=', 'a.lpsid')
+            ->leftJoin('Discount as d', 'i.Discount_did', '=', 'd.did')
+            ->where('a.sampleNo', 'like', $searchSampleNo . '%')
+            ->where('a.date', $searchDate)
+            ->where('a.Lab_lid', $_SESSION['lid'])
+            ->select(
+                'i.iid', 
+                'i.total', 
+                'i.paid', 
+                'i.gtotal',
+                'i.discount',
+                'i.status', 
+                'i.paymentmethod',
+                'i.multiple_delivery_methods',
+                'd.value',
+                 'd.did',
+                 'a.sampleNo'
+            )
+            ->first();
+        
+        
+        // Collect all lps IDs that belong to this sampleNo, date, and patient
+        $filteredLpsIds = array();
+        foreach ($lpsRecords as $rec) {
+            if ($rec->patient_pid == $patientId) {
+                $filteredLpsIds[] = $rec->lpsid;
+            }
+        }
+        
+        if (empty($filteredLpsIds)) {
+            return Response::json(['success' => false, 'message' => 'No test data found for this patient']);
+        }
+        
+      
+        $testDataRaw = DB::table('lps as a')
+            ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
+            ->select(
+                'a.lpsid',
+                'a.type',
+                'a.urgent_sample',
+                'a.Testgroup_tgid as tgid',
+                'b.name as group',
+                'b.price',
+                'b.testingtime as time'
+            )
+            ->whereIn('a.lpsid', $filteredLpsIds)
+            ->get();
+        
+        $testData = [];
+        foreach ($testDataRaw as $test) {
+            $testData[] = [
+                'lpsid'    => $test->lpsid,
+                'tgid'     => $test->tgid,
+                'group'    => $test->group,
+                'price'    => floatval($test->price),
+                'time'     => $test->time,
+                'f_time'   => 0,
+                'priority' => $test->urgent_sample,
+                'type'     => $test->type,
+            ];
+        }
+        
+        return Response::json([
+            'success' => true,
+            'data' => [
+                'patient' => $patientData,
+                'tests'   => $testData,
+                'invoice' => $invoiceData,
+                'lpsRecords' => $lpsRecords
+            ]
+        ]);
+    }
     
     
          

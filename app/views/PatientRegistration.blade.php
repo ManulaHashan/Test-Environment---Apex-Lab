@@ -15,6 +15,8 @@ Add New Patient
 
 <script>
        $(document).ready(function() {
+        const today = new Date().toISOString().split('T')[0];
+        $('#ser_date').val(today);
         const params = new URLSearchParams(window.location.search);
 
         const sampleNo = params.get('sampleNo');
@@ -44,116 +46,159 @@ Add New Patient
     });
 
     //view selected invoice
-    function view_selected_patient(sampleNo, date) {
-    $.ajax({
-        type: "GET",
-        url: "getSelectedInvoice",
-        data: {
-            'sampleNo': sampleNo,
-            'date': date
-        },
-        dataType: "json",
-        success: function(response) {
-            if (response.success) {
-                const patientData = response.data.patient;
-                const testData = response.data.tests;
-                const invoiceData = response.data.invoice;
-                const lpsRecords = response.data.lpsRecords;
-                const firstRecord = lpsRecords[0] || {};
-                // Populate patient fields
-                $('#initial').val(patientData.initials || ''); // Use empty string if null
-                $('#fname').val(patientData.fname || '');
-                $('#lname').val(patientData.lname || '');
-                $('#dob').val(patientData.dob || '');
-                $('#nic').val(patientData.nic || '');
-                $('#address').val(patientData.address || '');
-                $('input[name="gender"][value="' + patientData.gender_idgender + '"]').prop('checked', true);
-                $('#years').val(patientData.age || '');
-                $('#months').val(patientData.months || '');
-                $('#days').val(patientData.days || '');
-                $('#Ser_tpno').val(patientData.tpno || '');
+    function view_selected_patient(sampleNo, date)
+    {
+        $.ajax({
+            type: "GET",
+            url: "getSelectedInvoice",
+            data: {
+                'sampleNo': sampleNo,
+                'date': date
+            },
+            dataType: "json",
+            success: function(response) {
+                if (response.success) {
+                    const patientData = response.data.patient;
+                    const testData = response.data.tests;
+                    const invoiceData = response.data.invoice;
+                    const lpsRecords = response.data.lpsRecords;
+                    const firstRecord = lpsRecords[0] || {};
+                    // Populate patient fields
+                    $('#initial').val(patientData.initials || ''); // Use empty string if null
+                    $('#fname').val(patientData.fname || '');
+                    $('#lname').val(patientData.lname || '');
+                    $('#dob').val(patientData.dob || '');
+                    $('#nic').val(patientData.nic || '');
+                    $('#address').val(patientData.address || '');
+                    $('input[name="gender"][value="' + patientData.gender_idgender + '"]').prop('checked', true);
+                    $('#years').val(patientData.age || '');
+                    $('#months').val(patientData.months || '');
+                    $('#days').val(patientData.days || '');
+                    $('#Ser_tpno').val(patientData.tpno || '');
 
 
-                $('#refDropdown').val(firstRecord.ref_id || '');  
-                $('#refDropdown option').filter(function() {
-                    return $(this).text().trim() === firstRecord.refby;
-                }).prop('selected', true);
+                    $('#refDropdown').val(firstRecord.ref_id || '');  
+                    $('#refDropdown option').filter(function() {
+                        return $(this).text().trim() === firstRecord.refby;
+                    }).prop('selected', true);
 
 
-                $('#refcode').val(firstRecord.code || '');
-                $('#inv_remark').val(firstRecord.specialnote || '');
+                    $('#refcode').val(firstRecord.code || '');
+                    $('#inv_remark').val(firstRecord.specialnote || '');
 
 
-               // Set the discount dropdown value
-                if (invoiceData && invoiceData.did && invoiceData.value) {
-                    $('#discount_percentage').val(invoiceData.did + ":" + invoiceData.value);
-                } else {
-                    $('#discount_percentage').val(''); 
-                }
-                $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00'); 
-                $('#discount').val(invoiceData.discount || 0); 
-                $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00'); 
-                $('#paid').val(invoiceData.paid || 0); 
-                $('#due').text((invoiceData.gtotal - invoiceData.paid).toFixed(2)); 
+                // Set the discount dropdown value
+                    if (invoiceData && invoiceData.did && invoiceData.value) {
+                        $('#discount_percentage').val(invoiceData.did + ":" + invoiceData.value);
+                    } else {
+                        $('#discount_percentage').val(''); 
+                    }
+                    $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00'); 
+                    $('#discount').val(invoiceData.discount || 0); 
+                    $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00'); 
+                    $('#paid').val(invoiceData.paid || 0); 
+                    $('#due').text((invoiceData.gtotal - invoiceData.paid).toFixed(2)); 
 
-             
-                $('input[name="payment_method"]').prop('checked', false); 
-                $('input[name="payment_method"][value="' + invoiceData.paymentmethod + '"]').prop('checked', true); 
+                    var paymeth = "";
+                        $('input[name="payment_method"]').prop('checked', false); 
+                        if(invoiceData.paymentmethod == 'cash') {
+                            paymeth = "1"; 
+                        } else if(invoiceData.paymentmethod == 'card') {
+                            paymeth = "2"; 
+                        } else if(invoiceData.paymentmethod == 'voucher') {
+                            paymeth = "6"; 
+                        } else if(invoiceData.paymentmethod == 'split') {
+                            paymeth = "5"; 
+                        } else if(invoiceData.paymentmethod == 'credit') {
+                            paymeth = "credit"; 
+                        } else if(invoiceData.paymentmethod == 'cheque') {
+                            paymeth = "3"; 
+                        } 
+                    $('input[name="payment_method"][value="' + paymeth + '"]').prop('checked', true); 
 
-                // Handle delivery methods checkboxes
-                    if (invoiceData && invoiceData.multiple_delivery_methods) {
-                        try {
-                            console.log("Raw delivery methods:", invoiceData.multiple_delivery_methods);
-                            const deliveryMethods = invoiceData.multiple_delivery_methods
-                                .split(',')
-                                .map(method => method.trim());
-                            
-                            console.log("Parsed methods:", deliveryMethods);
-                            $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
-                            deliveryMethods.forEach(method => {
-                                $(`#${method.toLowerCase().replace(' ', '_')}`).prop('checked', true);
-                            });
-                            
-                        } catch (e) {
-                            console.error("Error parsing delivery methods:", e);
+                        if (invoiceData && invoiceData.multiple_delivery_methods) {
+                            try {
+                                console.log("Raw delivery methods:", invoiceData.multiple_delivery_methods);
+                                const deliveryMethods = invoiceData.multiple_delivery_methods
+                                    .split(',')
+                                    .map(method => method.trim());
+                                
+                                console.log("Parsed methods:", deliveryMethods);
+                                $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
+                                deliveryMethods.forEach(method => {
+                                    $(`#${method.toLowerCase().replace(' ', '_')}`).prop('checked', true);
+                                });
+                                
+                            } catch (e) {
+                                console.error("Error parsing delivery methods:", e);
+                                $('#hard_copy').prop('checked', true);
+                            }
+                        } else {
+                            console.log("No delivery methods found, using default");
                             $('#hard_copy').prop('checked', true);
                         }
-                    } else {
-                        console.log("No delivery methods found, using default");
-                        $('#hard_copy').prop('checked', true);
-                    }
 
-               
-                $('#Branch_record_tbl').empty();
-                testData.forEach(test => {
-                    const newRow = `
-                        <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}">
-                            <td align="left">${test.tgid}</td>
-                            <td align="left">${test.group}</td>
-                            <td align="right" class="price-column">${test.price.toFixed(2)}</td>
-                            <td align="left">${test.time}</td>
-                            <td align="right">${test.f_time}</td>
-                            <td align="left">
-                                <input type="checkbox" class="barcode-checkbox" checked>
-                            </td>
-                            <td align="center">${test.urgent_sample}</td>  
-                            <td align="center">${test.type}</td>  
-                        </tr>`;
-                    $('#Branch_record_tbl').append(newRow);
-                });
+                
+                    $('#Branch_record_tbl').empty();
+                    // testData.forEach(test => {
+                    //     const newRow = `
+                    //         <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}">
+                    //             <td align="left">${test.tgid}</td>
+                    //             <td align="left">${test.group}</td>
+                    //             <td align="right" class="price-column">${test.price.toFixed(2)}</td>
+                    //             <td align="left">${test.time}</td>
+                    //             <td align="right">${test.f_time}</td>
+                    //             <td align="left">
+                    //                 <input type="checkbox" class="barcode-checkbox" checked>
+                    //             </td>
+                    //             <td align="center">${test.urgent_sample}</td>  
+                    //             <td align="center">${test.type}</td>  
+                    //         </tr>`;
+                    //     $('#Branch_record_tbl').append(newRow);
+                    // });
+                    testData.forEach(test => {
+                        let rowStyle = '';
+                        let urgentDisplay = '';
 
-              
-            } else {
-                alert(response.message || 'No data found.');
+                        // Check if the test's lpsid is marked as urgent in lpsRecords
+                        const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
+
+                        if (matchingLps) {
+                            rowStyle = 'style="background-color: pink;"';
+                            urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
+                        }
+
+                        const newRow = `
+                            <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
+                                <td align="left">${test.tgid}</td>
+                                <td align="left">${test.group}</td>
+                                <td align="right" class="price-column">${test.price.toFixed(2)}</td>
+                                <td align="left">${test.time}</td>
+                                <td align="right">${test.f_time}</td>
+                                <td align="left">
+                                    <input type="checkbox" class="barcode-checkbox" checked>
+                                </td>
+                                <td align="center">${urgentDisplay}</td>  
+                                <td align="center">${test.type}</td>  
+                            </tr>`;
+
+                        $('#Branch_record_tbl').append(newRow);
+                    });
+
+
+
+                
+                } else {
+                    alert(response.message || 'No data found.');
+                }
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr);
+                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+                alert(errorMsg);
             }
-        },
-        error: function(xhr) {
-            console.log('Error:', xhr);
-            var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
-            alert(errorMsg);
-        }
-    });
-}
+        });
+    }
 
 
 
@@ -370,6 +415,7 @@ Add New Patient
         $('#discount').val('');
         $('#discount_percentage').val('');
         $('#paid').val('');
+        
     }
 
     // $(document).on('click', '.remove-row', function() {
@@ -379,51 +425,74 @@ Add New Patient
 
     //*************************************************************************************************
     // Apply discount
-    function applyDiscount() 
-    {
+    // function applyDiscount() 
+    // {
 
-        var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
-        var totalAmount = parseFloat(totalAmountText) || 0;
+    //     var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
+    //     var totalAmount = parseFloat(totalAmountText) || 0;        
+    //     var discountData = $('#discount_percentage').val().split(":");
+    //     var discountPercentage = parseFloat(discountData[1]) || 0;  
+    //     var manualDiscount = parseFloat($('#discount').val()) || 0;
 
+
+    //     let discountAmount = 0;
+
+    //     if (discountPercentage > 0) {
+    //         discountAmount = (totalAmount * discountPercentage) / 100;
+    //         $('#discount').val(discountAmount.toFixed(2)); 
+    //     } else if (manualDiscount > 0) {
         
+    //         discountAmount = manualDiscount;
+    //         $('#discount_percentage').val('');
+    //     }
 
     
-        
-        
+    //     if (discountAmount > totalAmount) {
+    //         alert("Discount cannot exceed total amount!");
+    //         discountAmount = 0;
+    //         $('#discount, #discount_percentage').val('');
+    //     }
+
+
+    //     var grandTotal = totalAmount - discountAmount;
+
+    
+    //     $('#grand_total').text(grandTotal.toFixed(2));
+    //     $('#paid').val('');
+    //     $('#due').text(grandTotal.toFixed(2));
+    // }
+
+    function applyDiscount() {
+        var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
+        var totalAmount = parseFloat(totalAmountText) || 0;        
         var discountData = $('#discount_percentage').val().split(":");
-
         var discountPercentage = parseFloat(discountData[1]) || 0;  
-
         var manualDiscount = parseFloat($('#discount').val()) || 0;
-
-        
 
         let discountAmount = 0;
 
         if (discountPercentage > 0) {
             discountAmount = (totalAmount * discountPercentage) / 100;
             $('#discount').val(discountAmount.toFixed(2)); 
+            $('#Voucher_No, #vaucher_amount, #split_cash_amount, #split_card_amount').val('');
         } else if (manualDiscount > 0) {
-        
             discountAmount = manualDiscount;
             $('#discount_percentage').val('');
+            $('#Voucher_No, #vaucher_amount, #split_cash_amount, #split_card_amount').val('');
         }
 
-    
         if (discountAmount > totalAmount) {
             alert("Discount cannot exceed total amount!");
             discountAmount = 0;
             $('#discount, #discount_percentage').val('');
         }
 
-
         var grandTotal = totalAmount - discountAmount;
 
-    
         $('#grand_total').text(grandTotal.toFixed(2));
         $('#paid').val('');
         $('#due').text(grandTotal.toFixed(2));
-    }
+}
 
 
 
@@ -800,6 +869,165 @@ document.addEventListener("DOMContentLoaded", function ()
     }
 
 
+// ******************Bill search Function************************************
+
+    function view_search_patient()
+    {
+        var searchDate = $('#ser_date').val();
+        var searchSampleNo = $('#ser_sampleno').val();
+        $.ajax({
+            type: "GET",
+            url: "getSearchPatient",
+            data: {
+                'searchDate': searchDate,
+                'searchSampleNo': searchSampleNo
+            },
+            dataType: "json",
+            success: function(response) {
+                if (response.success) {
+                    const patientData = response.data.patient;
+                    const testData = response.data.tests;
+                    const invoiceData = response.data.invoice;
+                    const lpsRecords = response.data.lpsRecords;
+                    const firstRecord = lpsRecords[0] || {};
+                    // Populate patient fields
+                    $('#sampleNo').val(invoiceData.sampleNo || ''); 
+                    $('#initial').val(patientData.initials || ''); 
+                    $('#fname').val(patientData.fname || '');
+                    $('#lname').val(patientData.lname || '');
+                    $('#dob').val(patientData.dob || '');
+                    $('#nic').val(patientData.nic || '');
+                    $('#address').val(patientData.address || '');
+                    $('input[name="gender"][value="' + patientData.gender_idgender + '"]').prop('checked', true);
+                    $('#years').val(patientData.age || '');
+                    $('#months').val(patientData.months || '');
+                    $('#days').val(patientData.days || '');
+                    $('#Ser_tpno').val(patientData.tpno || '');
+
+
+                    $('#refDropdown').val(firstRecord.ref_id || '');  
+                    $('#refDropdown option').filter(function() {
+                        return $(this).text().trim() === firstRecord.refby;
+                    }).prop('selected', true);
+
+
+                    $('#refcode').val(firstRecord.code || '');
+                    $('#inv_remark').val(firstRecord.specialnote || '');
+
+
+                // Set the discount dropdown value
+                    if (invoiceData && invoiceData.did && invoiceData.value) {
+                        $('#discount_percentage').val(invoiceData.did + ":" + invoiceData.value);
+                    } else {
+                        $('#discount_percentage').val(''); 
+                    }
+                    $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00'); 
+                    $('#discount').val(invoiceData.discount || 0); 
+                    $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00'); 
+                    $('#paid').val(invoiceData.paid || 0); 
+                    $('#due').text((invoiceData.gtotal - invoiceData.paid).toFixed(2)); 
+
+                    var paymeth = "";
+                        $('input[name="payment_method"]').prop('checked', false); 
+                        if(invoiceData.paymentmethod == 'cash') {
+                            paymeth = "1"; 
+                        } else if(invoiceData.paymentmethod == 'card') {
+                            paymeth = "2"; 
+                        } else if(invoiceData.paymentmethod == 'voucher') {
+                            paymeth = "5"; 
+                        } else if(invoiceData.paymentmethod == 'split') {
+                            paymeth = "6"; 
+                        } else if(invoiceData.paymentmethod == 'credit') {
+                            paymeth = "credit"; 
+                        } else if(invoiceData.paymentmethod == 'cheque') {
+                            paymeth = "3"; 
+                        } 
+                    $('input[name="payment_method"][value="' + paymeth + '"]').prop('checked', true); 
+
+                        if (invoiceData && invoiceData.multiple_delivery_methods) {
+                            try {
+                                console.log("Raw delivery methods:", invoiceData.multiple_delivery_methods);
+                                const deliveryMethods = invoiceData.multiple_delivery_methods
+                                    .split(',')
+                                    .map(method => method.trim());
+                                
+                                console.log("Parsed methods:", deliveryMethods);
+                                $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
+                                deliveryMethods.forEach(method => {
+                                    $(`#${method.toLowerCase().replace(' ', '_')}`).prop('checked', true);
+                                });
+                                
+                            } catch (e) {
+                                console.error("Error parsing delivery methods:", e);
+                                $('#hard_copy').prop('checked', true);
+                            }
+                        } else {
+                            console.log("No delivery methods found, using default");
+                            $('#hard_copy').prop('checked', true);
+                        }
+
+                
+                    $('#Branch_record_tbl').empty();
+                    // testData.forEach(test => {
+                    //     const newRow = `
+                    //         <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}">
+                    //             <td align="left">${test.tgid}</td>
+                    //             <td align="left">${test.group}</td>
+                    //             <td align="right" class="price-column">${test.price.toFixed(2)}</td>
+                    //             <td align="left">${test.time}</td>
+                    //             <td align="right">${test.f_time}</td>
+                    //             <td align="left">
+                    //                 <input type="checkbox" class="barcode-checkbox" checked>
+                    //             </td>
+                    //             <td align="center">${test.urgent_sample}</td>  
+                    //             <td align="center">${test.type}</td>  
+                    //         </tr>`;
+                    //     $('#Branch_record_tbl').append(newRow);
+                    // });
+                    testData.forEach(test => {
+                        let rowStyle = '';
+                        let urgentDisplay = '';
+
+                        // Check if the test's lpsid is marked as urgent in lpsRecords
+                        const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
+
+                        if (matchingLps) {
+                            rowStyle = 'style="background-color: pink;"';
+                            urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
+                        }
+
+                        const newRow = `
+                            <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
+                                <td align="left">${test.tgid}</td>
+                                <td align="left">${test.group}</td>
+                                <td align="right" class="price-column">${test.price.toFixed(2)}</td>
+                                <td align="left">${test.time}</td>
+                                <td align="right">${test.f_time}</td>
+                                <td align="left">
+                                    <input type="checkbox" class="barcode-checkbox" checked>
+                                </td>
+                                <td align="center">${urgentDisplay}</td>  
+                                <td align="center">${test.type}</td>  
+                            </tr>`;
+
+                        $('#Branch_record_tbl').append(newRow);
+                    });
+
+
+
+                
+                } else {
+                    alert(response.message || 'No data found.');
+                }
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr);
+                var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+                alert(errorMsg);
+            }
+        });
+    }
+
 
     //*************************************************************************************************
     function resetPage() 
@@ -1073,6 +1301,7 @@ document.addEventListener("DOMContentLoaded", function ()
         });
     });
 
+    //when payment method split and voucher hided feild show and hide function
     document.addEventListener("DOMContentLoaded", function()
     {
    
@@ -1087,6 +1316,14 @@ document.addEventListener("DOMContentLoaded", function ()
                 // Hide both divs initially
                 document.getElementById("vaucher_div").style.display = "none";
                 document.getElementById("split_div").style.display = "none";
+
+        
+                $("#split_cash_amount").val('');
+                $("#split_card_amount").val('');
+                $("#vaucher_amount").val('');
+                $("#Voucher_No").val('');
+                $("#paid").val('');
+                calculateDue();
 
                 if (this.value === "6") {
                     document.getElementById("vaucher_div").style.display = "flex";
@@ -1109,7 +1346,29 @@ document.addEventListener("DOMContentLoaded", function ()
     // });
 
 
+    //When Payment method split and voucher payment feild disable function
+    function togglePaidField() {
+    const paidField = document.getElementById('paid');
+    const voucherSelected = document.getElementById('voucher').checked;
+    const splitSelected = document.getElementById('split').checked;
+    const cashSelected = document.getElementById('cash').checked;
+    const chequeSelected = document.getElementById('cheque').checked;
+    const creditSelected = document.getElementById('credit').checked;
+    const cardSelected = document.getElementById('card').checked;
+   
 
+    if (voucherSelected || splitSelected) {
+        paidField.readOnly = true;
+        paidField.value = '';
+    } else if  (cashSelected || chequeSelected || creditSelected || cardSelected){
+        paidField.readOnly = false;
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    togglePaidField();
+});
 
 </script>
 
@@ -1196,7 +1455,8 @@ document.addEventListener("DOMContentLoaded", function ()
         background-color: #4b9bf0;
     }
 
-    .autocomplete-suggestions {
+    .autocomplete-suggestions 
+    {
     border: 1px solid #e1dede;
     border-radius: 15px;
     background-color: white;
@@ -1209,8 +1469,9 @@ document.addEventListener("DOMContentLoaded", function ()
     margin-left: 150px;
     
     
-}
+    }
 </style>
+
 @stop
 
 @section('body')
@@ -1266,7 +1527,7 @@ document.addEventListener("DOMContentLoaded", function ()
                     <label style="width: 30px;font-size: 16px;  "></label>
                     <label style="width: 135px;font-size: 16px;  "><b>Sample No</b></label>
                     <input type="text" name="ser_sampleno" class="input-text" id="ser_sampleno" style="width: 150px">
-                    <input type="button" style="width: 80px" class="btn" id="ser_btn" value="Search" onclick="">
+                    <input type="button" style="width: 80px" class="btn" id="ser_btn" value="Search" onclick="view_search_patient()">
                 </div>
 
                 <div style="display: flex; align-items: center;">
@@ -1438,7 +1699,7 @@ document.addEventListener("DOMContentLoaded", function ()
                         <input type="checkbox" name="fastcheck" id="fastcheck" class="ref_chkbox" value="1"> -->
                     </div>
 
-                    <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none; margin-top: 20px;">
+                        <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none; margin-top: 20px;">
 
                         <div style="display: flex; align-items: center; margin-top: 5px;">
                             <label style="width: 125px; font-size: 18px;">Total Amount:</label>
@@ -1474,12 +1735,12 @@ document.addEventListener("DOMContentLoaded", function ()
                             <label style="width: 30px; font-size: 18px;">Rs: </label>
                             <label style=" padding-right: 45px; color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="grand_total">000,000.00</label>
 
-                            <label><input type="radio" name="payment_method" id="cash" value="1" checked> Cash</label>
-                            <label><input type="radio" name="payment_method" id="card" value="2"> Card</label>
-                            <label><input type="radio" name="payment_method" id="credit" value="credit"> Credit</label>
-                            <label><input type="radio" name="payment_method" id="cheque" value="3"> Cheque</label>
-                            <label><input type="radio" name="payment_method" id="voucher" value="6"> Voucher</label>
-                            <label><input type="radio" name="payment_method" id="split" value="5"> Split</label>
+                            <label><input type="radio" name="payment_method" id="cash" value="1" checked onchange="togglePaidField();"> Cash</label>
+                            <label><input type="radio" name="payment_method" id="card" value="2"onchange="togglePaidField();"> Card</label>
+                            <label><input type="radio" name="payment_method" id="credit" value="credit"onchange="togglePaidField();"> Credit</label>
+                            <label><input type="radio" name="payment_method" id="cheque" value="3"onchange="togglePaidField();"> Cheque</label>
+                            <label><input type="radio" name="payment_method" id="voucher" value="6" onchange="togglePaidField();"> Voucher</label>
+                            <label><input type="radio" name="payment_method" id="split" value="5" onchange="togglePaidField();"> Split</label>
                         </div>
 
                         <div style="display: flex; align-items: center; margin-top: 20px;">
@@ -1630,7 +1891,7 @@ document.addEventListener("DOMContentLoaded", function ()
     </div>
 
 </div>
-</div>
+
 
 
 

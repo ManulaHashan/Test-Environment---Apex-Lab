@@ -14,45 +14,47 @@ View Invices
 <script src="{{ asset('JS/ReportCalculations.js') }}"></script>
 
 <script>
+
     $(document).ready(function ()
-     {
-        const today = new Date().toISOString().split('T')[0];
-        $('#idate').val(today);
+{   
+    const today = new Date().toISOString().split('T')[0];
+    $('#idate').val(today);
 
-        loadRecordToTable();
+    loadRecordToTable();
 
-        $(document).on('click', '#inv_record_tbl tr', function () 
-        {
-            $('#inv_record_tbl tr').removeClass('selected');
-            $(this).addClass('selected');
+    $(document).on('click', '#inv_record_tbl tr', function () 
+    {
+        $('#inv_record_tbl tr').removeClass('selected');
+        $(this).addClass('selected');
 
-            var sampleNo = $(this).find('td:eq(0)').text().trim();
-            var date = $(this).data('date');
+        var sampleNo = $(this).find('td:eq(0)').text().trim();
+        var date = $(this).data('date');
 
-            // $('#selected_sampleNo').val(sampleNo + " : " + date);
+        // $('#selected_sampleNo').val(sampleNo + " : " + date);
 
-                if (sampleNo && date) {
-                    $.ajax({
-                        type: "GET",
-                        url: "getSampleTestData",
-                        data: {
-                            sampleNo: sampleNo,
-                            date: date
-                        },
-                        success: function (sampleDataHtml) {
+            if (sampleNo && date) {
+                $.ajax({
+                    type: "GET",
+                    url: "getSampleTestData",
+                    data: {
+                        sampleNo: sampleNo,
+                        date: date
+                    },
+                    success: function (sampleDataHtml) {
 
-                            
-                            $('#sample_record_tbl').html(sampleDataHtml);
-                            
-                        },
-                        error: function (xhr) {
-                            alert("Failed to load sample data.");
-                            console.log(xhr.responseText);
-                        }
-                    });
-                }
+                        
+                        $('#sample_record_tbl').html(sampleDataHtml);
+                        
+                    },
+                    error: function (xhr) {
+                        alert("Failed to load sample data.");
+                        console.log(xhr.responseText);
+                    }
+                });
+            }
     });
 });
+
 
 
 
@@ -70,82 +72,61 @@ View Invices
         }).replace("LKR", "").trim();
     }
 
-function loadRecordToTable() {
-    var center = $('#labbranch').val();
-    var withOtherBranches = $('#with_other_branches').is(':checked') ? 1 : 0;
-    var dueBillsOnly = $('#due_bills_only').is(':checked') ? 1 : 0;
-    var byDate = $('#by_date').is(':checked') ? 1 : 0;
-    var idate = $('#idate').val();
-    var invoiceNo = $('#invoice_no').val();
-    var firstName = $('#first_name').val();
-    var lastName = $('#last_name').val();
-    var contact = $('#contact').val();
-    var patientType = $('#type').val();
+    function loadRecordToTable() 
+    {
+        var center = $('#labbranch').val();
+        var withOtherBranches = $('#with_other_branches').is(':checked') ? 1 : 0;
+        var dueBillsOnly = $('#due_bills_only').is(':checked') ? 1 : 0;
+        var byDate = $('#by_date').is(':checked') ? 1 : 0;
+        var idate = $('#idate').val();
+        var invoiceNo = $('#invoice_no').val();
+        var firstName = $('#first_name').val();
+        var lastName = $('#last_name').val();
+        var contact = $('#contact').val();
+        var patientType = $('#type').val();
 
-    $.ajax({
-        type: "GET",
-        url: "getAllInvoices",
-        data: {
-            center: center,
-            withOtherBranches: withOtherBranches,
-            dueBillsOnly: dueBillsOnly,
-            byDate: byDate,
-            idate: idate, 
-            invoiceNo: invoiceNo,
-            firstName: firstName,
-            lastName: lastName,
-            contact: contact,
-            patientType: patientType
-        },
-        success: function (tbl_records) {
-            $('#inv_record_tbl').html(tbl_records);
+        $.ajax({
+            type: "GET",
+            url: "getAllInvoices",
+            data: {
+                center: center,
+                withOtherBranches: withOtherBranches,
+                dueBillsOnly: dueBillsOnly,
+                byDate: byDate,
+                idate: idate, 
+                invoiceNo: invoiceNo,
+                firstName: firstName,
+                lastName: lastName,
+                contact: contact,
+                patientType: patientType
+            },
+            success: function (tbl_records) {
+                $('#inv_record_tbl').html(tbl_records);
+              
+            },
+            error: function (xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
+                console.error('Error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+            }
+        });
+    }
 
-            let rowCount = 0;
-            let totalAmount = 0;
-            let totalPaid = 0;
-            let totalDue = 0;
-            let totalExpenses = 0;
 
-            
-            $('#inv_record_tbl tr').each(function () {
-                rowCount++;
-                const cols = $(this).find('td');
 
-                const amount = parseFloat($(cols[4]).text().replace(/,/g, '')) || 0;
-                const paid = parseFloat($(cols[5]).text().replace(/,/g, '')) || 0;
-                const due = parseFloat($(cols[6]).text().replace(/,/g, '')) || 0;
-
-                totalAmount += amount;
-                totalPaid += paid;
-                totalDue += due;
-            });
-
-            const cashierBalance = totalAmount - totalDue - totalExpenses;
-
-            $('#lblTotalBillCount').text(rowCount);
-            $('#lblTotalAmount').text(formatCurrency(totalAmount));
-            $('#lblTotalExpenses').text(formatCurrency(totalExpenses));
-            $('#lblTotalPaid').text(formatCurrency(totalPaid));
-            $('#lblTotalDue').text(formatCurrency(totalDue));
-            $('#lblCashierBalance').text(formatCurrency(cashierBalance));
-        },
-        error: function (xhr, status, error) {
-            alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
-            console.error('Error details:', {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                responseText: xhr.responseText,
-                error: error
-            });
-        }
-    });
-}
-
-function sampleRecordToTableClear() {
+    function sampleRecordToTableClear() {
     $('#sample_record_tbl').html(''); 
-}
+    }
+
     //*************************************************************************************************
-function viewSelectedInvoice() {
+
+
+function viewSelectedInvoice() 
+    {
         var selectedRow = $('#invdataTable tbody tr.selected');
         if (selectedRow.length === 0) {
             alert("Please select a row to view.");
@@ -164,15 +145,11 @@ function viewSelectedInvoice() {
     //*************************************************************************************************
     function cancelInvoice() {
 
+        
         var selectedRow = $('#invdataTable tbody tr.selected');
-        if (selectedRow.length === 0) {
-            alert("Please select a row to cancel.");
-            return;
-        }
-
         var sampleNo = selectedRow.find('td:eq(0)').text(); 
         var lpsId = selectedRow.data('lpsid'); 
-
+        
         if (!confirm("Are you sure you want to cancel invoice for Sample No: " + sampleNo + "?")) {
             return;
         }
@@ -196,8 +173,76 @@ function viewSelectedInvoice() {
  
     }
 
+    function selectToDelete(){
+
+        var selectedRow = $('#invdataTable tbody tr.selected');
+        if (selectedRow.length === 0) {
+            alert("Please select a row to cancel.");
+            return;
+        }
+        openModal();
+    }
+
+  
+    $(document).ready(function() 
+    {
+   
+        var today = new Date().toISOString().split('T')[0];
+        $('#idate').val(today);
+        fetchCashierBalanceData('%', today);
+
+        $('#labuser, #idate').change(function() {
+            var selectedCashier = $('#labuser').val();
+            var selectedDate = $('#idate').val();
+            fetchCashierBalanceData(selectedCashier, selectedDate);
+        });
+    });
+
+// Fetch cashier balance data based on selected cashier and date
+    function fetchCashierBalanceData() {
+        var cashierId = $('#labuser').val();
+        var date = $('#idate').val();
+
+        $.ajax({
+            url: 'getCashierInvoiceSummary',
+            type: 'GET',
+            data: { 
+                cashier_id: cashierId,
+                date: date
+               
+            },
+            success: function(data) {
+
+            
+                $('#lblTotalBillCount').text(data.totalBillCount || 0);
+                $('#lblTotalAmount').text(data.totalAmount || '0.00');
+                $('#lblTotalExpenses').text(data.totalExpenses || '0.00');
+                $('#lblTotalPaid').text(data.totalPaid || '0.00');
+                $('#lblTotalDue').text(data.totalDue || '0.00');
+                $('#lblCashierBalance').text(data.cashierBalance || '0.00');
+            },
+
+           
+            error: function() {
+                alert('Error fetching cashier balance data');
+            }
+        });
+    }
+
+
+
 
     //*************************************************************************************************
+
+    function openModal() {
+        document.getElementById("cancelModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("cancelModal").style.display = "none";
+    }
+
+
     //*************************************************************************************************
     //*************************************************************************************************
     //*************************************************************************************************
@@ -395,9 +440,7 @@ function viewSelectedInvoice() {
                             FROM user a
                             INNER JOIN labUser b ON a.uid = b.user_uid
                             INNER JOIN Lab_labUser c ON b.luid = c.labUser_luid
-                            INNER JOIN gender d ON a.gender_idgender = d.idgender
-                            INNER JOIN country e ON b.country_idcountry = e.idcountry
-                            INNER JOIN loginDetails f ON a.loginDetails_idlogindetails = f.idlogindetails
+
                             WHERE c.lab_lid = '" . $_SESSION['lid'] . "' ORDER BY a.fname ASC";
                         
                         $Result = DB::select($query);
@@ -406,7 +449,7 @@ function viewSelectedInvoice() {
                             $uid = $res->uid;
                             $fullName = $res->fname . ' ' . $res->lname;
                             $displayText = $uid . " : " . $fullName;
-                            echo "<option value='{$uid}'>{$displayText}</option>";
+                            echo "<option value='{$fullName}'>{$displayText}</option>";
                         }
                         ?>
                     </select>
@@ -445,8 +488,36 @@ function viewSelectedInvoice() {
                     <input type="button" style="flex: 0 0 80px;width: 175px; height: 50px;" class="btn" id="ser_btn" value="View Selected Invoice" onclick="viewSelectedInvoice()">
                   </div>
                   <div id="button-container">
-                    <input type="button" style="flex: 0 0 80px; width: 175px; height: 50px; color: red" class="btn" id="ser_btn" value="Cancel Invoice" onclick="cancelInvoice()">
+                    <input type="button" style="flex: 0 0 80px; width: 175px; height: 50px; color: red" class="btn" id="ser_btn" value="Cancel Invoice" onclick="selectToDelete()">
                   </div>
+            </div>
+
+            <div id="cancelModal" style="display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; 
+                        background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+                <div style="background-color: #fff; padding: 20px; border-radius: 12px; width: 350px; text-align: center; 
+                            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);">
+                    <h3 style="margin-bottom: 20px; color: #333;">Cancel Invoice</h3>
+
+                    <label for="remark" style="font-weight: bold; color: #555;">Remark:</label><br>
+                    <input type="text" id="delete_remark" 
+                        style="width: 90%; padding: 8px; margin: 8px 0 15px 0; border-radius: 5px; 
+                                border: 1px solid #ccc;"><br>
+
+                    <label for="delete_password" style="font-weight: bold; color: #555;">Password:</label><br>
+                    <input type="password" id="delete_password" autocomplete="new-password" 
+                        style="width: 90%; padding: 8px; margin: 8px 0 15px 0; border-radius: 5px; 
+                                border: 1px solid #ccc;"><br>
+
+                    <!-- Button Container -->
+                    <div style="display: flex; justify-content: space-around;">
+                        <button onclick="cancelInvoice()" 
+                                style="background-color: red; color: white; padding: 8px 20px; 
+                                    border: none; border-radius: 5px; cursor: pointer;">Delete</button>
+                        <button onclick="closeModal()" 
+                                style="background-color: gray; color: white; padding: 8px 20px; 
+                                    border: none; border-radius: 5px; cursor: pointer;">Close</button>
+                    </div>
+                </div>
             </div>
   
         </div>
