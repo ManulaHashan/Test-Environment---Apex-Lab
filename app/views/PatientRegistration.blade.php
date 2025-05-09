@@ -872,6 +872,8 @@ document.addEventListener("DOMContentLoaded", function ()
 
 // ******************Bill search Function************************************
 
+   
+
     function view_search_patient()
     {
         var searchDate = $('#ser_date').val();
@@ -892,8 +894,7 @@ document.addEventListener("DOMContentLoaded", function ()
                     const lpsRecords = response.data.lpsRecords;
                     const firstRecord = lpsRecords[0] || {};
                     // Populate patient fields
-                    $('#sampleNo').val(invoiceData.sampleNo || ''); 
-                    $('#initial').val(patientData.initials || ''); 
+                    $('#initial').val(patientData.initials || ''); // Use empty string if null
                     $('#fname').val(patientData.fname || '');
                     $('#lname').val(patientData.lname || '');
                     $('#dob').val(patientData.dob || '');
@@ -904,6 +905,7 @@ document.addEventListener("DOMContentLoaded", function ()
                     $('#months').val(patientData.months || '');
                     $('#days').val(patientData.days || '');
                     $('#Ser_tpno').val(patientData.tpno || '');
+                    $('#invoiceId').val(invoiceData.iid || '');
 
 
                     $('#refDropdown').val(firstRecord.ref_id || '');  
@@ -935,9 +937,9 @@ document.addEventListener("DOMContentLoaded", function ()
                         } else if(invoiceData.paymentmethod == 'card') {
                             paymeth = "2"; 
                         } else if(invoiceData.paymentmethod == 'voucher') {
-                            paymeth = "5"; 
-                        } else if(invoiceData.paymentmethod == 'split') {
                             paymeth = "6"; 
+                        } else if(invoiceData.paymentmethod == 'split') {
+                            paymeth = "5"; 
                         } else if(invoiceData.paymentmethod == 'credit') {
                             paymeth = "credit"; 
                         } else if(invoiceData.paymentmethod == 'cheque') {
@@ -1349,21 +1351,21 @@ document.addEventListener("DOMContentLoaded", function ()
 
     //When Payment method split and voucher payment feild disable function
     function togglePaidField() {
-    const paidField = document.getElementById('paid');
-    const voucherSelected = document.getElementById('voucher').checked;
-    const splitSelected = document.getElementById('split').checked;
-    const cashSelected = document.getElementById('cash').checked;
-    const chequeSelected = document.getElementById('cheque').checked;
-    const creditSelected = document.getElementById('credit').checked;
-    const cardSelected = document.getElementById('card').checked;
-   
+        const paidField = document.getElementById('paid');
+        const voucherSelected = document.getElementById('voucher').checked;
+        const splitSelected = document.getElementById('split').checked;
+        const cashSelected = document.getElementById('cash').checked;
+        const chequeSelected = document.getElementById('cheque').checked;
+        const creditSelected = document.getElementById('credit').checked;
+        const cardSelected = document.getElementById('card').checked;
+    
 
-    if (voucherSelected || splitSelected) {
-        paidField.readOnly = true;
-        paidField.value = '';
-    } else if  (cashSelected || chequeSelected || creditSelected || cardSelected){
-        paidField.readOnly = false;
-    }
+        if (voucherSelected || splitSelected) {
+            paidField.readOnly = true;
+            paidField.value = '';
+        } else if  (cashSelected || chequeSelected || creditSelected || cardSelected){
+            paidField.readOnly = false;
+        }
 }
 
 
@@ -1372,18 +1374,43 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function viewSelectedInvoicePayments() 
-    {
-     
-
-        var invoiceId = $('#invoiceId').val();
-        var due = $('#due').val(); 
+function viewSelectedInvoicePayments() {
+    var invoiceId = $('#invoiceId').val();
+    var due = $('#due').val(); 
 
 
-        window.open("invoicePayments?iid=" + invoiceId+ "&due=" + $('#due').val(), "_blank");
-        
+    window.open("invoicePayments?iid=" + invoiceId+ "&due=" + $('#due').val(), "_blank");
+    
       
-    }
+}
+
+
+// Function to open the modal
+function openModal() {
+  document.getElementById("myModal").style.display = "block";
+}
+
+// Function to close the modal
+function closeModal() {
+  document.getElementById("myModal").style.display = "none";
+}
+
+// Close the modal if the user clicks outside of it
+window.onclick = function(event) {
+  if (event.target == document.getElementById("myModal")) {
+    closeModal();
+  }
+}
+
+// Save payment function (example placeholder)
+function savePayment() {
+  alert('Payment saved!');
+}
+
+
+// *-*-*-*-*-*-*-*-*-*-*PAYMENT UPDATE PROCESS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+
 
 </script>
 
@@ -1484,6 +1511,43 @@ function viewSelectedInvoicePayments()
     margin-left: 150px;
     
     
+    }
+
+
+    /* Modal styles */
+    .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+    }
+
+    .modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    }
+
+    .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
     }
 </style>
 
@@ -1905,6 +1969,116 @@ function viewSelectedInvoicePayments()
                 </div>
 
 
+
+                <!-- Button to open the modal -->
+                    <input type="button" style="color:black; width: 210px; height: 50px;" 
+                    onclick="openModal()" class="btn" id="update_payment" value="Open Modal">
+
+                    <!-- The Modal -->
+                    <div id="myModal" class="modal">
+                    <!-- Modal content -->
+                    <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h1>Invoice Payments</h1>
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="inv_id" style="font-size: 14px; min-width: 90px;"><b>Inv ID:</b></label>
+                    <label id="inv_id" style="font-size: 18px; width: 190px;"></label>
+
+                    <label for="inv_pname" style="font-size: 14px; min-width: 90px;">Name:</label>
+                    <label id="pname" style="font-size: 18px;width: 290px;"></label>
+
+                    <label for="inv_total" style="font-size: 14px; min-width: 90px;"><b>Total Rs:</b></label>
+                    <label id="inv_total" style="font-size: 18px;width: 90px;"></label>
+
+                    <label for="inv_paid" style="font-size: 14px; min-width: 160px;"><b>Total Paid Rs:</b></label>
+                    <label id="inv_paid" style="font-size: 18px; width: 90px;"></label>
+
+                    <label for="inv_days" style="font-size: 14px; min-width: 90px;"><b>Days:</b></label>
+                    <label id="inv_days" style="font-size: 18px;width: 90px;"></label>
+                    </div>
+                    <div class="pageTableScope" style="display: flex; height: 350px; margin-top: 10px; width: 100%;">
+                    <!-- Left Side: Table -->
+                    <div style="flex: 0 0 30%; padding-left: 10px;">
+                    <!-- Date -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="inv_date" style="font-size: 14px; min-width: 90px;"><b>By Date:</b></label>
+                    <input type="date" name="inv_date" id="inv_date" class="input-text" style="width: 180px; height: 30px; font-size: 14px;">
+                    </div>
+                    <!-- Payment Method -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="Payment_method" style="font-size: 14px; min-width: 90px;"><b>Method:</b></label>
+                    <select name="Payment_method" id="Payment_method" class="input-text" style="width: 200px; height: 30px; font-size: 14px;">
+                        <!-- PHP loop to load payment methods -->
+                        <?php
+                        $Result = DB::select("SELECT idpaymethod, name FROM paymethod");
+                        foreach ($Result as $res) {
+                            $paymentName = $res->name;
+                            $paymentId = $res->idpaymethod;
+                            $displayText = $paymentId . " : " . $paymentName;
+                        ?>
+                            <option value="<?= $paymentId ?>" <?= $paymentId == 1 ? 'selected' : '' ?>> <!-- Use only the payment ID -->
+                                <?= $displayText ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                    </div>
+                    <!-- Tender -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="tender" style="font-size: 14px; min-width: 90px;"><b>Tender Rs:</b></label>
+                    <input type="text" name="tender" id="tender" class="input-text" style="width: 180px; height: 30px; font-size: 14px;">
+                    </div>
+                    <!-- Paid Amount -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="paid_amount" style="font-size: 14px; min-width: 90px;"><b>Paid Rs:</b></label>
+                    <input type="text" name="paid_amount" id="paid_amount" class="input-text" readonly style="width: 180px; height: 30px; font-size: 14px;">
+                    </div>
+                    <!-- Due Amount -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="due_amount" style="font-size: 14px; min-width: 90px; color: red;"><b>Due Rs:</b></label>
+                    <label id="due_amount" style="font-size: 18px;color: red;"></label>
+                    </div>
+                    <!-- Cheque No -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="cheque_amount" style="font-size: 14px; min-width: 90px;"><b>Cheque No:</b></label>
+                    <input type="text" name="cheque_amount" id="cheque_amount" class="input-text" style="width: 180px; height: 30px; font-size: 14px;">
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:green" class="btn" id="ser_btn" value="Save" onclick="savePayment()">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:rgb(23, 43, 179)" class="btn" id="ser_btn" value="Print Bill">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:red" class="btn" id="ser_btn" value="Delete">
+                    </div>
+                    </div>
+
+                    <!-- Right Side: Additional Content -->
+                    <div style="flex: 1; padding-right: 10px;">
+                    <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="inv_paymet_record_tbl" width="100%" border="0" cellspacing="2" cellpadding="0">
+                    <tbody>
+                        <tr>
+                        <td valign="top">
+                            <table border="1" style="border-color: #ffffff;" cellpadding="0" cellspacing="0" class="TableWithBorder" width="100%">
+                            <thead>
+                                <tr class="viewTHead">
+                                <td width="15%" class="fieldText" align="center">ID</td>
+                                <td width="15%" class="fieldText" align="center">Date</td>
+                                <td width="15%" class="fieldText" align="center">Method</td>
+                                <td width="15%" class="fieldText" align="center">Amount Rs</td>
+                                <td width="15%" class="fieldText" align="center">Cheque No</td>
+                                <td width="25%" class="fieldText" align="center">User</td>
+                                <td width="25%" class="fieldText" align="center">Action</td>
+                                </tr>
+                            </thead>
+                            <tbody id="inv_record_tbl">
+                                <!-- Dynamic content goes here -->
+                            </tbody>
+                            </table>
+                        </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                    </div>
+                    </div>
+                    </div>
+                    </div>
                 
             </div>
         </div>
