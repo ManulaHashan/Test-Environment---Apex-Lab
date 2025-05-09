@@ -75,6 +75,7 @@ Add New Patient
                     $('#months').val(patientData.months || '');
                     $('#days').val(patientData.days || '');
                     $('#Ser_tpno').val(patientData.tpno || '');
+                    $('#invoiceId').val(invoiceData.iid || '');
 
 
                     $('#refDropdown').val(firstRecord.ref_id || '');  
@@ -1370,6 +1371,20 @@ document.addEventListener('DOMContentLoaded', function() {
     togglePaidField();
 });
 
+
+function viewSelectedInvoicePayments() 
+    {
+     
+
+        var invoiceId = $('#invoiceId').val();
+        var due = $('#due').val(); 
+
+
+        window.open("invoicePayments?iid=" + invoiceId+ "&due=" + $('#due').val(), "_blank");
+        
+      
+    }
+
 </script>
 
 
@@ -1533,13 +1548,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="display: flex; align-items: center;">
                     <label style="width: 89px;font-size: 18px; ">Search</label>
                     <input type="text" name="ser_pdetails" class="input-text" id="ser_pdetails" style="width: 210px">
-                    <label style="width: 200px;font-size: 18px;"></label>
+
+                    <input type="text" name="invoiceId" class="input-text" id="invoiceId" style="width: 210px">
+
                     <!-- <label style="width: 50px;font-size: 18px;">Type</label>
                     <select type="text" name="type" class="input-text" id="type" style="width: 80px; height: 30px">
                         <option value="1">In</option>
                         <option value="2">Out</option>
                     </select> -->
-                    <label style="width: 105px;font-size: 18px;"></label>
+
                     <label style="width: 80px;font-size: 16px;  "><b>Source</b></label>
                     <select type="text" name="source" class="input-text" id="source" style="width: 135px; height: 30px">
                         <option value="1">Walking</option>
@@ -1776,7 +1793,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
                             <input type="button" style="color:black; width: 180px; height: 50px;" class="btn" id="cashDrower" value="Cash Drawer">
-                            <input type="button" style="color:black; width: 210px; height: 50px;" class="btn" id="update_payment" value="Update Payment">
+                            <input type="button" style="color:black; width: 210px; height: 50px;" onclick="viewSelectedInvoicePayments()" class="btn" id="update_payment" value="Update Payment">
                         </div>
 
 
@@ -1886,6 +1903,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
 
                 </div>
+
+
+                
             </div>
         </div>
     </div>

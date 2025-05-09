@@ -300,6 +300,10 @@ function viewSelectedInvoice()
         background-color: #a5d6a7 !important; /* green for selected row */
     }
 
+    .input-text::placeholder {
+        color: #ffffff; 
+        opacity: 2; 
+    }
     
 
 </style>
@@ -420,6 +424,12 @@ function viewSelectedInvoice()
                         </tr>
                     </tbody>
                 </table>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" name="Pending" class="input-text" id="Pending" style="width: 90px; background-color: #f39c12; color: rgb(255, 255, 255); text-align: center; border: none; border-radius: 5px;" placeholder="Pending">
+                    <input type="text" name="Accept" class="input-text" id="Done" style="width: 90px; background-color: #3498db; color: white; text-align: center; border: none; border-radius: 5px;" placeholder="Accept">
+                    <input type="text" name="Done" class="input-text" id="Accept" style="width: 90px; background-color: #27ae60; color: white; text-align: center; border: none; border-radius: 5px;" placeholder="Done">
+                </div>
+                
             </div>
         </div>
 
