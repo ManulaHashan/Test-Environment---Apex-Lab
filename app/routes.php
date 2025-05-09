@@ -314,7 +314,7 @@ Route::get('getCashierInvoiceSummary', 'ViewInvoiceController@getCashierBalanceD
 Route::get('/invoicePayments', function() {
     return View::make('invoicePayment');
 });
-// Route::get('getAllpayments', 'invoicePaymentController@getAllPayments');
+
 
 Route::get('getAllpayments', 'invoicePaymentController@getAllPayments');
 Route::get('getInvoicePatientDetails', 'invoicePaymentController@loadInvoicePatientDetails');

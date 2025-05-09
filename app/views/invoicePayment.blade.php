@@ -104,6 +104,7 @@ $(document).on('click', '.delete-btn', function () {
         success: function (response) {
             alert(response.message);
             loadRecordToInvPaymentTable();
+            loadInvoicePatientDetails();
         },
         error: function (xhr) {
             alert('Error deleting payment: ' + xhr.responseText);
@@ -324,7 +325,7 @@ function setupTenderAmountListener() {
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:green" class="btn" id="ser_btn" value="Save" onclick="savePayment()">
                     <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:rgb(23, 43, 179)" class="btn" id="ser_btn" value="Print Bill">
-                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:red" class="btn" id="ser_btn" value="Delete">
+                   
                 </div>
               
               </div>

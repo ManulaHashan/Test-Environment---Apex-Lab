@@ -181,6 +181,9 @@ class invoicePaymentController extends Controller
         $totp = Input::get('totp');
         $userUid = $_SESSION['uid'];  // Get the user UID from session
 
+        if (empty($invoiceId) || empty($date) || empty($amount) || empty($type)) {
+            return Response::json(['status' => 'error', 'message' => 'All fields are required.']);
+        }
         // Insert new payment record
         DB::table('invoice_payments')->insert([
             'invoice_iid' => $invoiceId,
