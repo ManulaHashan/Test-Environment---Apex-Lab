@@ -221,6 +221,15 @@ Add New Patient
                     });
 
 
+                    if(sampleNo == "") {
+                        $("#savebtn").attr("disabled", false); 
+                        $("#fname").attr("disabled", false); 
+                    }else{
+                      $("#savebtn").attr("disabled", true);
+                      $("#fname").attr("readonly", true);
+                    }
+
+
 
                 
                 } else {
