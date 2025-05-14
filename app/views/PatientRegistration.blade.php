@@ -61,9 +61,13 @@ Add New Patient
                     const patientData = response.data.patient;
                     const testData = response.data.tests;
                     const invoiceData = response.data.invoice;
+                    const invoicePayments = response.data.invoicePayments;
                     const lpsRecords = response.data.lpsRecords;
                     const firstRecord = lpsRecords[0] || {};
-                    // Populate patient fields
+
+                  
+
+                                // Populate patient fields
                     $('#initial').val(patientData.initials || ''); // Use empty string if null
                     $('#fname').val(patientData.fname || '');
                     $('#lname').val(patientData.lname || '');
@@ -78,6 +82,36 @@ Add New Patient
                     $('#invoiceId').val(invoiceData.iid || '');
 
 
+                    invoicePayments.forEach(function(payment) {
+
+                         document.getElementById("vaucher_div").style.display = "none";
+                         document.getElementById("split_div").style.display = "none";
+
+                    
+                        if (payment.paymethod == '1') {
+                            $('#split_cash_amount').val(payment.amount || '');
+                        } else if (payment.paymethod == '2') {
+                            $('#split_card_amount').val(payment.amount || '');
+                        }
+                        
+                        if(payment.paymentmethod == 'split') {    
+                            document.getElementById("split_div").style.display = "flex";
+                        }else if(payment.paymentmethod == 'voucher') {
+                            document.getElementById("vaucher_div").style.display = "flex";
+                        } else {
+                            document.getElementById("vaucher_div").style.display = "none";
+                            document.getElementById("split_div").style.display = "none";
+                        }
+                        
+                    });
+
+
+                    // $('#split_cash_amount').val(invoicePayments.amount || '');
+                    // $('#split_card_amount').val(invoicePayments.amount || '');
+
+
+
+
                     $('#refDropdown').val(firstRecord.ref_id || '');  
                     $('#refDropdown option').filter(function() {
                         return $(this).text().trim() === firstRecord.refby;
@@ -86,7 +120,7 @@ Add New Patient
 
                     $('#refcode').val(firstRecord.code || '');
                     $('#inv_remark').val(firstRecord.specialnote || '');
-
+                    
 
                 // Set the discount dropdown value
                     if (invoiceData && invoiceData.did && invoiceData.value) {
@@ -426,42 +460,7 @@ Add New Patient
 
     //*************************************************************************************************
     // Apply discount
-    // function applyDiscount() 
-    // {
-
-    //     var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
-    //     var totalAmount = parseFloat(totalAmountText) || 0;        
-    //     var discountData = $('#discount_percentage').val().split(":");
-    //     var discountPercentage = parseFloat(discountData[1]) || 0;  
-    //     var manualDiscount = parseFloat($('#discount').val()) || 0;
-
-
-    //     let discountAmount = 0;
-
-    //     if (discountPercentage > 0) {
-    //         discountAmount = (totalAmount * discountPercentage) / 100;
-    //         $('#discount').val(discountAmount.toFixed(2)); 
-    //     } else if (manualDiscount > 0) {
-        
-    //         discountAmount = manualDiscount;
-    //         $('#discount_percentage').val('');
-    //     }
-
-    
-    //     if (discountAmount > totalAmount) {
-    //         alert("Discount cannot exceed total amount!");
-    //         discountAmount = 0;
-    //         $('#discount, #discount_percentage').val('');
-    //     }
-
-
-    //     var grandTotal = totalAmount - discountAmount;
-
-    
-    //     $('#grand_total').text(grandTotal.toFixed(2));
-    //     $('#paid').val('');
-    //     $('#due').text(grandTotal.toFixed(2));
-    // }
+ 
 
     function applyDiscount() {
         var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
@@ -1038,37 +1037,7 @@ document.addEventListener("DOMContentLoaded", function ()
         window.location.href = '/patientRegistration';
     }
 
-    // function resetForm() {
-    //     $('#type').val('');
-    //     $('#source').val('');
-    //     $('#tpno').val('');
-    //     $('#initial').val('');
-    //     $('#fname').val('');
-    //     $('#lname').val('');
-    //     $('#dob').val('');
-    //     $('#years').val('');
-    //     $('#months').val('');
-    //     $('#days').val('');
-    //     $('#nic').val('');
-    //     $('#address').val('');
-    //     $('#refcode').val('');
-    //     $('#refDropdown').val('');
-    //     $('#testname').val('');
-    //     $('#pkgname').val('');
-    //     $('#Ser_tpno').val('');
-    //     $('#fast_time').val('');
-    //     $('#total_amount').text('0.00');
-    //     $('#discount').val('0.00');
-    //     $('#discount_percentage').val('0');
-    //     $('#grand_total').text('0.00');
-    //     // $('input[name="payment_method"]:checked').prop('checked', false);
-    //     $('#paid').val('0.00');
-    //     $('#due').text('0.00');
-    //     itemListTestData = [];
-    //     $('#Branch_record_tbl').empty();
-    //     $('#Branch_record_tbl tbody').empty();
-    //     loadcurrentSampleNo();
-    // }
+
     //*************************************************************************************************
 
     //   ***********#######TP Search########*************
@@ -1267,11 +1236,6 @@ document.addEventListener("DOMContentLoaded", function ()
 
 
 
-
-
-
-
-
     //*************************************************************************************************
     //*************************************************************************************************
     //*************************************************************************************************
@@ -1337,16 +1301,14 @@ document.addEventListener("DOMContentLoaded", function ()
         });
     });
 
+    
+
     function goToViewInvoice() 
     {
         window.location.href = '/viewinvoices';
     }
 
-    // document.getElementById('refDropdown').addEventListener('change', function () {
-    //     var selectedOption = this.options[this.selectedIndex];
-    //     var refCode = selectedOption.getAttribute('data-code') || '';
-    //     document.getElementById('refcode').value = refCode;
-    // });
+  
 
 
     //When Payment method split and voucher payment feild disable function

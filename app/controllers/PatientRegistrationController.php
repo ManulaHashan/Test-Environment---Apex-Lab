@@ -555,6 +555,27 @@ class PatientRegistrationController extends Controller
             return Response::json(['success' => false, 'message' => 'Sample not found']);
         }
         
+
+             // Collect invoice payments for all lps records
+                $invoicePayments = [];
+                foreach ($lpsRecords as $record) {
+                    $payments = DB::table('lps as a')
+                        ->join('invoice as b', 'a.lpsid', '=', 'b.lps_lpsid')
+                        ->join('invoice_payments as c', 'b.iid', '=', 'c.invoice_iid')
+                        ->where('a.lpsid', $record->lpsid)
+                        ->select(
+                            'c.ipid',
+                            'c.amount',
+                            'c.paymethod',
+                            'c.invoice_iid',
+                            'b.paymentmethod'
+                        )
+                        ->get();
+
+                    foreach ($payments as $payment) {
+                            $invoicePayments[] = $payment;
+                        }
+                }
         // Use the first lps record to get patient info
         $firstLps = $lpsRecords[0];
         $patientId = $firstLps->patient_pid;
@@ -633,7 +654,9 @@ class PatientRegistrationController extends Controller
                 'patient' => $patientData,
                 'tests'   => $testData,
                 'invoice' => $invoiceData,
-                'lpsRecords' => $lpsRecords
+                'lpsRecords' => $lpsRecords,
+                'invoicePayments' => $invoicePayments
+                
             ]
         ]);
     }

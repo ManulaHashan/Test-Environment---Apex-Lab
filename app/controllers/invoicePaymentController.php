@@ -144,12 +144,12 @@ class invoicePaymentController extends Controller
             try {
                 // Delete the payment record
                 DB::table('invoice_payments')->where('ipid', $ipid)->delete();
-    
+                $status = 'Pending Due';
                 // Update the invoice's paid amount
                 DB::table('invoice')
                     ->where('iid', $paymentDetails->invoice_id)
-                    ->update(['paid' => $newPaidAmount]);
-    
+                    ->update(['paid' => $newPaidAmount,
+                              'status' => $status]);
                 DB::commit();
     
                 return Response::json([
@@ -177,8 +177,7 @@ class invoicePaymentController extends Controller
         $amount = Input::get('amount');
         $cno = Input::get('cno');
         $type = explode(':', Input::get('type'))[0];
-        $totAmount = Input::get('totAmount');
-        $totp = Input::get('totp');
+        
         $userUid = $_SESSION['uid'];  // Get the user UID from session
 
         if (empty($invoiceId) || empty($date) || empty($amount) || empty($type) ||$amount <= 0) {
@@ -194,9 +193,21 @@ class invoicePaymentController extends Controller
             'paymethod' => $type
         ]);
 
+        $totAmount = 0;
+        $totp = 0;
+        $paymentDetails_invoice_Table = DB::table('invoice')
+            ->where('iid', $invoiceId)
+            ->select('gtotal', 'paid')
+            ->first();
+
+        $totAmount = $paymentDetails_invoice_Table->gtotal;
+        $totp = $paymentDetails_invoice_Table->paid;
+
+            
         // Calculate the new payment status
         $status = 'Pending Due';
-        if (doubleval($totAmount) == doubleval($totp) + doubleval($amount)) {
+        $calamt = floatval($totp) + floatval($amount); // Convert string to float and add $amount;
+        if ($calamt >= floatval($totAmount)) {
             $status = 'Payment Done';
         }
 
