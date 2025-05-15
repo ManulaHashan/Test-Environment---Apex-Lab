@@ -699,14 +699,18 @@ Add Patient
 
                         <?php
                         $date = date('Y-m-d');
+                        $fromat = date('ymd');
                         $sampleResult = DB::select("SELECT MAX(CONVERT(sampleNo, SIGNED INTEGER)) as csno FROM lps where Lab_lid = '" . $_SESSION['lid'] . "' and date='" . $date . "'");
                         foreach ($sampleResult as $result) {
                             $sampleNo = $result->csno;
                             if ($sampleNo == '0' | $sampleNo == '' | $sampleNo == 'null') {
-                                $sampleNo = 1;
+                                $sampleNo =  $fromat."01";
                             } else {
                                 $currentNo = preg_replace("/[^0-9]/", "", $sampleNo);
-                                $sampleNo = $currentNo + 1;
+
+
+
+                                $sampleNo = $currentNo;
                             }
                         }
                         ?>

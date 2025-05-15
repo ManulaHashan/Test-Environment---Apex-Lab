@@ -1379,6 +1379,28 @@ function savePayment() {
 }
 
 
+//Print Invoice Section
+function printInvoice(){
+    
+    var date = $('#ser_date').val();
+    var sno = $('#sampleNo').val();
+   
+    
+    var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
+                    
+    setTimeout(function () {
+        win.print();
+    }, 5000);
+                    
+
+    setTimeout(function () {
+        win.close();
+    }, 8000);
+                
+    
+}
+
+
 // *-*-*-*-*-*-*-*-*-*-*PAYMENT UPDATE PROCESS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 
@@ -1933,7 +1955,7 @@ function savePayment() {
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 50px;font-size: 16px;  "></label>
                         <input type="button" style="color:gray; width: 210px; height: 50px" class="btn" id="resetbtn" value="Reset" onclick="resetPage()">
-                        <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="">
+                        <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="printInvoice()">
                         <input type="button" style="color:rgb(10, 113, 158); width: 210px; height: 50px" class="btn" id="view_invoicebtn" value="View Invoice" onclick="goToViewInvoice()">
                     </div>
 

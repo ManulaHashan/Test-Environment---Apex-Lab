@@ -766,3 +766,16 @@ Route::get('/clear-cache', function() {
     $exitCode = Artisan::call('cache:clear');
     echo "Cache Cleared!";
 }); 
+
+
+//Print Invoice Route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/printinvoice/{id}', function($id) {
+
+    $arr = explode("&", $id);
+
+    $lid = $_SESSION["lid"];
+    
+    
+    return View::make('Invoices.Inv' . $lid)->with('sno', $arr[0])->with('date', $arr[1]);
+});
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

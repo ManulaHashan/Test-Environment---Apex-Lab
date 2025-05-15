@@ -83,6 +83,7 @@ class ViewInvoiceController extends Controller{
             'u.lname',
             'i.status',
             'i.total',
+            'i.gtotal',
             'i.paid',
             'i.cashier'
         )->get();
@@ -91,13 +92,13 @@ class ViewInvoiceController extends Controller{
         if (count($records) > 0) {
             $output = '';
             foreach ($records as $row) {
-                $due = $row->total - $row->paid;
+                $due = $row->gtotal - $row->paid;
                 $output .= '<tr class="invoiceRow" data-lpsid="' . $row->lpsid . '" data-date="' . htmlspecialchars($row->date) . '">
                                 <td align="left">' . htmlspecialchars($row->sampleNo) . '</td>
                                 <td align="left">' . htmlspecialchars($row->fname) . '</td>
                                 <td align="left">' . htmlspecialchars($row->lname) . '</td>
                                 <td align="left">' . htmlspecialchars($row->status) . '</td>
-                                <td align="right">' . number_format($row->total, 2) . '</td>
+                                <td align="right">' . number_format($row->gtotal, 2) . '</td>
                                 <td align="right">' . number_format($row->paid, 2) . '</td>
                                 <td align="right">' . number_format($due, 2) . '</td>
                                 <td align="left">' . htmlspecialchars($row->cashier) . '</td> 
