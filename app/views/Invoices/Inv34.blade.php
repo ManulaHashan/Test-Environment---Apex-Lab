@@ -94,6 +94,7 @@ $result_get_invoiceData = DB::select("
     $did = "";
     $cashier ="";
     $due = 0;
+    $balance=0;
 // Accessing invoice data
 foreach ($result_get_invoiceData as $invoice){
    
@@ -109,6 +110,10 @@ foreach ($result_get_invoiceData as $invoice){
     $did = $invoice->did;
     $cashier = $invoice->cashier;
     $due = $gtotal-$paid;
+    $balance = $paid-$gtotal;
+    if ($balance >= $gtotal) {
+        $balance = 0; 
+    }
    
 }
 
@@ -122,65 +127,133 @@ foreach ($result_get_invoiceData as $invoice){
     <title>Patient Receipt</title>
 </head>
 <body>
-    <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: Arial, sans-serif; font-size: 14px;">
+    <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: Arial, sans-serif; ">
         <tr>
-            <td colspan="2" style="text-align: center; font-weight: bold;"><?php echo $labname; ?></td>
+            <td colspan="2" style="text-align: center; font-weight: bold;font-size: 35px;"><?php echo $labname; ?></td>
         </tr>
         <tr>
-            <td colspan="2" style="text-align: center; font-weight: bold;"><?php echo $labaddress; ?><br>Tel: <?php echo $labtpno; ?><br>Web: <br>Email: <?php echo $labemail; ?></td>
+            <td colspan="2" style="text-align: center; "><?php echo $labaddress; ?><br>Tel: <?php echo $labtpno; ?><br>Web:www.synergy.com <br>Email: <?php echo $labemail; ?></td>
         </tr>
         <tr>
-            <td colspan="2" style="text-align: center; font-weight: bold;">PATIENT RECEIPT</td>
+            <td colspan="2" style="text-align: center;">
+                <div style="font-weight: bold; font-size: 28px; margin-top: 20px;">PATIENT RECEIPT</div>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding-top: 30px; font-size: 18px;">Date: <?php echo date('Y-m-d'); ?> Time: <?php echo date('H:i:s'); ?></td>
+            <td style="text-align: right; font-weight: bold; padding-top: 5px; font-size: 18px;">
+                <span style="color: #000; ">Reference NO</span>
+                 <div style="font-size: 30px; margin-top: 5px;"><?php echo $sno; ?></div>
+            </td>
+
+           
         </tr>
         <tr>
-            <td>Date: <?php echo date('Y-m-d'); ?> Time: <?php echo date('H:i:s'); ?></td>
-            <td style="text-align: right;">Reference NO: <?php echo $sno; ?></td>
+            
+            <td style="font-size: 18px;">Patient: <?php echo $initials.". ".$fname." ".$lname; ?></td>
+            
         </tr>
         <tr>
-            <td>Patient: <?php echo $initials.". ".$fname." ".$lname; ?></td>
-            <td style="text-align: right;">Age: <?php echo $age; ?> years Gender: <?php echo $gender_data; ?></td>
+            <td style="text-align: left;font-size: 18px;">
+                Age: <?php echo $age; ?> Years
+                <span style="margin-left: 20px;font-size: 18px;">Gender: <?php echo $gender_data; ?></span>
+            </td>
+
+          
         </tr>
         <tr>
-            <td colspan="2">Referred By: <?php echo $refby; ?></td>
+           
+            <td style="font-size: 18px;" colspan="2">Referred By: <?php echo $refby; ?></td>
         </tr>
+        <tr>
+        <td colspan="2" style="height: 20px;"></td>
+        </tr>
+        <tr>
+            <th style="text-align: left; padding: 5px;border-bottom: 2px solid #000;">Test Name</th>
+            <th style="text-align: right; padding: 5px; border-bottom: 2px solid #000;">Price</th>
+        </tr>
+       
+        
         <?php 
 
 
         foreach ($result_get_testgroup_details as $testgroup_details) 
         {?>
+
             <tr>
-                <td style="border: 1px solid #000; padding: 5px;"><?php echo $testgroup_details->name; ?></td>
-                <td style="border: 1px solid #000; padding: 5px; text-align: right;"><?php echo number_format($testgroup_details->price, 2); ?></td>
-            </tr><?php
+                <td style="padding: 5px; text-align: left;"><?php echo $testgroup_details->name; ?></td>
+                <td style="padding: 5px; text-align: right;"><?php echo number_format($testgroup_details->price, 2); ?></td>
+            </tr>
+            <?php
         }
         ?>
 
-  
+      
         <tr>
-            <td>Total Amount Rs.</td>
-            <td style="text-align: right;"><?php echo number_format($total, 2); ?></td>
+            <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; font-size: 22px;">Total Amount 
+                <span style="margin-left: 20px;font-size: 22px;"> Rs.</span>
+                <span style="margin-left: 20px;font-size: 22px;"><?php echo number_format($total, 2); ?></span>
+            </td>
+            <td style="border-top: 2px solid #000; text-align: right; padding-top: 20px;font-size: 22px;">
+                <span style="margin-right: 10px;font-size: 22px;">Payment </span>
+                <span style="margin-left: 5px;font-size: 22px;"></span> Rs.</span>
+                <?php echo number_format($total, 2); ?>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td style=" text-align: left; font-size: 22px;">Discount 
+                <span style="margin-left: 61px;font-size: 22px;">Rs.</span>
+                <span style="margin-left: 39px;font-size: 22px;"><?php echo number_format($discount, 2); ?></span>
+            </td>
+            <td style=" text-align: right;font-size: 22px; ">
+                <span style="margin-right: 22px;font-size: 22px;">Balance</span>
+                <span style="padding-right: 42px;font-size: 22px;">Rs.</span>
+                <?php echo number_format($balance, 2); ?>
+            </td>
         </tr>
         <tr>
-            <td>Discount Rs.</td>
-            <td style="text-align: right;"><?php echo number_format($discount, 2); ?></td>
+            <td style=" text-align: left; font-size: 22px;">Grand Total 
+                <span style="margin-left: 33px;font-size: 22px;">Rs.</span>
+                <span style="margin-left: 22px;font-size: 22px;"><?php echo number_format($gtotal, 2); ?></span>
+            </td>
+            <td style=" text-align: right;font-size: 22px; ">
+                <span style="margin-right: 61px;font-size: 22px;">Due</span>
+                <span style="padding-right: 42px;font-size: 22px;">Rs.</span>
+                <?php echo number_format($due, 2); ?>
+            </td>
+        </tr>
+
+           <tr>
+                <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; vertical-align: top;">
+                    Issued by: <span style="margin-left: 10px;"><?php echo $cashier; ?></span>
+                </td>
+                <td style="border-top: 2px solid #000; text-align: center; padding-top: 20px;">
+                    <!-- First Line: Method -->
+                    <div style="margin-bottom: 10px; text-align: right;">
+                        Method: <span style="margin-left: 10px;"><?php echo $paymentmethod; ?></span>
+                    </div>
+                    <!-- Second Line: Cashier -->
+                    <div style="display: inline-block; text-align: center;">
+                        <hr style="border: none; border-top: 1px dotted; width: 200px;">
+                        <em>Cashier</em>
+                    </div>
+                </td>
+                <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; vertical-align: top;">
+                    <!-- Empty cell to maintain the table structure -->
+                </td>
+        </tr>
+
+
+
+      
+        <tr>
+            <td colspan="2" style="text-align: center; font-weight: bold;padding-top: 20px;">PLEASE COLLECT YOUR REPORTS WITHIN ONE MONTH</td>
         </tr>
         <tr>
-            <td>Grand Total Rs.</td>
-            <td style="text-align: right;"><?php echo number_format($gtotal, 2); ?></td>
-        </tr>
-        <tr>
-            <td>Due</td>
-            <td style="text-align: right;"><?php echo number_format($due, 2); ?></td>
-        </tr>
-        <tr>
-            <td>Method: <?php echo $paymentmethod; ?></td>
-            <td>Issued by: <?php echo $cashier; ?></td>
-        </tr>
-        <tr>
-            <td colspan="2" style="text-align: center; font-weight: bold;">PLEASE COLLECT YOUR REPORTS WITHIN ONE MONTH</td>
-        </tr>
-        <tr>
-            <td colspan="2" style="text-align: center;">Software By Apex Software Solutions (PVT) LTD - www.apexsol.com</td>
+            <td colspan="2" style="text-align: left; font-size: 10px;">Software By Apex Software Solutions (PVT) LTD - www.apexsol.com</td>
         </tr>
     </table>
 </body>
