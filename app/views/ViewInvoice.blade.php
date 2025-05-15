@@ -425,9 +425,12 @@ function viewSelectedInvoice()
                     </tbody>
                 </table>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" name="Pending" class="input-text" id="Pending" style="width: 90px; background-color: #f39c12; color: rgb(255, 255, 255); text-align: center; border: none; border-radius: 5px;" placeholder="Pending">
-                    <input type="text" name="Accept" class="input-text" id="Done" style="width: 90px; background-color: #3498db; color: white; text-align: center; border: none; border-radius: 5px;" placeholder="Accept">
-                    <input type="text" name="Done" class="input-text" id="Accept" style="width: 90px; background-color: #27ae60; color: white; text-align: center; border: none; border-radius: 5px;" placeholder="Done">
+                   
+                   <label style="font-size: 16px; margin-left: 5px; width: 90px; background-color: #f5ad39; color: #fff; text-align: center; border: none; border-radius: 5px; display: inline-block; padding: 5px 0;"><b>Pending</b></label>
+                   <label style="font-size: 16px; margin-left: 5px; width: 90px; background-color: #3498db; color: white; text-align: center; border: none; border-radius: 5px; display: inline-block; padding: 5px 0;"><b>Accept</b></label>
+                    <label style="font-size: 16px; margin-left: 5px; width: 90px; background-color: #27ae60; color: white; text-align: center; border: none; border-radius: 5px; display: inline-block; padding: 5px 0;"><b>Done</b></label>
+
+
                 </div>
                 
             </div>
