@@ -1967,42 +1967,42 @@ $(document).ready(function() {
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>   
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%;  height: 35px;padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%; height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                                 <td style="padding: 5px;">
-                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                    <button style="width: 100%;  height: 35px; padding: 10px;font-size: 15px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
                                 </td>
                             </tr>
                         </table>
