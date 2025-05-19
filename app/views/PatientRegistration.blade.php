@@ -457,44 +457,44 @@ Add New Patient
     // Apply discount
  
 
-    function applyDiscount() {
-        var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
-        var totalAmount = parseFloat(totalAmountText) || 0;        
-        var discountData = $('#discount_percentage').val().split(":");
-        var discountPercentage = parseFloat(discountData[1]) || 0;  
-        var manualDiscount = parseFloat($('#discount').val()) || 0;
+        function applyDiscount() {
+            var totalAmountText = $('#total_amount').text().replace(/,/g, '').trim();
+            var totalAmount = parseFloat(totalAmountText) || 0;        
+            var discountData = $('#discount_percentage').val().split(":");
+            var discountPercentage = parseFloat(discountData[1]) || 0;  
+            var manualDiscount = parseFloat($('#discount').val()) || 0;
 
-        let discountAmount = 0;
+            let discountAmount = 0;
 
-        if (discountPercentage > 0) {
-            discountAmount = (totalAmount * discountPercentage) / 100;
-            $('#discount').val(discountAmount.toFixed(2)); 
-            $('#Voucher_No, #vaucher_amount, #split_cash_amount, #split_card_amount').val('');
-        } else if (manualDiscount > 0) {
-            discountAmount = manualDiscount;
-            $('#discount_percentage').val('');
-            $('#Voucher_No, #vaucher_amount, #split_cash_amount, #split_card_amount').val('');
-        }
+            if (discountPercentage > 0) {
+                discountAmount = (totalAmount * discountPercentage) / 100;
+                $('#discount').val(discountAmount.toFixed(2)); 
+                $('#Voucher_No, #vaucher_amount, #split_cash_amount, #split_card_amount').val('');
+            } else if (manualDiscount > 0) {
+                discountAmount = manualDiscount;
+                $('#discount_percentage').val('');
+                $('#Voucher_No, #vaucher_amount, #split_cash_amount, #split_card_amount').val('');
+            }
 
-        if (discountAmount > totalAmount) {
-            alert("Discount cannot exceed total amount!");
-            discountAmount = 0;
-            $('#discount, #discount_percentage').val('');
-        }
+            if (discountAmount > totalAmount) {
+                alert("Discount cannot exceed total amount!");
+                discountAmount = 0;
+                $('#discount, #discount_percentage').val('');
+            }
 
-        var grandTotal = totalAmount - discountAmount;
+            var grandTotal = totalAmount - discountAmount;
 
-        $('#grand_total').text(grandTotal.toFixed(2));
-        $('#paid').val('');
-        $('#due').text(grandTotal.toFixed(2));
-}
+            $('#grand_total').text(grandTotal.toFixed(2));
+            $('#paid').val('');
+            $('#due').text(grandTotal.toFixed(2));
+    }
 
 
 
-$('#discount, #discount_percentage').on('input change', function() 
-    {
-        applyDiscount();
-    });
+    $('#discount, #discount_percentage').on('input change', function() 
+        {
+            applyDiscount();
+        });
 
 
     //*************************************************************************************************
@@ -644,20 +644,20 @@ $('#discount, #discount_percentage').on('input change', function()
     });
 
  //voucher method total amount set process
-document.addEventListener("DOMContentLoaded", function () 
-{
+    document.addEventListener("DOMContentLoaded", function () 
+    {
 
-    const voucherAmountInput = document.getElementById("vaucher_amount");
-    const paidInput = document.getElementById("paid");
+        const voucherAmountInput = document.getElementById("vaucher_amount");
+        const paidInput = document.getElementById("paid");
 
-    function updatePaidAmount() {
-        const voucherAmount = parseFloat(voucherAmountInput.value) || 0;
-        paidInput.value = (voucherAmount).toFixed(2);
-        calculateDue(); 
-    }
+        function updatePaidAmount() {
+            const voucherAmount = parseFloat(voucherAmountInput.value) || 0;
+            paidInput.value = (voucherAmount).toFixed(2);
+            calculateDue(); 
+        }
 
-    voucherAmountInput.addEventListener("input", updatePaidAmount);
-});
+        voucherAmountInput.addEventListener("input", updatePaidAmount);
+    });
 
 
     var allRecords = [];
@@ -864,7 +864,7 @@ document.addEventListener("DOMContentLoaded", function ()
     }
 
 
-// ******************Bill search Function************************************
+    // ******************Bill search Function************************************
 
    
 
@@ -1379,17 +1379,17 @@ document.addEventListener("DOMContentLoaded", function ()
         $('#hidden_idref').val(idref);
         $('#refDropdown').val(idref);
     }
-//-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     $('#refDropdown').on('change', function() {
-    var selectedOption = $(this).find('option:selected');
-    var selectedCode = selectedOption.data('code');
-    
-    $('#refcode').val(selectedCode || '');
-    
-    if($('#hidden_idref').length) {
-        $('#hidden_idref').val($(this).val());
-    }
-});
+        var selectedOption = $(this).find('option:selected');
+        var selectedCode = selectedOption.data('code');
+        
+        $('#refcode').val(selectedCode || '');
+        
+        if($('#hidden_idref').length) {
+            $('#hidden_idref').val($(this).val());
+        }
+    });
 
     // document.getElementById('refDropdown').addEventListener('change', function ()
     //  {
@@ -1404,7 +1404,7 @@ document.addEventListener("DOMContentLoaded", function ()
     //     document.getElementById('hidden_idref').value = this.value;
     // });
 
-//-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
 
     function updateRefCode() 
     {
@@ -1510,71 +1510,102 @@ document.addEventListener("DOMContentLoaded", function ()
         } else if  (cashSelected || chequeSelected || creditSelected || cardSelected){
             paidField.readOnly = false;
         }
-}
+    }
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    togglePaidField();
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        togglePaidField();
+    });
 
 
-function viewSelectedInvoicePayments() {
-    var invoiceId = $('#invoiceId').val();
-    var due = $('#due').val(); 
+    function viewSelectedInvoicePayments() {
+        var invoiceId = $('#invoiceId').val();
+        var due = $('#due').val(); 
 
 
-    window.open("invoicePayments?iid=" + invoiceId+ "&due=" + $('#due').val(), "_blank");
+        window.open("invoicePayments?iid=" + invoiceId+ "&due=" + $('#due').val(), "_blank");
+        
+        
+    }
+
+
+    // Function to open the modal
+    function openModal() {
+    document.getElementById("myModal").style.display = "block";
+    }
+
+    // Function to close the modal
+    function closeModal() {
+    document.getElementById("myModal").style.display = "none";
+    }
+
+    // Close the modal if the user clicks outside of it
+    window.onclick = function(event) {
+    if (event.target == document.getElementById("myModal")) {
+        closeModal();
+    }
+    }
+
+    // Save payment function (example placeholder)
+    function savePayment() {
+    alert('Payment saved!');
+    }
+
+
+    //Print Invoice Section
+    function printInvoice(){
+        
+        var date = $('#ser_date').val();
+        var sno = $('#sampleNo').val();
     
-      
-}
+        
+        var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
+                        
+        setTimeout(function () {
+            win.print();
+        }, 5000);
+                        
 
-
-// Function to open the modal
-function openModal() {
-  document.getElementById("myModal").style.display = "block";
-}
-
-// Function to close the modal
-function closeModal() {
-  document.getElementById("myModal").style.display = "none";
-}
-
-// Close the modal if the user clicks outside of it
-window.onclick = function(event) {
-  if (event.target == document.getElementById("myModal")) {
-    closeModal();
-  }
-}
-
-// Save payment function (example placeholder)
-function savePayment() {
-  alert('Payment saved!');
-}
-
-
-//Print Invoice Section
-function printInvoice(){
-    
-    var date = $('#ser_date').val();
-    var sno = $('#sampleNo').val();
-   
-    
-    var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
+        setTimeout(function () {
+            win.close();
+        }, 8000);
                     
-    setTimeout(function () {
-        win.print();
-    }, 5000);
-                    
-
-    setTimeout(function () {
-        win.close();
-    }, 8000);
-                
-    
-}
+        
+    }
 
 
 // *-*-*-*-*-*-*-*-*-*-*PAYMENT UPDATE PROCESS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+$(document).ready(function() {
+    $.ajax({
+        url: '/get-test-codes',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const testCodes = response.data.testCodes;
+                const buttons = $('#testCodeButtons button');
+
+                buttons.each(function(index) {
+                    if (index < testCodes.length) {
+                        $(this).text(testCodes[index].testCode);
+                        $(this).prop('disabled', false);
+                    } else {
+                        $(this).text('');
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+                // Attach click handlers
+                $('#testCodeButtons button').off('click').on('click', function() {
+                    alert('Clicked: ' + $(this).text());
+                });
+            }
+        },
+        error: function() {
+            alert('Error loading test codes');
+        }
+    });
+});
 
 
 
@@ -1914,6 +1945,64 @@ function printInvoice(){
                         <!-- <input type="checkbox" name="byname" id="byname" class="ref_chkbox" value="1">
                         <label style="width: 70px;font-size: 16px;  "><b>By Name</b></label> -->
                     </div>
+
+
+
+
+
+
+                    <div id="testCodeButtons" style="display: flex; align-items: center; margin-top: 5px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                                <td style="padding: 5px;">
+                                    <button style="width: 100%; padding: 10px;font-size: 20px;font-weight: bold; border-radius: 12%; background-color: #2d7764; color: #f8d7da"></button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+
+
+
+
+
+
+
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; "><b>Package Name</b>:</label>
                         <input type="text" name="packageDropdown" class="input-text" id="packageDropdown"

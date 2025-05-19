@@ -321,6 +321,14 @@ Route::get('getInvoicePatientDetails', 'invoicePaymentController@loadInvoicePati
 Route::post('savePayment', 'invoicePaymentController@savePayment');
 Route::post('deletePayment', 'invoicePaymentController@deletePayment');
 
+////~~~~~~~~~~~~~~~~~~~~~~~~text code buttons route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Route::get('/get-test-codes', 'PatientRegistrationController@getTestCodes');
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 
@@ -778,4 +786,9 @@ Route::get('/printinvoice/{id}', function($id) {
     
     return View::make('Invoices.Inv' . $lid)->with('sno', $arr[0])->with('date', $arr[1]);
 });
+
+
+// text code buttons route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Route::get('/get-testcodes', 'YourController@getTestCodes');
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -781,7 +781,37 @@ class PatientRegistrationController extends Controller
         ]);
     }
     
-    
+public function getTestCodes()
+{
+    try {
+        $testCodes = DB::table('Testgroup as t')
+            ->join('lps as l', 't.tgid', '=', 'l.Testgroup_tgid')
+            ->select('t.testCode','t.tgid')
+            ->where('l.lab_lid', '=', '34')
+            ->groupBy('t.tgid', 't.testCode', 't.name')
+            ->orderBy(DB::raw('COUNT(*)'), 'DESC')
+            ->limit(12)
+            ->get();
+
+            // SELECT Testgroup_tgid, COUNT(*) AS occurrence_count FROM lps WHERE lab_lid = '34' 
+            // GROUP BY Testgroup_tgid ORDER BY occurrence_count DESC limit 12;
+
+        return Response::json([
+            'success' => true,
+            'data' => [
+                'testCodes' => $testCodes
+            ]
+        ]);
+    } catch (Exception $e) {
+        return Response::json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+}
+
+
+
          
     
 
