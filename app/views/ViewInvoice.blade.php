@@ -125,7 +125,7 @@ View Invices
     //*************************************************************************************************
 
 
-function viewSelectedInvoice() 
+    function viewSelectedInvoice() 
     {
         var selectedRow = $('#invdataTable tbody tr.selected');
         if (selectedRow.length === 0) {
@@ -135,11 +135,10 @@ function viewSelectedInvoice()
 
         var sampleNo = selectedRow.find('td:eq(0)').text(); 
 
-
-        window.open("patientRegistration?sampleNo=" + sampleNo+ "&date=" + $('#idate').val(), "_blank");
-        
-      
+        // Open the link in the same window
+        window.open("patientRegistration?sampleNo=" + sampleNo + "&date=" + $('#idate').val(), "_self");
     }
+
 
 
     //*************************************************************************************************
@@ -292,12 +291,12 @@ function viewSelectedInvoice()
     }
 
     #invdataTable table tr:hover {
-    background-color: #e0f7fa; /* light cyan on hover */
+    background-color: #28acbd; /* light cyan on hover */
     cursor: pointer;
     }
 
     #invdataTable tbody tr.selected {
-        background-color: #a5d6a7 !important; /* green for selected row */
+        background-color: #4f8de5 !important; /* green for selected row */
     }
 
     .input-text::placeholder {
