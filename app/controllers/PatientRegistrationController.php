@@ -781,34 +781,34 @@ class PatientRegistrationController extends Controller
         ]);
     }
     
-public function getTestCodes()
-{
-    try {
-        $testCodes = DB::table('Testgroup as t')
-            ->join('lps as l', 't.tgid', '=', 'l.Testgroup_tgid')
-            ->select('t.testCode','t.tgid')
-            ->where('l.lab_lid', '=', '34')
-            ->groupBy('t.tgid', 't.testCode', 't.name')
-            ->orderBy(DB::raw('COUNT(*)'), 'DESC')
-            ->limit(12)
-            ->get();
+    public function getTestCodes()
+    {
+        try {
+            $labLid = 34; // or get dynamically
 
-            // SELECT Testgroup_tgid, COUNT(*) AS occurrence_count FROM lps WHERE lab_lid = '34' 
-            // GROUP BY Testgroup_tgid ORDER BY occurrence_count DESC limit 12;
+            $testCodes = DB::table('Testgroup as t')
+                ->join('lps as l', 't.tgid', '=', 'l.Testgroup_tgid')
+                ->select('t.testCode', 't.tgid', 't.name as group', 't.price', 't.testingtime')
+                ->where('l.lab_lid', '=', $labLid)
+                ->groupBy('t.tgid', 't.testCode', 't.name', 't.price', 't.testingtime')
+                ->orderBy(DB::raw('COUNT(*)'), 'DESC')
+                ->limit(12)
+                ->get();
 
-        return Response::json([
-            'success' => true,
-            'data' => [
-                'testCodes' => $testCodes
-            ]
-        ]);
-    } catch (Exception $e) {
-        return Response::json([
-            'success' => false,
-            'message' => $e->getMessage()
-        ]);
-    }
+            return Response::json([
+                'success' => true,
+                'data' => [
+                    'testCodes' => $testCodes
+                ]
+            ]);
+        } catch (Exception $e) {
+            return Response::json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
 }
+
 
 
 

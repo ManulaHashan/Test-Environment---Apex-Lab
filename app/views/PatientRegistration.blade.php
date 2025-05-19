@@ -1587,17 +1587,28 @@ $(document).ready(function() {
 
                 buttons.each(function(index) {
                     if (index < testCodes.length) {
-                        $(this).text(testCodes[index].testCode);
+                        const test = testCodes[index];
+
+                        // Store all needed data in a data attribute on button
+                        $(this).text(test.testCode);
                         $(this).prop('disabled', false);
+
+                        // Compose the string in the expected format: "tgid:group:price:time"
+                        const valueString = `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`;
+                        $(this).data('testinfo', valueString);
                     } else {
                         $(this).text('');
                         $(this).prop('disabled', true);
+                        $(this).removeData('testinfo');
                     }
                 });
 
                 // Attach click handlers
                 $('#testCodeButtons button').off('click').on('click', function() {
-                    alert('Clicked: ' + $(this).text());
+                    const testInfo = $(this).data('testinfo');
+                    if (testInfo) {
+                        setDataToTable(testInfo);
+                    }
                 });
             }
         },
@@ -1606,6 +1617,7 @@ $(document).ready(function() {
         }
     });
 });
+
 
 
 
