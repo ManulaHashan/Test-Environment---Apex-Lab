@@ -517,7 +517,26 @@ class PatientRegistrationController extends Controller
            
         }
 
-        return Response::json(['success' => true, 'message' => 'Patient details saved successfully.']);
+                $getSampleNo = DB::table('lps as a')
+                    ->join('invoice as b', 'a.lpsid', '=', 'b.lps_lpsid')
+                    ->where('a.Lab_lid', '=', $_SESSION['lid'])
+                    ->where('b.iid', '=', $invoiceId)
+                    ->select('a.date', 'a.sampleNo')
+                    ->first(); // get single record
+
+                $date_sampleno = $getSampleNo ? $getSampleNo->date : '';
+                $data_sampleNo = $getSampleNo ? $getSampleNo->sampleNo : '';
+                
+                return Response::json([
+                    'success' => true,
+                    'message' => 'Patient details saved successfully.',
+                    'datainv' =>  $data_sampleNo . '###' . $date_sampleno
+                ]);
+
+
+
+
+        // return Response::json(['success' => true, 'message' => 'Patient details saved successfully.','datainv' => $getSampleNo."###".date('Y-m-d')]);
     }
 
     public function getSampleTestData()
@@ -673,7 +692,7 @@ class PatientRegistrationController extends Controller
         ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
         ->leftJoin('refference as r', 'a.refference_idref', '=', 'r.idref')
         ->join('patient as p', 'a.patient_pid', '=', 'p.pid')
-        ->where('a.sampleNo', 'like', $searchSampleNo . '%')
+        ->where('a.sampleNo', $searchSampleNo )
         ->where('a.date', $searchDate)
         ->where('a.Lab_lid', $_SESSION['lid'])
         ->select(
@@ -707,7 +726,7 @@ class PatientRegistrationController extends Controller
             ->select('u.fname', 'u.lname', 'u.nic', 'u.address', 'u.gender_idgender', 'u.tpno', 'p.age', 'p.months', 'p.days', 'p.initials', 'p.dob')
             ->first();
 
-            $invoiceData = DB::table('invoice as i')
+        $invoiceData = DB::table('invoice as i')
             ->join('lps as a', 'i.lps_lpsid', '=', 'a.lpsid')
             ->leftJoin('Discount as d', 'i.Discount_did', '=', 'd.did')
             ->where('a.sampleNo', 'like', $searchSampleNo . '%')
@@ -724,7 +743,8 @@ class PatientRegistrationController extends Controller
                 'i.multiple_delivery_methods',
                 'd.value',
                  'd.did',
-                 'a.sampleNo'
+                 'a.sampleNo',
+                 'i.date'
             )
             ->first();
         

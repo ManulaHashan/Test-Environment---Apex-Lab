@@ -14,9 +14,11 @@ Add New Patient
 <script src="{{ asset('JS/ReportCalculations.js') }}"></script>
 
 <script>
-       $(document).ready(function() {
+
+    $(document).ready(function() {
         const today = new Date().toISOString().split('T')[0];
         $('#ser_date').val(today);
+        $('#patientDate').val(today);
         const params = new URLSearchParams(window.location.search);
 
         const sampleNo = params.get('sampleNo');
@@ -49,6 +51,7 @@ Add New Patient
     function view_selected_patient(sampleNo, date)
     {
         $.ajax({
+            async: true,
             type: "GET",
             url: "getSelectedInvoice",
             data: {
@@ -80,6 +83,7 @@ Add New Patient
                     $('#days').val(patientData.days || '');
                     $('#Ser_tpno').val(patientData.tpno || '');
                     $('#invoiceId').val(invoiceData.iid || '');
+                    $('#patientDate').val(date || '');
 
 
                     invoicePayments.forEach(function(payment) {
@@ -850,7 +854,10 @@ Add New Patient
 
                 console.log("Server Response:", response);
                 alert(response.message || 'Patient saved successfully!');
-                resetPage();
+                var sampleData = response.datainv.split('###');
+                view_selected_patient(sampleData[0], sampleData[1]);
+                printInvoice();
+               
 
             },
             error: function(xhr) {
@@ -900,7 +907,8 @@ Add New Patient
                     $('#days').val(patientData.days || '');
                     $('#Ser_tpno').val(patientData.tpno || '');
                     $('#invoiceId').val(invoiceData.iid || '');
-
+                    $('#sampleNo').val(searchSampleNo || '');
+                    
 
                     $('#refDropdown').val(firstRecord.ref_id || '');  
                     $('#refDropdown option').filter(function() {
@@ -965,22 +973,7 @@ Add New Patient
 
                 
                     $('#Branch_record_tbl').empty();
-                    // testData.forEach(test => {
-                    //     const newRow = `
-                    //         <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}">
-                    //             <td align="left">${test.tgid}</td>
-                    //             <td align="left">${test.group}</td>
-                    //             <td align="right" class="price-column">${test.price.toFixed(2)}</td>
-                    //             <td align="left">${test.time}</td>
-                    //             <td align="right">${test.f_time}</td>
-                    //             <td align="left">
-                    //                 <input type="checkbox" class="barcode-checkbox" checked>
-                    //             </td>
-                    //             <td align="center">${test.urgent_sample}</td>  
-                    //             <td align="center">${test.type}</td>  
-                    //         </tr>`;
-                    //     $('#Branch_record_tbl').append(newRow);
-                    // });
+
                     testData.forEach(test => {
                         let rowStyle = '';
                         let urgentDisplay = '';
@@ -1015,6 +1008,8 @@ Add New Patient
                 
                 } else {
                     alert(response.message || 'No data found.');
+                    loadcurrentSampleNo();
+                    resetPage();
                 }
             },
             error: function(xhr) {
@@ -1025,193 +1020,8 @@ Add New Patient
         });
     }
 
-    //   function view_search_patient()
-    // {
-    //      var searchDate = $('#ser_date').val();
-    //     var searchSampleNo = $('#ser_sampleno').val();
-
-    //     $.ajax({
-    //        type: "GET",
-    //         url: "getSearchPatient",
-    //         data: {
-    //             'searchDate': searchDate,
-    //             'searchSampleNo': searchSampleNo
-    //         },
-    //         dataType: "json",
-    //         success: function(response) {
-    //             if (response.success) {
-    //                 const patientData = response.data.patient;
-    //                 const testData = response.data.tests;
-    //                 const invoiceData = response.data.invoice;
-    //                 const invoicePayments = response.data.invoicePayments;
-    //                 const lpsRecords = response.data.lpsRecords;
-    //                 const firstRecord = lpsRecords[0] || {};
-
-                  
-
-    //                             // Populate patient fields
-
-    //                 $('#initial').val(patientData.initials || ''); // Use empty string if null
-    //                 $('#fname').val(patientData.fname || '');
-    //                 $('#lname').val(patientData.lname || '');
-    //                 $('#dob').val(patientData.dob || '');
-    //                 $('#nic').val(patientData.nic || '');
-    //                 $('#address').val(patientData.address || '');
-    //                 $('input[name="gender"][value="' + patientData.gender_idgender + '"]').prop('checked', true);
-    //                 $('#years').val(patientData.age || '');
-    //                 $('#months').val(patientData.months || '');
-    //                 $('#days').val(patientData.days || '');
-    //                 $('#Ser_tpno').val(patientData.tpno || '');
-    //                 $('#invoiceId').val(invoiceData.iid || '');
-
-
-    //                 invoicePayments.forEach(function(payment) {
-
-    //                      document.getElementById("vaucher_div").style.display = "none";
-    //                      document.getElementById("split_div").style.display = "none";
-
-                    
-    //                     if (payment.paymethod == '1') {
-    //                         $('#split_cash_amount').val(payment.amount || '');
-    //                     } else if (payment.paymethod == '2') {
-    //                         $('#split_card_amount').val(payment.amount || '');
-    //                     }
-                        
-    //                     if(payment.paymentmethod == 'split') {    
-    //                         document.getElementById("split_div").style.display = "flex";
-    //                     }else if(payment.paymentmethod == 'voucher') {
-    //                         document.getElementById("vaucher_div").style.display = "flex";
-    //                     } else {
-    //                         document.getElementById("vaucher_div").style.display = "none";
-    //                         document.getElementById("split_div").style.display = "none";
-    //                     }
-                        
-    //                 });
-
-
-    //                 // $('#split_cash_amount').val(invoicePayments.amount || '');
-    //                 // $('#split_card_amount').val(invoicePayments.amount || '');
-
-
-
-
-    //                 $('#refDropdown').val(firstRecord.ref_id || '');  
-    //                 $('#refDropdown option').filter(function() {
-    //                     return $(this).text().trim() === firstRecord.refby;
-    //                 }).prop('selected', true);
-
-
-    //                 $('#refcode').val(firstRecord.code || '');
-    //                 $('#inv_remark').val(firstRecord.specialnote || '');
-                    
-
-    //             // Set the discount dropdown value
-    //                 if (invoiceData && invoiceData.did && invoiceData.value) {
-    //                     $('#discount_percentage').val(invoiceData.did + ":" + invoiceData.value);
-    //                 } else {
-    //                     $('#discount_percentage').val(''); 
-    //                 }
-    //                 $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00'); 
-    //                 $('#discount').val(invoiceData.discount || 0); 
-    //                 $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00'); 
-    //                 $('#paid').val(invoiceData.paid || 0); 
-    //                 $('#due').text((invoiceData.gtotal - invoiceData.paid).toFixed(2)); 
-
-    //                 var paymeth = "";
-    //                     $('input[name="payment_method"]').prop('checked', false); 
-    //                     if(invoiceData.paymentmethod == 'cash') {
-    //                         paymeth = "1"; 
-    //                     } else if(invoiceData.paymentmethod == 'card') {
-    //                         paymeth = "2"; 
-    //                     } else if(invoiceData.paymentmethod == 'voucher') {
-    //                         paymeth = "6"; 
-    //                     } else if(invoiceData.paymentmethod == 'split') {
-    //                         paymeth = "5"; 
-    //                     } else if(invoiceData.paymentmethod == 'credit') {
-    //                         paymeth = "credit"; 
-    //                     } else if(invoiceData.paymentmethod == 'cheque') {
-    //                         paymeth = "3"; 
-    //                     } 
-    //                 $('input[name="payment_method"][value="' + paymeth + '"]').prop('checked', true); 
-
-    //                     if (invoiceData && invoiceData.multiple_delivery_methods) {
-    //                         try {
-    //                             console.log("Raw delivery methods:", invoiceData.multiple_delivery_methods);
-    //                             const deliveryMethods = invoiceData.multiple_delivery_methods
-    //                                 .split(',')
-    //                                 .map(method => method.trim());
-                                
-    //                             console.log("Parsed methods:", deliveryMethods);
-    //                             $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
-    //                             deliveryMethods.forEach(method => {
-    //                                 $(`#${method.toLowerCase().replace(' ', '_')}`).prop('checked', true);
-    //                             });
-                                
-    //                         } catch (e) {
-    //                             console.error("Error parsing delivery methods:", e);
-    //                             $('#hard_copy').prop('checked', true);
-    //                         }
-    //                     } else {
-    //                         console.log("No delivery methods found, using default");
-    //                         $('#hard_copy').prop('checked', true);
-    //                     }
-
-                
-    //                 $('#Branch_record_tbl').empty();
-                    
-    //                 testData.forEach(test => {
-    //                     let rowStyle = '';
-    //                     let urgentDisplay = '';
-
-    //                     // Check if the test's lpsid is marked as urgent in lpsRecords
-    //                     const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
-
-    //                     if (matchingLps) {
-    //                         rowStyle = 'style="background-color: pink;"';
-    //                         urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
-    //                     }
-
-    //                     const newRow = `
-    //                         <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
-    //                             <td align="left">${test.tgid}</td>
-    //                             <td align="left">${test.group}</td>
-    //                             <td align="right" class="price-column">${test.price.toFixed(2)}</td>
-    //                             <td align="left">${test.time}</td>
-    //                             <td align="right">${test.f_time}</td>
-    //                             <td align="left">
-    //                                 <input type="checkbox" class="barcode-checkbox" checked>
-    //                             </td>
-    //                             <td align="center">${urgentDisplay}</td>  
-    //                             <td align="center">${test.type}</td>  
-    //                         </tr>`;
-
-    //                     $('#Branch_record_tbl').append(newRow);
-    //                 });
-
-
-    //                 if(sampleNo == "") {
-    //                     $("#savebtn").attr("disabled", false); 
-    //                     $("#fname").attr("disabled", false); 
-    //                 }else{
-    //                   $("#savebtn").attr("disabled", true);
-    //                   $("#fname").attr("readonly", true);
-                      
-    //                 }
-
-
-
-                
-    //             } else {
-    //                 alert(response.message || 'No data found.');
-    //             }
-    //         },
-    //         error: function(xhr) {
-    //             console.log('Error:', xhr);
-    //             var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
-    //             alert(errorMsg);
-    //         }
-    //     });
-    // }
+   
+   
 
     //*************************************************************************************************
     function resetPage() 
@@ -1391,18 +1201,7 @@ Add New Patient
         }
     });
 
-    // document.getElementById('refDropdown').addEventListener('change', function ()
-    //  {
-    //     var selectedOption = this.options[this.selectedIndex];
-    //     var selectedCode = selectedOption.getAttribute('data-code');
-
-    //     if (selectedCode) {
-    //         document.getElementById('refcode').value = selectedCode;
-    //     } else {
-    //         document.getElementById('refcode').value = '';
-    //     }
-    //     document.getElementById('hidden_idref').value = this.value;
-    // });
+   
 
     //-----------------------------------------------------------------------
 
@@ -1555,8 +1354,9 @@ Add New Patient
     //Print Invoice Section
     function printInvoice(){
         
-        var date = $('#ser_date').val();
+        var date = $('#patientDate').val();
         var sno = $('#sampleNo').val();
+        // var inv_balance = $('#due').val();
     
         
         var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
@@ -1568,55 +1368,57 @@ Add New Patient
 
         setTimeout(function () {
             win.close();
+            resetPage();
         }, 8000);
                     
         
     }
+    // *-*-*-*-*-*-*-*-*-*-*most recent test buttons-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    $(document).ready(function() {
+        $.ajax({
+            url: '/get-test-codes',
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    const testCodes = response.data.testCodes;
+                    const buttons = $('#testCodeButtons button');
 
+                    buttons.each(function(index) {
+                        if (index < testCodes.length) {
+                            const test = testCodes[index];
 
-// *-*-*-*-*-*-*-*-*-*-*PAYMENT UPDATE PROCESS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+                            // Store all needed data in a data attribute on button
+                            $(this).text(test.testCode);
+                            $(this).prop('disabled', false);
 
-$(document).ready(function() {
-    $.ajax({
-        url: '/get-test-codes',
-        method: 'GET',
-        success: function(response) {
-            if (response.success) {
-                const testCodes = response.data.testCodes;
-                const buttons = $('#testCodeButtons button');
+                            // Compose the string in the expected format: "tgid:group:price:time"
+                            const valueString = `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`;
+                            $(this).data('testinfo', valueString);
+                        } else {
+                            $(this).text('');
+                            $(this).prop('disabled', true);
+                            $(this).removeData('testinfo');
+                        }
+                    });
 
-                buttons.each(function(index) {
-                    if (index < testCodes.length) {
-                        const test = testCodes[index];
-
-                        // Store all needed data in a data attribute on button
-                        $(this).text(test.testCode);
-                        $(this).prop('disabled', false);
-
-                        // Compose the string in the expected format: "tgid:group:price:time"
-                        const valueString = `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`;
-                        $(this).data('testinfo', valueString);
-                    } else {
-                        $(this).text('');
-                        $(this).prop('disabled', true);
-                        $(this).removeData('testinfo');
-                    }
-                });
-
-                // Attach click handlers
-                $('#testCodeButtons button').off('click').on('click', function() {
-                    const testInfo = $(this).data('testinfo');
-                    if (testInfo) {
-                        setDataToTable(testInfo);
-                    }
-                });
+                    // Attach click handlers
+                    $('#testCodeButtons button').off('click').on('click', function() {
+                        const testInfo = $(this).data('testinfo');
+                        if (testInfo) {
+                            setDataToTable(testInfo);
+                        }
+                    });
+                }
+            },
+            error: function() {
+                alert('Error loading test codes');
             }
-        },
-        error: function() {
-            alert('Error loading test codes');
-        }
+        });
     });
-});
+
+// *-*-*-*-*-*-*-*-*-*-*most recent test buttons-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+
 
 
 
@@ -1820,9 +1622,11 @@ $(document).ready(function() {
 
                 <div style="display: flex; align-items: center;">
                     <label style="width: 89px;font-size: 18px; ">Search</label>
-                    <input type="text" name="ser_pdetails" class="input-text" id="ser_pdetails" style="width: 210px">
+                    <input type="text" name="ser_pdetails" class="input-text" id="ser_pdetails" style="width: 100px">
+                   
 
                     <input type="text" name="invoiceId" class="input-text" id="invoiceId" style="width: 210px">
+                     <input type="text" name="patientDate" class="input-text" id="patientDate" style="width: 100px">
 
                     <!-- <label style="width: 50px;font-size: 18px;">Type</label>
                     <select type="text" name="type" class="input-text" id="type" style="width: 80px; height: 30px">

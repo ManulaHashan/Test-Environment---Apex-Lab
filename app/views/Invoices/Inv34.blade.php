@@ -72,7 +72,7 @@ $result_get_testgroup_details = DB::select("
 
 $result_get_invoiceData = DB::select("
     SELECT i.iid, i.total, i.paid, i.gtotal, i.discount, i.status,i.cashier, 
-           i.paymentmethod, i.multiple_delivery_methods, d.value, d.did, a.sampleNo
+           i.paymentmethod, i.multiple_delivery_methods, d.value, d.did, a.sampleNo, a.arivaltime, a.date
     FROM invoice AS i
     JOIN lps AS a ON i.lps_lpsid = a.lpsid
     LEFT JOIN Discount AS d ON i.Discount_did = d.did
@@ -93,12 +93,16 @@ $result_get_invoiceData = DB::select("
     $value = "";
     $did = "";
     $cashier ="";
+    $inv_date ="";
+    $inv_time ="";
     $due = 0;
     $balance=0;
 // Accessing invoice data
 foreach ($result_get_invoiceData as $invoice){
    
     $iid = $invoice->iid;
+    $inv_date = $invoice->date;
+    $inv_time = $invoice->arivaltime;
     $total = $invoice->total;
     $paid = $invoice->paid;
     $gtotal = $invoice->gtotal;
@@ -110,10 +114,12 @@ foreach ($result_get_invoiceData as $invoice){
     $did = $invoice->did;
     $cashier = $invoice->cashier;
     $due = $gtotal-$paid;
-    $balance = $paid-$gtotal;
-    if ($balance >= $gtotal) {
-        $balance = 0; 
-    }
+    $balance = $paid - $gtotal;
+
+        if ($balance < 0) {
+            $balance = 0;
+        }
+
    
 }
 
@@ -141,7 +147,7 @@ foreach ($result_get_invoiceData as $invoice){
         </tr>
 
         <tr>
-            <td style="padding-top: 30px; font-size: 18px;">Date: <?php echo date('Y-m-d'); ?> Time: <?php echo date('H:i:s'); ?></td>
+            <td style="padding-top: 30px; font-size: 18px;">Date: <?php echo $inv_date; ?> Time: <?php echo $inv_time; ?></td>
             <td style="text-align: right; font-weight: bold; padding-top: 5px; font-size: 18px;">
                 <span style="color: #000; ">Reference NO</span>
                  <div style="font-size: 30px; margin-top: 5px;"><?php echo $sno; ?></div>
@@ -190,42 +196,47 @@ foreach ($result_get_invoiceData as $invoice){
         ?>
 
       
-        <tr>
-            <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; font-size: 22px;">Total Amount 
-                <span style="margin-left: 20px;font-size: 22px;"> Rs.</span>
-                <span style="margin-left: 20px;font-size: 22px;"><?php echo number_format($total, 2); ?></span>
-            </td>
-            <td style="border-top: 2px solid #000; text-align: right; padding-top: 20px;font-size: 22px;">
-                <span style="margin-right: 10px;font-size: 22px;">Payment </span>
-                <span style="margin-left: 5px;font-size: 22px;"></span> Rs.</span>
-                <?php echo number_format($total, 2); ?>
-            </td>
-        </tr>
 
+   <tr>
+    <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; font-size: 22px; width: 50%;">
+        <span style="display: inline-block; width: 150px;">Total Amount</span>
+        <span style="display: inline-block; width: 50px; text-align: right;">Rs.</span>
+        <span style="display: inline-block; width: 100px; text-align: right;"><?php echo number_format($total, 2); ?></span>
+    </td>
+    <td style="border-top: 2px solid #000; text-align: right; padding-top: 20px; font-size: 22px; width: 50%;">
+        <span style="display: inline-block; width: 150px;">Payment</span>
+        <span style="display: inline-block; width: 50px; text-align: right;">Rs.</span>
+        <span style="display: inline-block; width: 100px; text-align: right;"><?php echo number_format($paid, 2); ?></span>
+    </td>
+</tr>
 
-        <tr>
-            <td style=" text-align: left; font-size: 22px;">Discount 
-                <span style="margin-left: 61px;font-size: 22px;">Rs.</span>
-                <span style="margin-left: 39px;font-size: 22px;"><?php echo number_format($discount, 2); ?></span>
-            </td>
-            <td style=" text-align: right;font-size: 22px; ">
-                <span style="margin-right: 22px;font-size: 22px;">Balance</span>
-                <span style="padding-right: 42px;font-size: 22px;">Rs.</span>
-                <?php echo number_format($balance, 2); ?>
-            </td>
-        </tr>
-        <tr>
-            <td style=" text-align: left; font-size: 22px;">Grand Total 
-                <span style="margin-left: 33px;font-size: 22px;">Rs.</span>
-                <span style="margin-left: 22px;font-size: 22px;"><?php echo number_format($gtotal, 2); ?></span>
-            </td>
-            <td style=" text-align: right;font-size: 22px; ">
-                <span style="margin-right: 61px;font-size: 22px;">Due</span>
-                <span style="padding-right: 42px;font-size: 22px;">Rs.</span>
-                <?php echo number_format($due, 2); ?>
-            </td>
-        </tr>
+<tr>
+    <td style="text-align: left; font-size: 22px;">
+        <span style="display: inline-block; width: 150px;">Discount</span>
+        <span style="display: inline-block; width: 50px; text-align: right;">Rs.</span>
+        <span style="display: inline-block; width: 100px; text-align: right;"><?php echo number_format($discount, 2); ?></span>
+    </td>
+    <td style="text-align: right; font-size: 22px;">
+        <span style="display: inline-block; width: 150px;">Balance</span>
+        <span style="display: inline-block; width: 50px; text-align: right;">Rs.</span>
+        <span style="display: inline-block; width: 100px; text-align: right;"><?php echo number_format($balance, 2); ?></span>
+    </td>
+</tr>
 
+<tr>
+    <td style="text-align: left; font-size: 22px;">
+        <span style="display: inline-block; width: 150px;">Grand Total</span>
+        <span style="display: inline-block; width: 50px; text-align: right;">Rs.</span>
+        <span style="display: inline-block; width: 100px; text-align: right;"><?php echo number_format($gtotal, 2); ?></span>
+    </td>
+    <td style="text-align: right; font-size: 22px;">
+        <span style="display: inline-block; width: 150px;">Due</span>
+        <span style="display: inline-block; width: 50px; text-align: right;">Rs.</span>
+        <span style="display: inline-block; width: 100px; text-align: right;"><?php echo number_format($due, 2); ?></span>
+    </td>
+</tr>
+
+    
            <tr>
                 <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; vertical-align: top;">
                     Issued by: <span style="margin-left: 10px;"><?php echo $cashier; ?></span>
