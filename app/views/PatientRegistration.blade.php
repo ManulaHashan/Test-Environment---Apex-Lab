@@ -12,6 +12,9 @@ Add New Patient
 @section('head')
 
 <script src="{{ asset('JS/ReportCalculations.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+
 
 <script>
 
@@ -1330,24 +1333,24 @@ Add New Patient
 
     // Function to open the modal
     function openModal() {
-    document.getElementById("myModal").style.display = "block";
+        document.getElementById("myModal").style.display = "block";
     }
 
     // Function to close the modal
     function closeModal() {
-    document.getElementById("myModal").style.display = "none";
+        document.getElementById("myModal").style.display = "none";
     }
 
     // Close the modal if the user clicks outside of it
     window.onclick = function(event) {
-    if (event.target == document.getElementById("myModal")) {
-        closeModal();
-    }
+        if (event.target == document.getElementById("myModal")) {
+            closeModal();
+        }
     }
 
     // Save payment function (example placeholder)
     function savePayment() {
-    alert('Payment saved!');
+        alert('Payment saved!');
     }
 
 
@@ -1418,6 +1421,204 @@ Add New Patient
 
 // *-*-*-*-*-*-*-*-*-*-*most recent test buttons-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
+
+
+    // Single Barcode Process
+
+    function getSingleBarcode() {
+        var selectedRow = $('#Branch_record_tbl').find('tr.selected-row'); // You must handle row selection
+
+        if (selectedRow.length === 0) {
+            alert("Please select a test!");
+            return;
+        }
+
+        var tgid = selectedRow.find('td').eq(0).text();
+        var testGroupName = selectedRow.find('td').eq(1).text();
+        var sno = $('#sampleNo').val(); // Sample number
+        
+        var initials = $('#initial').val();
+        var fname = $('#fname').val();
+        var lname = $('#lname').val();
+        var bill_date = $('#patientDate').val();
+        var years = 0;
+        var months = 0;
+        var days = 0;
+
+        if (initials == "" || fname == "" || lname == "") {
+            alert("Please fill patient details first!");
+            return;
+        }else if ($('#years').val() == "" && $('#months').val() == "" && $('#days').val() == "") {
+           alert("Please fill patient age first!");
+           return; 
+        }
+
+        if ($('#years').val() != "") {
+            years = $('#years').val();
+        }else{
+            years = 0;
+        }
+        
+        if ($('#months').val() != "") {
+           months = $('#months').val(); 
+        }else{
+            months = 0;
+        }
+        
+        if ($('#days').val() != "") {
+           days = $('#days').val(); 
+        }else{
+            days = 0;
+        }
+
+        var now = new Date();
+        var hours = now.getHours().toString().padStart(2, '0');
+        var minutes = now.getMinutes().toString().padStart(2, '0');
+        var seconds = now.getSeconds().toString().padStart(2, '0');
+
+        var time = hours + ":" + minutes + ":" + seconds;
+
+        $('#bcode_sno').html(sno);
+        $('#bcode_p_name').html(initials+". "+fname+" "+lname);
+        $('#bcode_testname').html(testGroupName);
+        $('#barcode_date').html(bill_date);
+        $('#barcode_time').html(time);
+        $('#barcode_p_age').html(years+" Y "+months+" M "+days+" D");
+
+        
+        // var gender = $('input[name="gender"]:checked').val();
+        //     if (gender == "1") {
+        //         console.log("Male selected");
+        //     } else if (gender == "2") {
+        //         console.log("Female selected");
+        //     } else {
+        //         console.log("No gender selected");
+        //     }
+
+
+
+        
+        // JsBarcode("#barcode", sno, {
+        //     format: "CODE128",
+        //     lineColor: "#000000",
+        //     width: 2,
+        //     height: 100,
+        //     displayValue: true
+        // });
+        // bcode_sno
+        JsBarcode("#barcodeCanvas", sno, {
+        format: "CODE128",
+        displayValue: false,
+        lineColor: "#000",
+        width: 2,
+        height: 60,
+        margin: 0
+  });
+
+
+    const barcodeContainer = document.getElementById("print_bcode");
+    const printWindow = document.getElementById('print-frame').contentWindow;
+
+    const canvas = document.querySelector("#barcodeCanvas");
+    const imageDataUrl = canvas.toDataURL("image/png");
+
+
+    const clone = barcodeContainer.cloneNode(true);
+    const canvasEl = clone.querySelector("#barcodeCanvas");
+
+
+    const img = document.createElement("img");
+    img.src = imageDataUrl;
+    img.alt = "Barcode";
+    img.style.display = "block";
+    img.style.margin = "0 auto"; 
+    img.style.maxWidth = "100%";
+
+    canvasEl.parentNode.replaceChild(img, canvasEl);
+
+
+    const styleContent = `
+    @media print {
+        body {
+        margin: 0;
+        padding: 0;
+        }
+    }
+
+    .barcode-label {
+        position: absolute;
+        top: 10mm;
+        left: 10mm;
+        transform: scale(0.3); /* Increased from 0.1 to 0.3 */
+        transform-origin: top left;
+        width: 300px;
+    }
+
+    .barcode-top {
+        text-align: center;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .barcode-info {
+        margin-top: 5px;
+        font-size: 12px;
+    }
+
+    .barcode-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        margin-top: 5px;
+    }
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(`
+    <html>
+        <head>
+        <style>${styleContent}</style>
+        </head>
+        <body onload="window.print();">
+        ${clone.outerHTML}
+        </body>
+    </html>
+    `);
+    printWindow.document.close();
+
+
+
+
+
+
+    // alert(tgid);
+
+    // var specialBarcodes = ["101:AB", "102:CD"]; 
+
+    // $.ajax({
+    //     url: "get_Single_Barcode",
+    //     method: 'GET',
+    //     data: {
+    //         tgid: tgid,
+    //         testGroupName: testGroupName,
+    //         sno: sno
+    //         // specialBarcodes: specialBarcodes
+    //     },
+    //     success: function (response) {
+    //         if (response.success) {
+
+    //             alert(response.barcodes);
+    //             // response.barcodes.forEach(function (barcode) {
+    //             //     printReferenceBarcode(
+    //             //         barcode.test,
+    //             //         barcode.sample_no
+    //             //     );
+    //             // });
+    //         }
+    //     }
+    // });
+}
 
 
 
@@ -1560,6 +1761,40 @@ Add New Patient
     text-decoration: none;
     cursor: pointer;
     }
+
+    .barcode-label {
+      width: 300px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      text-align: center;
+      margin: 20px auto;
+      display: none;
+    }
+
+    .barcode-top {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .barcode-info {
+    margin-top: 4px;
+    text-align: left;
+    padding-left: 5px; /* slight padding for neat look */
+    }
+
+    .barcode-info div {
+    margin: 2px 0;
+    }
+
+    .barcode-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2px;
+    font-size: 13px;
+    padding-right: 5px;
+    }
+
 </style>
 
 @stop
@@ -1685,11 +1920,11 @@ Add New Patient
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 150px;font-size: 18px; ">Age:</label>
                         <label style="width: 50px;font-size: 18px;  ">Years</label>
-                        <input type="number" name=" years" class="input-text" id="years" style="width: 60px;margin-right:15px">
+                        <input type="number" name=" years" class="input-text" id="years" value="0" style="width: 60px;margin-right:15px">
                         <label style="width: 65px;font-size: 18px; ">Months</label>
-                        <input type="number" name=" months" class="input-text" id="months" style="width: 60px;margin-right:15px">
+                        <input type="number" name=" months" class="input-text" id="months" value="0" style="width: 60px;margin-right:15px">
                         <label style="width: 45px;font-size: 18px; ">Days</label>
-                        <input type="number" name=" days" class="input-text" id="days" style="width: 60px">
+                        <input type="number" name=" days" class="input-text" id="days" value="0" style="width: 60px">
                     </div>
                     <div style="display: flex; align-items: center; margin-top: 5px;">
                         <label style="width: 150px;font-size: 18px; ">Gender:</label>
@@ -1970,8 +2205,8 @@ Add New Patient
                     <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none;">
                     <div style="display: flex; align-items: center;margin-top: 5px; ">
                         <label style="width: 150px;font-size: 18px; "><b>Barcode Options:</b></label>
+                        <input type="button" style="color:gray" class="btn" id="print_barcode" value="Print Barcode " onclick="getSingleBarcode()">
                         <input type="button" style="color:gray" class="btn" id="group_barcode" value="Group Barcodes" onclick="">
-                        <input type="button" style="color:gray" class="btn" id="print_barcode" value="Print Barcode " onclick="">
                         <input type="button" style="color:gray" class="btn" id="bulck_barcode" value="Bulck Barcode" onclick="">
                         <input type="button" style="color:gray" class="btn" id="remove_barcode" value="Remove Barcode" onclick="">
                     </div>
@@ -2018,7 +2253,32 @@ Add New Patient
                         </div>
                     </div>
 
-              
+                
+                    {{-- <div style="text-align: center; margin-bottom: 20px; font-family: Arial, sans-serif;">
+                        
+                        <canvas id="barcodeCanvas"></canvas>
+                        <div style="font-size: 14px; margin-top: 5px;">
+                            <div><strong>Mr. Manula Hashan Rajapaksha</strong></div>
+                            <div>Full Blood Count</div>
+                            <div>2025-05-21 08:00:00 |  24 Y 4 M 20 D</div>
+                        </div>
+                    </div> --}}
+
+                    <div class="barcode-label" id="print_bcode" >
+                        <div class="barcode-top" id="bcode_sno"></div>
+                        <canvas id="barcodeCanvas"></canvas>
+                        <div class="barcode-info">
+                            <div><strong id="bcode_p_name"></strong></div>
+                            <div id="bcode_testname"></div>
+                            <div class="barcode-footer">
+                            <span id="barcode_date"></span>
+                            <span id="barcode_time"></span>
+                            <span id="barcode_p_age"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <iframe id="print-frame" style="display:none;"></iframe>
 
 
                     <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none;">

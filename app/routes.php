@@ -294,6 +294,7 @@ Route::get('/getUserDetailsByTP', 'PatientRegistrationController@getUserDetailsB
 Route::get('/getSelectedInvoice', 'PatientRegistrationController@getSampleTestData');
 Route::get('/getRefCode', 'PatientRegistrationController@getRefCode');
 Route::get('/getSearchPatient', 'PatientRegistrationController@getSearchSampleData');
+Route::get('/get_Single_Barcode', 'PatientRegistrationController@getSingleBarcode');
 
 
 
