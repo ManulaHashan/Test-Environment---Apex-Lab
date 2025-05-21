@@ -1426,7 +1426,7 @@ Add New Patient
     // Single Barcode Process
 
     function getSingleBarcode() {
-        var selectedRow = $('#Branch_record_tbl').find('tr.selected-row'); // You must handle row selection
+        var selectedRow = $('#Branch_record_tbl').find('tr.selected-row'); 
 
         if (selectedRow.length === 0) {
             alert("Please select a test!");
@@ -1435,7 +1435,7 @@ Add New Patient
 
         var tgid = selectedRow.find('td').eq(0).text();
         var testGroupName = selectedRow.find('td').eq(1).text();
-        var sno = $('#sampleNo').val(); // Sample number
+        var sno = $('#sampleNo').val(); 
         
         var initials = $('#initial').val();
         var fname = $('#fname').val();
@@ -2254,16 +2254,7 @@ Add New Patient
                     </div>
 
                 
-                    {{-- <div style="text-align: center; margin-bottom: 20px; font-family: Arial, sans-serif;">
-                        
-                        <canvas id="barcodeCanvas"></canvas>
-                        <div style="font-size: 14px; margin-top: 5px;">
-                            <div><strong>Mr. Manula Hashan Rajapaksha</strong></div>
-                            <div>Full Blood Count</div>
-                            <div>2025-05-21 08:00:00 |  24 Y 4 M 20 D</div>
-                        </div>
-                    </div> --}}
-
+                     <!-- Barcode div -->
                     <div class="barcode-label" id="print_bcode" >
                         <div class="barcode-top" id="bcode_sno"></div>
                         <canvas id="barcodeCanvas"></canvas>
