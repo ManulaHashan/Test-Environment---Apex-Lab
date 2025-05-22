@@ -1510,7 +1510,7 @@ Add New Patient
         format: "CODE128",
         displayValue: false,
         lineColor: "#000",
-        width: 2,
+        width: 3,
         height: 60,
         margin: 0
   });
@@ -1549,9 +1549,13 @@ Add New Patient
         position: absolute;
         top: 10mm;
         left: 10mm;
-        transform: scale(0.3); /* Increased from 0.1 to 0.3 */
+        transform: scale(0.8); /* Increased from 0.1 to 0.3 */
         transform-origin: top left;
         width: 300px;
+        border: 1px solid #000;
+        padding: 10px;
+        background-color: #fff;
+       
     }
 
     .barcode-top {
