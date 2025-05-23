@@ -788,6 +788,16 @@ Route::get('/printinvoice/{id}', function($id) {
     return View::make('Invoices.Inv' . $lid)->with('sno', $arr[0])->with('date', $arr[1]);
 });
 
+//Print Barcode Route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/printBarcode/{id}', function($id) {
+
+    $arr = explode("&", $id);
+
+    $lid = $_SESSION["lid"];
+    
+    
+    return View::make('Barcodes.Common_Barcode' )->with('sno', $arr[0])->with('date', $arr[1])->with('isGroup', $arr[2])->with('tgid', $arr[3])->with('testGroupName', $arr[4]);
+});
 
 // text code buttons route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
