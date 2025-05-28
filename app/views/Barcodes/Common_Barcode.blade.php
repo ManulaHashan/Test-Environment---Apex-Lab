@@ -14,19 +14,21 @@
         table {
             width: 20%;
             border-collapse: collapse;
-            margin: 30px;
+            margin: 10px auto;
+            
         }
 
         td {
             border: 1px solid #000;
-            padding: 8px;
-            padding-right: 2px;
+            padding: 2px;
+            padding-right: 1px;
             vertical-align: top;
+            text-align: center;
         }
 
         .barcode-row {
             display: block;
-            margin-bottom: 20px; /* row අතර space එක */
+            margin-bottom: 20px; 
         }
 
         .barcode-label {
@@ -38,10 +40,20 @@
         }
 
         .barcode-top {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-weight: bold;
             font-size: 14px;
-            margin-bottom: 5px;
+            height: 40px;
+            padding: 0 5px;
+        }
+        .barcode-left {
+            text-align: left;
+            flex: 1;
+        }
+        .barcode-right {
+            text-align: right;
         }
 
         .barcode-info {
@@ -63,6 +75,30 @@
             margin-left: auto;
             margin-right: 8px auto;
         }
+        .hr-wrapper {
+            position: relative;
+            margin-left: 10px;
+            margin-right: 10px; /* optional for spacing */
+            margin-top: 10px;
+        }
+
+        hr.solid {
+            border: none;
+            border-top: 1px solid #141414;
+            margin: 0;
+            margin-right: -4px;
+        }
+
+        .hr-arrow {
+            position: absolute;
+            top: -6px; /* adjust to vertically align with <hr> */
+            right: -13px;
+            font-size: 10px;
+            color: #141414;
+            background-color: white; /* background to "cut" the line */
+            padding-left: 2px;
+           
+        }
     </style>
 </head>
 <body>
@@ -81,14 +117,16 @@ $duplicateBarsetRow = DB::table('addpatientconfigs')
     ->select('duplicate_barset')
     ->first();
 
-if ($duplicateBarsetRow && !empty($tgids)) {
-    foreach ($tgids as $tgid) {
-        if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
-            $specialChar = $matches[1];
-            break;
-        }
-    }
-}
+// if ($duplicateBarsetRow && !empty($tgids)) {
+//     foreach ($tgids as $tgid) {
+//         if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
+//             $specialChar = $matches[1];
+//             echo $specialChar;
+            
+//             break;
+//         }
+//     }
+// }
 ?>
 
 
@@ -141,29 +179,83 @@ foreach ($result_get_patient_details as $patient_details) {
     $initials = $patient_details->initials;
     $refby = $patient_details->refby;
 }
+
+$sample_containerName = DB::select("select s.name as containerName from Testgroup tg 
+    join sample_containers s on tg.sample_containers_scid = s.scid
+    where tg.tgid = ?", [$tgid]);
+
+foreach ($sample_containerName as $sample_containerName) {
+    $container_Name = $sample_containerName->containerName;
+}
+
 ?>
 
 <?php if ($isGroup == "false"): ?>
     <!-- Single Barcode -->
-    <table>
-        <tr class="barcode-row">
-            <td>
-                <div class="barcode-label">
-                    <div class="barcode-top"><?= htmlspecialchars($sno) ?></div>
-                    <canvas id="barcodeCanvas_single"></canvas>
-                    <div class="barcode-info">
-                        <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
-                        <div><?= htmlspecialchars($testGroupName) ?></div>
-                        <div class="barcode-footer">
-                            <span><?= htmlspecialchars($date) ?></span>
-                            <span><?= htmlspecialchars($arival_time) ?></span>
-                            <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
+
+    <?php 
+
+        if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
+            $specialChar = $matches[1];?>
+
+            <table>
+                <tr class="barcode-row">
+                    <td>
+                        <div class="barcode-label">
+                            <div class="barcode-top">
+                                <div class="barcode-left"><?= htmlspecialchars($sno) . " - " . $specialChar ?></div>
+                                <div class="barcode-right"><?= $container_Name ?></div>
+                            </div>
+                            <canvas id="barcodeCanvas_single"></canvas>
+                            <div class="hr-wrapper">
+                                <hr class="solid">
+                                <div class="hr-arrow">▶</div>
+                            </div>
+
+                            <div class="barcode-info">
+                                <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
+                                <div><?= htmlspecialchars($testGroupName) ?></div>
+                                <div class="barcode-footer">
+                                    <span><?= htmlspecialchars($date) ?></span>
+                                    <span><?= htmlspecialchars($arival_time) ?></span>
+                                    <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+                    </td>
+                </tr>
+            </table><?php   
+        }
+        else
+        {?>
+             <table>
+                <tr class="barcode-row">
+                    <td>
+                        <div class="barcode-label">
+                            <div class="barcode-top">
+                                <div class="barcode-left"><?= htmlspecialchars($sno)  ?></div>
+                                <div class="barcode-right"><?= $container_Name ?></div>
+                                
+                            </div>
+                            <canvas id="barcodeCanvas_single"></canvas>
+                            <div class="hr-wrapper">
+                                <hr class="solid">
+                                <div class="hr-arrow">▶</div>
+                            </div>
+                            <div class="barcode-info">
+                                <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
+                                <div><?= htmlspecialchars($testGroupName) ?></div>
+                                <div class="barcode-footer">
+                                    <span><?= htmlspecialchars($date) ?></span>
+                                    <span><?= htmlspecialchars($arival_time) ?></span>
+                                    <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table><?php
+        }?>
 
     <script>
         JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno) ?>", {
@@ -180,52 +272,139 @@ foreach ($result_get_patient_details as $patient_details) {
     <!-- Grouped Barcodes -->
     <table>
         <?php
-        $groupedTests = [];
 
-        $results = DB::select("
-            SELECT a.Testgroup_tgid, b.sample_containers_scid 
-            FROM lps a 
-            LEFT JOIN Testgroup b ON a.Testgroup_tgid = b.tgid  
-            WHERE a.date = ? AND a.sampleNo LIKE ?
-        ", [$date, $sno . '%']);
+        
 
-        foreach ($results as $row) {
-            $scid = $row->sample_containers_scid;
-            $tgid = $row->Testgroup_tgid;
+        
+$groupedTests = [];
 
-            if (!isset($groupedTests[$scid])) {
-                $groupedTests[$scid] = [];
-            }
+$results = DB::select("
+    SELECT a.Testgroup_tgid, b.sample_containers_scid 
+    FROM lps a 
+    LEFT JOIN Testgroup b ON a.Testgroup_tgid = b.tgid  
+    WHERE a.date = ? AND a.sampleNo LIKE ?
+", [$date, $sno . '%']);
 
-            if (!in_array($tgid, $groupedTests[$scid])) {
-                $groupedTests[$scid][] = $tgid;
+foreach ($results as $row) {
+    $scid = $row->sample_containers_scid;
+    $tgid = $row->Testgroup_tgid;
+
+    if (!isset($groupedTests[$scid])) {
+        $groupedTests[$scid] = [];
+    }
+
+    if (!in_array($tgid, $groupedTests[$scid])) {
+        $groupedTests[$scid][] = $tgid;
+    }
+}
+
+// Load all duplicate barset once
+$duplicateBarsetRow = DB::table('addpatientconfigs')
+    ->where('lab_lid', $labLid)
+    ->select('duplicate_barset')
+    ->first();
+
+$duplicateMap = [];
+if ($duplicateBarsetRow) {
+    preg_match_all('/(\d+):(\w)/', $duplicateBarsetRow->duplicate_barset, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+        $duplicateMap[$match[1]] = $match[2]; // tgid => specialChar
+    }
+}
+
+foreach ($groupedTests as $scid => $tgids) {
+    $normalTests = [];
+    foreach ($tgids as $tgid) {
+        $tgRow = DB::selectOne("SELECT name FROM Testgroup WHERE tgid = ?", [$tgid]);
+        $abbr = '';
+        if ($tgRow) {
+            $words = explode(' ', $tgRow->name);
+            foreach ($words as $word) {
+                $abbr .= strtoupper(substr($word, 0, 1));
             }
         }
 
-        foreach ($groupedTests as $scid => $tgids) {
-            $testNames = [];
-            if (!empty($tgids)) {
-                $placeholders = implode(',', array_fill(0, count($tgids), '?'));
-                $tgResults = DB::select("SELECT name FROM Testgroup WHERE tgid IN ($placeholders)", $tgids);
-                foreach ($tgResults as $tg) {
-                    
-                    $words = explode(' ', $tg->name);
-                    $abbr = '';
-                    foreach ($words as $word) {
-                        $abbr .= strtoupper(substr($word, 0, 1));
-                    }
-                    $testNames[] = $abbr;
-                }
-            }
+        if (isset($duplicateMap[$tgid])) {
 
-            $testsList = implode(', ', $testNames);
-            $barcodeID = "barcodeCanvas_" . $scid;
+            // Load all duplicate barset once
+            $sample_container = DB::table('sample_containers')
+            ->where('scid', $scid)     
+            ->select('name as sample')
+           ->first();
+            // special barcode
+            $barcodeID = "barcodeCanvas_" . $scid . "_special_" . $tgid;
+            $barcodeCode = $sno . '-' . $duplicateMap[$tgid] .'-' . $sample_container->sample;
+            $barcodeCodeGEN = $sno;            
+            ?>
+            <tr class="barcode-row">
+                <td>
+                    <div class="barcode-label">
+                        <div class="barcode-top">
+                            <div class="barcode-left"><?= htmlspecialchars($sno) ." - " . $duplicateMap[$tgid]   ?></div>
+                            <div class="barcode-right"><?=$sample_container->sample ?></div>
+                        </div>
+                        <canvas id="<?= htmlspecialchars($barcodeID) ?>"></canvas>
+                        <div class="hr-wrapper">
+                            <hr class="solid">
+                            <div class="hr-arrow">▶</div>
+                        </div>
+
+                        <div class="barcode-info">
+                            <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
+                            <div><?= htmlspecialchars($abbr) ?></div>
+                            <div class="barcode-footer">
+                                <span><?= htmlspecialchars($date) ?></span>
+                                <span><?= htmlspecialchars($arival_time) ?></span>
+                                <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <script>
+                JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($barcodeCodeGEN) ?>", {
+                    format: "CODE128",
+                    displayValue: false,
+                    lineColor: "#000",
+                    width: 3,
+                    height: 60,
+                    margin: 0,
+                    
+                });
+            </script>
+            <?php
+        } else {
+            // normal test, group later
+            $normalTests[] = $abbr;
+        }
+    }
+
+    if (!empty($normalTests)) {
+
+        // Load all duplicate barset once
+        $sample_container = DB::table('sample_containers')
+        ->where('scid', $scid)     
+        ->select('name as sample')
+        ->first();
+
+        $testsList = implode(', ', $normalTests);
+        $barcodeID = "barcodeCanvas_" . $scid . "_normal";
+        $barcodeCode = $sno . '-' . $sample_container->sample;
+        $barcodeCodeGEN = $sno;
         ?>
         <tr class="barcode-row">
             <td>
                 <div class="barcode-label">
-                    <div class="barcode-top"><?= htmlspecialchars($sno) ?></div>
+                    <div class="barcode-top">
+                        <div class="barcode-left"><?= htmlspecialchars($sno)  ?></div>
+                        <div class="barcode-right"><?=$sample_container->sample ?></div>
+                    </div>
                     <canvas id="<?= htmlspecialchars($barcodeID) ?>"></canvas>
+                   <div class="hr-wrapper">
+                        <hr class="solid">
+                        <div class="hr-arrow">▶</div>
+                    </div>
+
                     <div class="barcode-info">
                         <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
                         <div><?= htmlspecialchars($testsList) ?></div>
@@ -239,7 +418,7 @@ foreach ($result_get_patient_details as $patient_details) {
             </td>
         </tr>
         <script>
-            JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($sno . '-' . $scid) ?>", {
+            JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($barcodeCodeGEN) ?>", {
                 format: "CODE128",
                 displayValue: false,
                 lineColor: "#000",
@@ -248,7 +427,11 @@ foreach ($result_get_patient_details as $patient_details) {
                 margin: 0,
             });
         </script>
-        <?php } ?>
+        <?php
+    }
+}
+?>
+
     </table>
 <?php endif; ?>
 
