@@ -16,6 +16,9 @@ Add New Patient
 <script>
 
 $(document).ready(function () {
+    
+    window.scrollTo(0, 85);
+    
     const today = new Date().toISOString().split('T')[0];
     $('#ser_date').val(today);
     $('#patientDate').val(today);
@@ -1059,8 +1062,9 @@ document.addEventListener('click', function (event)
 function searchUserRecords()
 {
     var Usertpno = $('#Ser_tpno').val();
+    var anyFilter = $('#any_filter').is(':checked') ? 1 : 0;
 
-    if (Usertpno.length < 3) {
+    if (Usertpno.length < 4) {
         $('#tpno_suggestions').hide();
         return;
     }
@@ -1069,7 +1073,8 @@ function searchUserRecords()
         type: "GET",
         url: "/getAllUsers",
         data: {
-            Usertpno: Usertpno
+            Usertpno: Usertpno,
+            any_filter: anyFilter
         },
         success: function (data) {
             var suggestionsHtml = '';
@@ -1090,6 +1095,8 @@ function searchUserRecords()
         }
     });
 }
+
+
 
 
 function selectTP(tpno, userID)
@@ -1296,9 +1303,18 @@ function goToViewInvoice()
 }
 
 
+    //sample number edit true false
+document.addEventListener("DOMContentLoaded", function () {
+    var checkbox = document.getElementById('edit');
+    var sampleInput = document.getElementById('sampleNo');
 
+    checkbox.addEventListener('change', function () {
+        sampleInput.disabled = !checkbox.checked;
+    });
+});
 
-//When Payment method split and voucher payment feild disable function
+    //When Payment method split and voucher payment feild disable function
+
 function togglePaidField() {
     const paidField = document.getElementById('paid');
     const voucherSelected = document.getElementById('voucher').checked;
@@ -1763,9 +1779,9 @@ function barcodePrint(isGroup) {
         overflow-y: auto;
         position: absolute;
         z-index: 1000;
-        width: 250px;
-        margin-top: 120px;
-        margin-left: 150px;
+        width: 300px;
+        margin-top: 60px;
+        margin-left: 185px;
 
 
     }
@@ -1982,35 +1998,15 @@ function barcodePrint(isGroup) {
                                         }
                                         ?>
                                     </select>
-
-                                </td>
-                            </tr>
-
-                            <tr>
-
-                                <td>
-
-                                    <div class='form_label_sm2'>Search</div>
-
-
-                                </td>
-
-                                <td>
-                                    <input type="text" name="ser_pdetails" class="input-text" id="ser_pdetails">
-                                </td>
-
-                                <td>
                                     
-
-
-                                </td>
-
-                                <td>
                                     <input type="hidden" name="crBranch_id" id="crBranch_id">
                                     <input type="checkbox" name="lock_branch" id="lock_branch" value="1" style="margin:0">
-                                    Lock Branch
+                                    Lock
+
                                 </td>
                             </tr>
+
+                           
 
                             <tr>
                                 <td>
@@ -2021,7 +2017,9 @@ function barcodePrint(isGroup) {
 
                                 <td>
                                     <input type="hidden" id="user_Uid">
-                                    <input type="text" id="Ser_tpno" class="input-text" oninput="searchUserRecords()" maxlength="10" autocomplete="off" placeholder="Enter TP Number" >
+                                    <input type="text" id="Ser_tpno" class="input-text" oninput="searchUserRecords()" maxlength="20" autocomplete="off" placeholder="Enter TP Number" >
+                                    
+                                    <input type="checkbox" name="any_filter" id="any_filter" value="1" style="margin:0"> Any
 
                                     <div id="tpno_suggestions"
                                          class="p_suggest">
@@ -2136,61 +2134,61 @@ function barcodePrint(isGroup) {
         
         <table valign="top">
             <tr>
-                <td width='50%'>
+                <td width='50%' valign = "top">
                     
                     <!--Left Side -->
                         
                     <div style="padding: 10px; border: 2px #8e7ef7 solid; margin-right: 5px; border-radius: 10px;  ">
 
                         <div style="display: flex; align-items: center;  ">
-                            <label class='form_label_sm'>First Name</label>
-                            <select type="text" name="initial" class="input-text" id="initial" style="width: 80px; height: 30px; ">
+                            <label class='form_label_sm'>Patient Name</label>
+                            <select type="text" name="initial" class="input-text" id="initial" style="width: 70px;">
                                 <option value="Mr">Mr</option>
                                 <option value="Mrs">Mrs</option>
                                 <option value="Miss">Miss</option>
                                 <option value="Dr">Dr</option>
                                 <option value="Hons">Hons</option>
                             </select>
-                            <input type="text" name=" fname" class="input-text" id="fname" style="width: 370px">
+                            <input type="text" name=" fname" class="input-text" id="fname" style="width: 180px" placeholder="First Name">
+                            <input type="text" name=" lname" class="input-text" id="lname" style="width: 180px" placeholder="Last Name">
                         </div>
-                        <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label class='form_label_sm'>Last Name:</label>
-                            <input type="text" name=" lname" class="input-text" id="lname" style="width: 240px">
-                            <label style="width: 50px;   ">DOB</label>
-                            <input type="date" name="dob" class="input-text" id="dob" style="width: 140px">
+
+                        <div style="display: flex; align-items: center; margin-top: 10px; ">
+                            <label class='form_label_sm'>Age</label>
+                            
+                            <input type="number" name=" years" class="input-text" id="years" style="width: 60px;margin-right:15px" placeholder="Years">
+                            
+                            <input type="number" name=" months" class="input-text" id="months" style="width: 60px;margin-right:15px" placeholder="Months">
+                            
+                            <input type="number" name=" days" class="input-text" id="days" style="width: 60px" placeholder="Days">
+                            
+                            <label style="width: 50px;  margin-left: 10px ">DOB</label>
+                            <input type="date" name="dob" class="input-text" id="dob" style="width: 112px">
                         </div>
-                        <div style="display: flex; align-items: center;margin-top: 5px; ">
-                            <label class='form_label_sm'>Age:</label>
-                            <label style="width: 50px;   ">Years</label>
-                            <input type="number" name=" years" class="input-text" id="years" value="0" style="width: 60px;margin-right:15px">
-                            <label style="width: 65px;  ">Months</label>
-                            <input type="number" name=" months" class="input-text" id="months" value="0" style="width: 60px;margin-right:15px">
-                            <label style="width: 45px;  ">Days</label>
-                            <input type="number" name=" days" class="input-text" id="days" value="0" style="width: 60px">
-                        </div>
-                        <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label class='form_label_sm'>Gender:</label>
+                        <div style="display: flex; align-items: center; margin-top: 10px;">
+                            <label class='form_label_sm'>Gender</label>
                             <label><input type="radio" id="male" name="gender" value="1"> Male</label>
                             <label><input type="radio" id="female" name="gender" value="2"> Female</label>
+                            
+                            <label style="margin-left:20px; margin-right: 5px;">NIC NO</label>
+                            <input type="text" name=" nic" class="input-text" id="nic" style="width: 230px">
+                            
+                            
                         </div>
                         <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label class='form_label_sm'>NIC NO:</label>
-                            <input type="text" name=" nic" class="input-text" id="nic" style="width: 450px">
+                            
                         </div>
                         <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label class='form_label_sm'>Address:</label>
+                            <label class='form_label_sm'>Address</label>
                             <input type="text" name="address" class="input-text" id="address" style="width: 450px">
                         </div>
-                        <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label class='form_label_sm'>Ref.Code:</label>
-                            <input type="text" name="refcode" class="input-text" id="refcode" style="width: 260px" oninput="searchRefferenceCode()">
+                        <div style="display: flex; align-items: center; margin-top: 0px;">
+                            <label class='form_label_sm'>Ref.By</label>
+                            <input type="text" name="refcode" class="input-text" id="refcode" style="width: 60px" oninput="searchRefferenceCode()" placeholder="Ref. Code">
                             <div id="refcode_suggestions" class="autocomplete-suggestions"></div>
                             <input type="hidden" id="hidden_idref" name="idref">
-                            <input type="button" style="color:green" class="btn" id="resetbtn" style='margin:0px;' value="Add New Reference" onclick="window.location.href ='{{ url('/doc-reference') }}';">
-                        </div>
-                        <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label class='form_label_sm'>Referred:</label>
-                            <select name="ref" style="width: 470px;" class="input-text" id="refDropdown" onchange="updateRefCode()">
+                            
+                            <select name="ref" style="width: 325px; height: 27px;" class="input-text" id="refDropdown" onchange="updateRefCode()" placeholder="Referred By Name">
 
                                 <option value=""></option>
                                 <?php
@@ -2210,8 +2208,11 @@ function barcodePrint(isGroup) {
                                 }
                                 ?>
                             </select>
+
+                            <input type="button" style="color:green" class="btn" id="resetbtn" style='margin:0px;' value="+" onclick="window.location.href ='{{ url('/doc-reference') }}';">
                         </div>
-                        <hr style=" background-color: rgb(19, 153, 211); height: 2px; border: none; margin-top: 20px;">
+                        
+                        <hr style=" background-color: rgb(19, 153, 211); height: 2px; border: none; ">
                         <!-- <div style="display: flex; align-items: center; margin-top: 5px;">
                             <label style="width: 150px;  "><b>Test Name</b>:</label>
                             <input type="text" name="testname" class="input-text" id="testname" list="testlist" oninput="setDataToTable(this.value)" style="width: 350px">
@@ -2221,7 +2222,7 @@ function barcodePrint(isGroup) {
                         </div> -->
 
                         <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label class='form_label_sm'><b>Test Name</b>:</label>
+                            <label class='form_label_sm'><b>Test Name</b></label>
                             <!-- Using onchange event here to trigger the function when a valid value is selected -->
                             <input type="text" name="testname" class="input-text" id="testname" list="testlist" onchange="setDataToTable(this.value)" style="width: 100px">
                             <datalist id="testlist">
@@ -2239,59 +2240,8 @@ function barcodePrint(isGroup) {
                             <label style="width: 70px;   "><b>By Name</b></label> -->
                         </div>
 
-
-
-
-
-
-                        <div id="testCodeButtons" style="display: flex; align-items: center; margin-top: 5px;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>   
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%;  height: 35px;padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%; height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="width: 100%;  height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-
                         <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label style="width: 150px;  "><b>Package Name</b>:</label>
+                            <label style="width: 100px;  "><b>Package</b></label>
                             <input type="text" name="packageDropdown" class="input-text" id="packageDropdown"
                                 list="package_test_list"
                                 onchange="load_package_tests()"
@@ -2326,7 +2276,7 @@ function barcodePrint(isGroup) {
                     <div style="padding: 10px; border: 2px #8e7ef7 solid; margin-right: 5px; margin-top: 2px; border-radius: 10px; background-color: #dce9d8">
 
 
-                        <div style="display: flex; align-items: center; margin-top: 5px;">
+                        <div style="display: flex; align-items: center; margin-top: 0px;">
                             <label style="width: 125px;  ">Total Amount:</label>
                             <label style="width: 30px;  ">Rs: </label>
                             <label id="total_amount" style=" padding-right: 50px; font-size: large; color: rgb(17, 17, 17); font-family: 'Times New Roman', Times, serif; font-weight: bolder;">000,000.00</label>
@@ -2354,9 +2304,9 @@ function barcodePrint(isGroup) {
 
                         </div>
 
-                        <div style="display: flex; align-items: center; margin-top: 20px;">
-                            <label style="width: 125px;  "><b>Grand Total:</b></label>
-                            <label style="width: 30px;  margin-left: 20px;">Rs: </label>
+                        <div style="display: flex; align-items: center; margin-top: 10px;">
+                            <label style="width: 140px;  "><b>Grand Total:</b></label>
+                            <label style="width: 20px;  margin-left: 20px;">Rs: </label>
                             <label style="padding-left: 10px; padding-right: 45px; color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="grand_total">000,000.00</label>
 
                             <label><input type="radio" name="payment_method" id="cash" value="1" checked onchange="togglePaidField();"> Cash</label>
@@ -2367,7 +2317,7 @@ function barcodePrint(isGroup) {
                             <label><input type="radio" name="payment_method" id="split" value="5" onchange="togglePaidField();"> Split</label>
                         </div>
 
-                        <div style="display: flex; align-items: center; margin-top: 20px;">
+                        <div style="display: flex; align-items: center; margin-top: 10px;">
                             <label style="width: 125px;  ">Payment:</label>
                             <label style="width: 30px;  ">Rs: </label>
                             <input type="number" name="paid" class="input-text" id="paid" style="width: 97px;" oninput="calculateDue()">
@@ -2398,9 +2348,9 @@ function barcodePrint(isGroup) {
                             <input type="number" name="card_amount" class="input-text" id="split_card_amount" style="width: 80px;" oninput="">
 
                         </div>
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-                            <input type="button" style="color:black; width: 180px; height: 30px;" class="btn" id="cashDrower" value="Cash Drawer">
-                            <input type="button" style="color:black; width: 210px; height: 30px;" onclick="viewSelectedInvoicePayments()" class="btn" id="update_payment" value="Update Payment">
+                        <div style="display: flex; margin-top: 5px;">
+                            <input type="button" style="color:black; width: 180px; height: 30px; margin-left: 0px;" class="btn" id="cashDrower" value="Cash Drawer">
+                            <input type="button" style="color:black; width: 210px; height: 30px; margin-left: 0px;" onclick="viewSelectedInvoicePayments()" class="btn" id="update_payment" value="Update Payment">
                         </div>
 
 
@@ -2413,10 +2363,57 @@ function barcodePrint(isGroup) {
                 <td valign = "top">
                     
                             <!-- Right Side -->
+                            
+                            
 
-                    <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; border-radius: 10px; width: 90%">
-                        <div style="height: 340px; ">
-                            <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 11pt;" id="test_tbl" width="100%" border="0" cellspacing="2" cellpadding="0">
+                    <div style="flex: 1; padding-left: 10px; padding-right: 10px; border: 2px #8e7ef7 solid; border-radius: 10px; width: 95%">
+                        
+                        <div id="testCodeButtons" style="display: flex; align-items: center; margin-top: 5px; overflow-x: scroll; width: 600px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 5px;">
+                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>   
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                
+                                    <td style="padding: 5px;">
+                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style=" height: 35px;padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div style="height: 200px; overflow-y: scroll">
+                            <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 10pt;" id="test_tbl" width="100%" border="0" cellspacing="2" cellpadding="0">
                                 <thead>
                                     <tr class="viewTHead" style="height:30px;">
                                         <td align="left" class="fieldText" style="width: 20px;">ID</td>
@@ -2435,87 +2432,91 @@ function barcodePrint(isGroup) {
                                 </tbody>
                             </table>
                         </div>
-                        <div style="display: flex; align-items: center;margin-top: 5px; ">
-                            <!--<label style="width: 150px;  ">Pending Samples:</label>-->
-                            
-                            <label style="width: 150px;  ">Invoice Remark:</label>
-                            <input type="text" name=" inv_remark" class="input-text" id="inv_remark" style="width: 200px">
-                            
-                            <label style="width: 140px; font-size: 10pt;  "><b>Repeat Samples</b></label>
-                            <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1">
-                            
-                            <input type="button" style="color:gray; margin: 0;" class="btn" id="make_priority" value="Make Priority" onclick="">
-                        </div>
-                        <div style="display: flex; align-items: center;margin-top: 5px; ">
-                            
-                        </div>
-                        <hr style=" background-color: rgb(19, 153, 211); height: 5px; border: none;">
-                        <div style="display: flex; align-items: center;margin-top: 5px; " class="barcode_panal">
-                            <input type="button" style="color:gray" class="btn" id="print_barcode" value="Print Barcode " onclick="barcodePrint(false)">
-                            <input type="button" style="color:gray" class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);">
-                            <input type="button" style="color:gray" class="btn" id="bulck_barcode" value="Bulk Barcode" onclick="">
-                            <input type="button" style="color:gray" class="btn" id="remove_barcode" value="Remove Barcode" onclick="">
-                        </div>
-                        <hr style=" background-color:rgb(19, 153, 211); height: 5px; border: none;">
-                        <div style="display: flex; align-items: center;margin-top: 5px; ">
-                            
-                        </div>
-                        <div style="display: flex; align-items: center;margin-top: 2px; font-size: 12px; ">
-                            <label style="width: 230px;  "><b>Report Collection Method</b></label>
-                        </div>
                         
-                        <table>
-                            <tr>
-                                <td>
-                                    <p><input type="checkbox" name="hard_copy" id="hard_copy" value="Hard Copy" checked >Hard Copy</p>
-                                </td>
-                                
-                                <td>
-                                    <p>
-                                    <input type="checkbox" name="sms" id="sms" value="SMS" style="">SMS</p>
-                                </td>
-                                
-                                <td>
-                                    <p>
-                                <input type="checkbox" name="email" id="email" value="Email" style="">Email</p>
-                                </td>
-                                
-                                <td>
-                                    <p>
-                                <input type="checkbox" name="whatsapp" id="whatsapp" value="WhatsApp" style="">WhatsApp</p>
-                                </td>
-                                
-                                
-                                
-                                
-                            </tr>
+                        
+                        <table width="100%">
                             
                             <tr>
-                                <td>
-                                    <p>
-                                <input type="checkbox" name="package_invoice" id="package_invoice" value="package_invoice" style="">Package Invoice</p>
+                                <td width="50%" valign="top">
+                                    <input type="button" style="color:gray; margin: 0; width: 100%;" class="btn" id="make_priority" value="Make Priority" onclick="">
+                                    
+                                    <input type="text" name=" inv_remark" class="input-text" id="inv_remark" style="width: 92%; margin-top: 5px;" placeholder="Invoice Remark">
+                                    
+                                    <div style="display: flex; align-items: center;margin-top: 10px; font-size: 12px; ">
+                                        <label style="width: 230px;  "><i>Report Collection Method</i></label>
+                                    </div>
+
+                                    <table style="margin-top: 5px; font-size: 10pt;" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td width="25%">
+                                            <input type="checkbox" name="hard_copy" id="hard_copy" value="Hard Copy" checked ><br/>Hard Copy
+                                        </td>
+
+                                        <td width="25%">
+                                            
+                                            <input type="checkbox" name="sms" id="sms" value="SMS" style=""><br/>SMS
+                                        </td>
+
+                                        <td width="25%">
+                                            
+                                        <input type="checkbox" name="email" id="email" value="Email" style=""><br/>Email
+                                        </td>
+
+                                        <td width="25%"> 
+                                            
+                                        <input type="checkbox" name="whatsapp" id="whatsapp" value="WhatsApp" style=""><br/>WhatsApp
+                                        </td>
+
+                                    </tr>
+                                    </table>
+                                    
+                                    <table style="margin-top: 10px; font-size: 10pt;" cellspacing="0" width="100%">
+                                    
+                                    <tr style="margin-top:10px;">
+                                        <td width="25%">
+                                            
+                                        <input type="checkbox" name="package_invoice" id="package_invoice" value="package_invoice" style=""><br/>Package Invoice
+                                        </td>
+
+                                        <td width="25%">
+                                            
+                                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1" style=""><br/>Print Bill
+                                        </td>
+
+                                        <td width="25%">
+                                            
+                                        <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1" style=""><br/>Claim Bill
+                                        </td>
+
+                                        <td width="25%">
+                                            
+                                        <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1" style=""><br/>2 Copies
+                                        </td>
+
+                                        
+                                    </tr>
+
+                                </table>
+                                    
                                 </td>
                                 
-                                <td>
-                                    <p for="print_bill" style=" ">
-                                <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1" style="">Print Bill</p>
-                                </td>
+                                <td valign="top" width="0.5%" ><div style="background-color: #4b9bf0; width: 3px; height: 180px; margin-left: 10px;"></div></td>
                                 
-                                <td>
-                                    <p for="claim_bill" style=" ">
-                                <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1" style="">Claim Bill</p>
-                                </td>
                                 
-                                <td>
-                                    <p for="two_copies" style=" ">
-                                <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1" style="">2 Copies</p>
-                                </td>
-                                
-                                <td>
+                                <td width="49%" valign="top" align="right"> 
+                                    <label style="width: 140px; font-size: 10pt;  "><b>Repeat Samples</b></label>
+                                    <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1">
+                                    <input type="button" style="color:gray; width: 90%; " class="btn" id="print_barcode" value="Print Barcode " onclick="barcodePrint(false)">
+                                    <input type="button" style="color:gray; width: 90%;" class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);">
+                                    <input type="button" style="color:gray; width: 90%;" class="btn" id="remove_barcode" value="Remove Barcode" onclick="">
+                                    
+                                    <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords(); savePatientDetails()">  
                                     
                                 </td>
                             </tr>
+                            
                         </table>
+
                         
                 
 
@@ -2543,7 +2544,7 @@ function barcodePrint(isGroup) {
                                 
                                 <tr>
                                     <td>
-                                    <input type="button" style="color:green; width: 190px; height: 40px; margin: 0px;" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords(); savePatientDetails()">  
+                                        <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="view_invoicebtn" value="View Invoice" onclick="goToViewInvoice()">
                                     </td>
                                     
                                     <td>
@@ -2565,7 +2566,7 @@ function barcodePrint(isGroup) {
                                     </td>
                                     
                                     <td>
-                                        <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="view_invoicebtn" value="View Invoice" onclick="goToViewInvoice()">
+                                        
                                     </td>
                                 </tr>
                                 

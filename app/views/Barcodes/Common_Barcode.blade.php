@@ -67,6 +67,44 @@
 </head>
 <body>
 
+ 
+
+
+
+ {{-- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- --}}
+<?php
+  $specialChar = '';
+  $labLid = $_SESSION['lid'];
+
+$duplicateBarsetRow = DB::table('addpatientconfigs')
+    ->where('lab_lid', $labLid)
+    ->select('duplicate_barset')
+    ->first();
+
+if ($duplicateBarsetRow && !empty($tgids)) {
+    foreach ($tgids as $tgid) {
+        if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
+            $specialChar = $matches[1];
+            break;
+        }
+    }
+}
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+ {{-- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- --}}
+
 <?php
 
 

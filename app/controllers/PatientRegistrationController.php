@@ -204,33 +204,56 @@ class PatientRegistrationController extends Controller
     //     return Response::json($Result);
     // }
 
+    // public function getAllUsers()
+    // {
+    //     $tpno = Input::get('Usertpno');
+
+    //     $user = DB::table('user as a')
+    //         ->select('a.uid','a.fname', 'a.lname', 'a.tpno', 'b.initials')
+    //         ->from(DB::raw('user as a, patient as b, lps as c'))
+    //         ->whereRaw('a.uid = b.user_uid')
+    //         ->whereRaw('b.pid = c.patient_pid')
+    //         ->where('c.Lab_lid', $_SESSION['lid'])
+    //         ->where('a.tpno', 'like', $tpno . '%')
+    //         ->groupBy('a.uid')
+    //         ->get();
+
+    //     return Response::json($user);
+    // }
+
     public function getAllUsers()
     {
         $tpno = Input::get('Usertpno');
+        $anyFilter = Input::get('any_filter');
 
-        // $query = DB::table('user')
-        //     ->where('tpno', 'LIKE', '%' . $tpno . '%')
-        //     ->select(
-        //         'uid',
-        //         'fname',
-        //         'lname',
-        //         'tpno'
-        //     )
-        //     ->orderBy('fname', 'ASC')->get();
+        $query = DB::table('user as a')
+            ->join('patient as b', 'a.uid', '=', 'b.user_uid')
+            ->join('lps as c', 'b.pid', '=', 'c.patient_pid')
+            ->select('a.uid', 'a.fname', 'a.lname', 'a.tpno', 'b.initials')
+            ->where('c.Lab_lid', $_SESSION['lid']);
 
+        if ($anyFilter) {
+            // Universal search - match tpno or fname or lname
+            $query->where(function($q) use ($tpno) {
+                $q->where('a.tpno', 'like', '%' . $tpno . '%')
+                ->orWhere('a.fname', 'like', '%' . $tpno . '%')
+                ->orWhere('a.lname', 'like', '%' . $tpno . '%');
+            });
+        } else {
+            // Default tpno search
+            $query->where('a.tpno', 'like', $tpno . '%');
+        }
 
-        $user = DB::table('user as a')
-            ->select('a.uid','a.fname', 'a.lname', 'a.tpno', 'b.initials')
-            ->from(DB::raw('user as a, patient as b, lps as c'))
-            ->whereRaw('a.uid = b.user_uid')
-            ->whereRaw('b.pid = c.patient_pid')
-            ->where('c.Lab_lid', $_SESSION['lid'])
-            ->where('a.tpno', 'like', $tpno . '%')
-            ->groupBy('a.uid')
-            ->get();
+        $query->groupBy('a.uid');
+
+        $user = $query->get();
 
         return Response::json($user);
     }
+
+
+
+
     public function getUserDetailsByTP()
     {
         $user_ID = Input::get('useruid');
