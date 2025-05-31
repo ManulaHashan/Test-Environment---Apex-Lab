@@ -295,6 +295,8 @@ Route::get('/getSelectedInvoice', 'PatientRegistrationController@getSampleTestDa
 Route::get('/getRefCode', 'PatientRegistrationController@getRefCode');
 Route::get('/getSearchPatient', 'PatientRegistrationController@getSearchSampleData');
 Route::get('/get_Single_Barcode', 'PatientRegistrationController@getSingleBarcode');
+Route::post('/checkSampleNo', 'PatientRegistrationController@checkSampleNo');
+
 
 
 

@@ -562,6 +562,23 @@ class PatientRegistrationController extends Controller
         // return Response::json(['success' => true, 'message' => 'Patient details saved successfully.','datainv' => $getSampleNo."###".date('Y-m-d')]);
     }
 
+    public function checkSampleNo()
+    {
+        $sampleNo = Input::get('sample_no');
+        $patientDate = Input::get('patientDate');
+        $labid = $_SESSION['lid'];
+
+        // Search in lps table for same sample number and date
+        $exists = DB::table('lps')
+            ->where('sampleNo', $sampleNo)
+            ->where('Lab_lid', $labid)
+            ->whereDate('date', '=', $patientDate)
+            ->exists(); // true or false
+
+        return Response::json(['exists' => $exists]);
+    }
+
+
     public function getSampleTestData()
     {
         $sampleNo = Input::get('sampleNo');

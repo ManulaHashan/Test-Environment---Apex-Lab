@@ -10,6 +10,7 @@ Add New Patient
 
 <script src="{{ asset('JS/ReportCalculations.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
 
@@ -50,192 +51,7 @@ $(document).ready(function () {
 
 });
 
-//view selected invoice
-function view_selected_patient(sampleNo, date)
-{
-    $.ajax({
-        async: true,
-        type: "GET",
-        url: "getSelectedInvoice",
-        data: {
-            'sampleNo': sampleNo,
-            'date': date
-        },
-        dataType: "json",
-        success: function (response) {
-            if (response.success) {
-                const patientData = response.data.patient;
-                const testData = response.data.tests;
-                const invoiceData = response.data.invoice;
-                const invoicePayments = response.data.invoicePayments;
-                const lpsRecords = response.data.lpsRecords;
-                const firstRecord = lpsRecords[0] || {};
 
-
-
-                // Populate patient fields
-                $('#initial').val(patientData.initials || ''); // Use empty string if null
-                $('#fname').val(patientData.fname || '');
-                $('#lname').val(patientData.lname || '');
-                $('#dob').val(patientData.dob || '');
-                $('#nic').val(patientData.nic || '');
-                $('#address').val(patientData.address || '');
-                $('input[name="gender"][value="' + patientData.gender_idgender + '"]').prop('checked', true);
-                $('#years').val(patientData.age || '');
-                $('#months').val(patientData.months || '');
-                $('#days').val(patientData.days || '');
-                $('#Ser_tpno').val(patientData.tpno || '');
-                $('#invoiceId').val(invoiceData.iid || '');
-                $('#patientDate').val(date || '');
-
-
-                invoicePayments.forEach(function (payment) {
-
-                    document.getElementById("vaucher_div").style.display = "none";
-                    document.getElementById("split_div").style.display = "none";
-
-
-                    if (payment.paymethod == '1') {
-                        $('#split_cash_amount').val(payment.amount || '');
-                    } else if (payment.paymethod == '2') {
-                        $('#split_card_amount').val(payment.amount || '');
-                    }
-
-                    if (payment.paymentmethod == 'split') {
-                        document.getElementById("split_div").style.display = "flex";
-                    } else if (payment.paymentmethod == 'voucher') {
-                        document.getElementById("vaucher_div").style.display = "flex";
-                    } else {
-                        document.getElementById("vaucher_div").style.display = "none";
-                        document.getElementById("split_div").style.display = "none";
-                    }
-
-                });
-
-
-                // $('#split_cash_amount').val(invoicePayments.amount || '');
-                // $('#split_card_amount').val(invoicePayments.amount || '');
-
-
-
-
-                $('#refDropdown').val(firstRecord.ref_id || '');
-                $('#refDropdown option').filter(function () {
-                    return $(this).text().trim() === firstRecord.refby;
-                }).prop('selected', true);
-
-
-                $('#refcode').val(firstRecord.code || '');
-                $('#inv_remark').val(firstRecord.specialnote || '');
-
-
-                // Set the discount dropdown value
-                if (invoiceData && invoiceData.did && invoiceData.value) {
-                    $('#discount_percentage').val(invoiceData.did + ":" + invoiceData.value);
-                } else {
-                    $('#discount_percentage').val('');
-                }
-                $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00');
-                $('#discount').val(invoiceData.discount || 0);
-                $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00');
-                $('#paid').val(invoiceData.paid || 0);
-                $('#due').text((invoiceData.gtotal - invoiceData.paid).toFixed(2));
-
-                var paymeth = "";
-                $('input[name="payment_method"]').prop('checked', false);
-                if (invoiceData.paymentmethod == 'cash') {
-                    paymeth = "1";
-                } else if (invoiceData.paymentmethod == 'card') {
-                    paymeth = "2";
-                } else if (invoiceData.paymentmethod == 'voucher') {
-                    paymeth = "6";
-                } else if (invoiceData.paymentmethod == 'split') {
-                    paymeth = "5";
-                } else if (invoiceData.paymentmethod == 'credit') {
-                    paymeth = "credit";
-                } else if (invoiceData.paymentmethod == 'cheque') {
-                    paymeth = "3";
-                }
-                $('input[name="payment_method"][value="' + paymeth + '"]').prop('checked', true);
-
-                if (invoiceData && invoiceData.multiple_delivery_methods) {
-                    try {
-                        console.log("Raw delivery methods:", invoiceData.multiple_delivery_methods);
-                        const deliveryMethods = invoiceData.multiple_delivery_methods
-                                .split(',')
-                                .map(method => method.trim());
-
-                        console.log("Parsed methods:", deliveryMethods);
-                        $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
-                        deliveryMethods.forEach(method => {
-                            $(`#${method.toLowerCase().replace(' ', '_')}`).prop('checked', true);
-                        });
-
-                    } catch (e) {
-                        console.error("Error parsing delivery methods:", e);
-                        $('#hard_copy').prop('checked', true);
-                    }
-                } else {
-                    console.log("No delivery methods found, using default");
-                    $('#hard_copy').prop('checked', true);
-                }
-
-
-                $('#Branch_record_tbl').empty();
-
-                testData.forEach(test => {
-                    let rowStyle = '';
-                    let urgentDisplay = '';
-
-                    // Check if the test's lpsid is marked as urgent in lpsRecords
-                    const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
-
-                    if (matchingLps) {
-                        rowStyle = 'style="background-color: pink;"';
-                        urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
-                    }
-
-                    const newRow = `
-                            <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
-                                <td align="left">${test.tgid}</td>
-                                <td align="left">${test.group}</td>
-                                <td align="right" class="price-column">${test.price.toFixed(2)}</td>
-                                <td align="left">${test.time}</td>
-                                <td align="right">${test.f_time}</td>
-                                <td align="left">
-                                    <input type="checkbox" class="barcode-checkbox" checked>
-                                </td>
-                                <td align="center">${urgentDisplay}</td>  
-                                <td align="center">${test.type}</td>  
-                            </tr>`;
-
-                    $('#Branch_record_tbl').append(newRow);
-                });
-
-
-                if (sampleNo == "") {
-                    $("#savebtn").attr("disabled", false);
-                    $("#fname").attr("disabled", false);
-                } else {
-                    $("#savebtn").attr("disabled", true);
-                    $("#fname").attr("readonly", true);
-
-                }
-
-
-
-
-            } else {
-                alert(response.message || 'No data found.');
-            }
-        },
-        error: function (xhr) {
-            console.log('Error:', xhr);
-            var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
-            alert(errorMsg);
-        }
-    });
-}
 
 
 
@@ -698,7 +514,6 @@ function getAllTableRecords()
 // ******************Function to save the  data*************************************************************
 
 
-
 function savePatientDetails()
 {
     var testData = [];
@@ -880,10 +695,199 @@ function savePatientDetails()
 }
 
 
-// ******************Bill search Function************************************
 
 
 
+
+//view selected invoice in viewinvoice page proces related function
+function view_selected_patient(sampleNo, date)
+{
+    $.ajax({
+        async: true,
+        type: "GET",
+        url: "getSelectedInvoice",
+        data: {
+            'sampleNo': sampleNo,
+            'date': date
+        },
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                const patientData = response.data.patient;
+                const testData = response.data.tests;
+                const invoiceData = response.data.invoice;
+                const invoicePayments = response.data.invoicePayments;
+                const lpsRecords = response.data.lpsRecords;
+                const firstRecord = lpsRecords[0] || {};
+
+
+
+                // Populate patient fields
+                $('#initial').val(patientData.initials || ''); // Use empty string if null
+                $('#fname').val(patientData.fname || '');
+                $('#lname').val(patientData.lname || '');
+                $('#dob').val(patientData.dob || '');
+                $('#nic').val(patientData.nic || '');
+                $('#address').val(patientData.address || '');
+                $('input[name="gender"][value="' + patientData.gender_idgender + '"]').prop('checked', true);
+                $('#years').val(patientData.age || '');
+                $('#months').val(patientData.months || '');
+                $('#days').val(patientData.days || '');
+                $('#Ser_tpno').val(patientData.tpno || '');
+                $('#invoiceId').val(invoiceData.iid || '');
+                $('#patientDate').val(date || '');
+
+
+                invoicePayments.forEach(function (payment) {
+
+                    document.getElementById("vaucher_div").style.display = "none";
+                    document.getElementById("split_div").style.display = "none";
+
+
+                    if (payment.paymethod == '1') {
+                        $('#split_cash_amount').val(payment.amount || '');
+                    } else if (payment.paymethod == '2') {
+                        $('#split_card_amount').val(payment.amount || '');
+                    }
+
+                    if (payment.paymentmethod == 'split') {
+                        document.getElementById("split_div").style.display = "flex";
+                    } else if (payment.paymentmethod == 'voucher') {
+                        document.getElementById("vaucher_div").style.display = "flex";
+                    } else {
+                        document.getElementById("vaucher_div").style.display = "none";
+                        document.getElementById("split_div").style.display = "none";
+                    }
+
+                });
+
+
+                // $('#split_cash_amount').val(invoicePayments.amount || '');
+                // $('#split_card_amount').val(invoicePayments.amount || '');
+
+
+
+
+                $('#refDropdown').val(firstRecord.ref_id || '');
+                $('#refDropdown option').filter(function () {
+                    return $(this).text().trim() === firstRecord.refby;
+                }).prop('selected', true);
+
+
+                $('#refcode').val(firstRecord.code || '');
+                $('#inv_remark').val(firstRecord.specialnote || '');
+
+
+                // Set the discount dropdown value
+                if (invoiceData && invoiceData.did && invoiceData.value) {
+                    $('#discount_percentage').val(invoiceData.did + ":" + invoiceData.value);
+                } else {
+                    $('#discount_percentage').val('');
+                }
+                $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00');
+                $('#discount').val(invoiceData.discount || 0);
+                $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00');
+                $('#paid').val(invoiceData.paid || 0);
+                $('#due').text((invoiceData.gtotal - invoiceData.paid).toFixed(2));
+
+                var paymeth = "";
+                $('input[name="payment_method"]').prop('checked', false);
+                if (invoiceData.paymentmethod == 'cash') {
+                    paymeth = "1";
+                } else if (invoiceData.paymentmethod == 'card') {
+                    paymeth = "2";
+                } else if (invoiceData.paymentmethod == 'voucher') {
+                    paymeth = "6";
+                } else if (invoiceData.paymentmethod == 'split') {
+                    paymeth = "5";
+                } else if (invoiceData.paymentmethod == 'credit') {
+                    paymeth = "credit";
+                } else if (invoiceData.paymentmethod == 'cheque') {
+                    paymeth = "3";
+                }
+                $('input[name="payment_method"][value="' + paymeth + '"]').prop('checked', true);
+
+                if (invoiceData && invoiceData.multiple_delivery_methods) {
+                    try {
+                        console.log("Raw delivery methods:", invoiceData.multiple_delivery_methods);
+                        const deliveryMethods = invoiceData.multiple_delivery_methods
+                                .split(',')
+                                .map(method => method.trim());
+
+                        console.log("Parsed methods:", deliveryMethods);
+                        $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
+                        deliveryMethods.forEach(method => {
+                            $(`#${method.toLowerCase().replace(' ', '_')}`).prop('checked', true);
+                        });
+
+                    } catch (e) {
+                        console.error("Error parsing delivery methods:", e);
+                        $('#hard_copy').prop('checked', true);
+                    }
+                } else {
+                    console.log("No delivery methods found, using default");
+                    $('#hard_copy').prop('checked', true);
+                }
+
+
+                $('#Branch_record_tbl').empty();
+
+                testData.forEach(test => {
+                    let rowStyle = '';
+                    let urgentDisplay = '';
+
+                    // Check if the test's lpsid is marked as urgent in lpsRecords
+                    const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
+
+                    if (matchingLps) {
+                        rowStyle = 'style="background-color: pink;"';
+                        urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
+                    }
+
+                    const newRow = `
+                            <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
+                                <td align="left">${test.tgid}</td>
+                                <td align="left">${test.group}</td>
+                                <td align="right" class="price-column">${test.price.toFixed(2)}</td>
+                                <td align="left">${test.time}</td>
+                                <td align="right">${test.f_time}</td>
+                                <td align="left">
+                                    <input type="checkbox" class="barcode-checkbox" checked>
+                                </td>
+                                <td align="center">${urgentDisplay}</td>  
+                                <td align="center">${test.type}</td>  
+                            </tr>`;
+
+                    $('#Branch_record_tbl').append(newRow);
+                });
+
+
+                if (sampleNo == "") {
+                    $("#savebtn").attr("disabled", false);
+                    $("#fname").attr("disabled", false);
+                } else {
+                    $("#savebtn").attr("disabled", true);
+                    $("#fname").attr("readonly", true);
+
+                }
+
+
+
+
+            } else {
+                alert(response.message || 'No data found.');
+            }
+        },
+        error: function (xhr) {
+            console.log('Error:', xhr);
+            var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An unexpected error occurred.';
+            alert(errorMsg);
+        }
+    });
+}
+
+
+// ******************Bill search Function in billing UI************************************
 function view_search_patient()
 {
     var searchDate = $('#ser_date').val();
@@ -1095,8 +1099,6 @@ function searchUserRecords()
         }
     });
 }
-
-
 
 
 function selectTP(tpno, userID)
@@ -1685,6 +1687,76 @@ function barcodePrint(isGroup) {
 
 
 
+// 1. SampleNo uniqueness check function
+function getUniqueSampleNo(initialSampleNo, patientDate, callback) {
+    let attempt = 0;
+    let sampleNo = parseInt(initialSampleNo);
+
+    function tryNext() {
+        if (attempt >= 5) {
+            alert("Didn't save patient - Sample No duplicates");
+            loadcurrentSampleNo();
+            callback(null);
+            return;
+        }
+
+        $.ajax({
+            url: '/checkSampleNo',
+            method: 'POST',
+            data: {
+                sample_no: sampleNo,
+                patientDate: patientDate
+            },
+            success: function (res) {
+                if (res.exists) {
+                    sampleNo++;
+                    attempt++;
+                    tryNext();
+                } else {
+                    callback(sampleNo);
+                }
+            },
+            error: function () {
+                alert('Error checking sample number');
+                callback(null);
+            }
+        });
+    }
+
+    tryNext();
+}
+
+
+
+$(document).ready(function () {
+    $("#savebtn").click(function () {
+        // console.log("Save Button Clicked");
+
+        getAllTableRecords(); 
+
+        setTimeout(function () {
+            let initialSampleNo = $("#sampleNo").val();
+            let patientDate = $("#patientDate").val();
+
+            if (!initialSampleNo || !patientDate) {
+                alert("Sample Number or Patient Date is empty");
+                return;
+            }
+
+            getUniqueSampleNo(initialSampleNo, patientDate, function (uniqueSampleNo) {
+                if (uniqueSampleNo !== null) {
+                    $("#sampleNo").val(uniqueSampleNo); 
+                    savePatientDetails(); 
+                }
+            });
+        }, 300);
+    });
+});
+
+
+
+
+
 </script>
 
 
@@ -2088,7 +2160,7 @@ function barcodePrint(isGroup) {
                                     IID
                                 </td>
                                 <td>
-                                    <input type="text" name="invoiceId" class="input-text" id="invoiceId">
+                                    <input type="text" name="invoiceId" class="input-text" id="invoiceId" readonly>
                                 </td>
 
                                 <td>
@@ -2097,7 +2169,7 @@ function barcodePrint(isGroup) {
                                 </td>
 
                                 <td>
-                                    <input type="text" name="patientDate" class="input-text" id="patientDate">
+                                    <input type="text" name="patientDate" class="input-text" id="patientDate" readonly>
                                 </td>
                                 <td> 
                                 <input type="button" class="btn" id="backBtn" value="Back" onclick="" style="float:left; margin: 0; padding: 0; width: 60px">
@@ -2510,8 +2582,10 @@ function barcodePrint(isGroup) {
                                     <input type="button" style="color:gray; width: 90%;" class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);">
                                     <input type="button" style="color:gray; width: 90%;" class="btn" id="remove_barcode" value="Remove Barcode" onclick="">
                                     
-                                    <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords(); savePatientDetails()">  
+                                    {{-- <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords(); savePatientDetails()">  --}}
+                                        <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save">
                                     
+
                                 </td>
                             </tr>
                             
