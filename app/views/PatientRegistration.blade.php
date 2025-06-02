@@ -578,8 +578,8 @@ function savePatientDetails()
     var deliveryMethodsString = deliveryMethods.join(', ');
 
     // Validate essential fields
-    if (!fname || !lname) {
-        alert('First Name and Last Name are required.');
+    if (!fname ) {
+        alert('First Name is required.');
         return;
     }
     // if (years === '' || months === '' || days === '') {
@@ -1442,7 +1442,7 @@ function savePayment() {
 //Print Invoice Section
 function printInvoice() {
     var fname = $('#fname').val().trim();
-    var lname = $('#lname').val().trim();
+    // var lname = $('#lname').val().trim();
     var years = $('#years').val().trim();
     var testRows = $('#test_tbl tbody tr').length;
 
