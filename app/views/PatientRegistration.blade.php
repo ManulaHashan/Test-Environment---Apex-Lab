@@ -862,12 +862,41 @@ function view_selected_patient(sampleNo, date)
                 });
 
 
-                if (sampleNo == "") {
+               if (sampleNo == "") {
                     $("#savebtn").attr("disabled", false);
                     $("#fname").attr("disabled", false);
+                    $("#lname").attr("disabled", false);
+                    $("#initial").attr("disabled", false);
+                    $("#years").attr("disabled", false);
+                    $("#months").attr("disabled", false);
+                    $("#days").attr("disabled", false);
+                    $("#dob").attr("disabled", false);
+                    $("#male").attr("disabled", false);
+                    $("#female").attr("disabled", false);
+                    $("#nic").attr("disabled", false);
+                    $("#address").attr("disabled", false);
+                    $("#refcode").attr("disabled", false);
+                    $("#refDropdown").attr("disabled", false);
+                    $("#testname").attr("disabled", false);
+                    $("#packageDropdown").attr("disabled", false);
                 } else {
                     $("#savebtn").attr("disabled", true);
+                    $("#print_invoicebtn").attr("disabled", false);
                     $("#fname").attr("readonly", true);
+                    $("#lname").attr("readonly", true);
+                    $("#initial").attr("readonly", true);
+                    $("#years").attr("readonly", true);
+                    $("#months").attr("readonly", true);
+                    $("#days").attr("readonly", true);
+                    $("#dob").attr("readonly", true);
+                    $("#male").attr("disabled", true);
+                    $("#female").attr("disabled", true);
+                    $("#nic").attr("readonly", true);
+                    $("#address").attr("readonly", true);
+                    $("#refcode").attr("readonly", true);
+                    $("#refDropdown").attr("disabled", true);
+                    $("#testname").attr("readonly", true);
+                    $("#packageDropdown").attr("readonly", true);
 
                 }
 
@@ -1016,8 +1045,43 @@ function view_search_patient()
                     $('#Branch_record_tbl').append(newRow);
                 });
 
+                 if (sampleNo == "") {
+                    $("#savebtn").attr("disabled", false);
+                    $("#fname").attr("disabled", false);
+                    $("#lname").attr("disabled", false);
+                    $("#initial").attr("disabled", false);
+                    $("#years").attr("disabled", false);
+                    $("#months").attr("disabled", false);
+                    $("#days").attr("disabled", false);
+                    $("#dob").attr("disabled", false);
+                    $("#male").attr("disabled", false);
+                    $("#female").attr("disabled", false);
+                    $("#nic").attr("disabled", false);
+                    $("#address").attr("disabled", false);
+                    $("#refcode").attr("disabled", false);
+                    $("#refDropdown").attr("disabled", false);
+                    $("#testname").attr("disabled", false);
+                    $("#packageDropdown").attr("disabled", false);
+                } else {
+                    $("#savebtn").attr("disabled", true);
+                    $("#print_invoicebtn").attr("disabled", false);
+                    $("#fname").attr("readonly", true);
+                    $("#lname").attr("readonly", true);
+                    $("#initial").attr("readonly", true);
+                    $("#years").attr("readonly", true);
+                    $("#months").attr("readonly", true);
+                    $("#days").attr("readonly", true);
+                    $("#dob").attr("readonly", true);
+                    $("#male").attr("disabled", true);
+                    $("#female").attr("disabled", true);
+                    $("#nic").attr("readonly", true);
+                    $("#address").attr("readonly", true);
+                    $("#refcode").attr("readonly", true);
+                    $("#refDropdown").attr("disabled", true);
+                    $("#testname").attr("readonly", true);
+                    $("#packageDropdown").attr("readonly", true);
 
-
+                }
 
             } else {
                 alert(response.message || 'No data found.');
@@ -1377,11 +1441,18 @@ function savePayment() {
 
 //Print Invoice Section
 function printInvoice() {
+    var fname = $('#fname').val().trim();
+    var lname = $('#lname').val().trim();
+    var years = $('#years').val().trim();
+    var testRows = $('#test_tbl tbody tr').length;
+
+    if (fname === "" || lname === "" || years === "" || testRows === 0) {
+        alert("Please fill all required fields and add at least one test before printing.");
+        return; // Stop execution
+    }
 
     var date = $('#patientDate').val();
     var sno = $('#sampleNo').val();
-    // var inv_balance = $('#due').val();
-
 
     var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
 
@@ -1389,14 +1460,23 @@ function printInvoice() {
         win.print();
     }, 5000);
 
-
     setTimeout(function () {
         win.close();
         resetPage();
     }, 8000);
-
-
 }
+
+//   document.getElementById("btnPrint").addEventListener("click", function () {
+//     var hardCopyChecked = document.getElementById("hard_copy").checked;
+
+//     if (hardCopyChecked) {
+//         printInvoice();
+//     } else {
+//         alert("Tick 'Hard Copy' checkbox to print invoice.");
+//     }
+// });
+
+
 // *-*-*-*-*-*-*-*-*-*-*most recent test buttons-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 $(document).ready(function () {
     $.ajax({
@@ -2012,6 +2092,23 @@ $(document).ready(function () {
     .barcode_panal input{
         margin: 5px;
     }
+
+    #savebtn:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    border: 1px solid #999;
+    
+    }
+
+    #print_invoicebtn:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    border: 1px solid #999;
+    
+}
+
 </style>
 
 @stop
@@ -2025,180 +2122,178 @@ $(document).ready(function () {
     <!--<div class="card-body">-->
         <div class="pregHeaderraw">
 
-
             <table width="100%" valign="top">
                 <tr>
-                    <td class="pregHeadercol" valign='top'>
+                        <td class="pregHeadercol" valign='top'>
 
 
-                        <table width="100%" >
-                            <tr>
-                                <td>
-                                    <label class='form_label_sm'>Sample No</label>
+                            <table width="100%" >
+                                <tr>
+                                    <td>
+                                        <label class='form_label_sm'>Sample No</label>
 
-                                </td>
+                                    </td>
 
-                                <td>
+                                    <td>
 
-                                    <input type="text" name="sampleNo" class="input-text" id="sampleNo" style="font-size: 18px; font-weight: bold; height: 30px; color: green;" disabled>
+                                        <input type="text" name="sampleNo" class="input-text" id="sampleNo" style="font-size: 18px; font-weight: bold; height: 30px; color: green;" disabled>
 
-                                    <input type="checkbox" name="edit" id="edit" value="1" style="margin:0; padding: 0;"> Edit 
+                                        <input type="checkbox" name="edit" id="edit" value="1" style="margin:0; padding: 0;"> Edit 
 
-                                </td>
+                                    </td>
 
-                                <td >
-                                    <label style="width: 100px;  ">Center</label>
-                                </td>
+                                    <td >
+                                        <label style="width: 100px;  ">Center</label>
+                                    </td>
 
-                                <td>
+                                    <td>
 
-                                    <select name="labbranch" class="input-text" id="labBranchDropdown" onchange="loadcurrentSampleNo();
-                                                load_test();">
-                                        <option value="%" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
-                                        <?php
-                                        $Result = DB::select("SELECT name, code, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
-
-                                        foreach ($Result as $res) {
-                                            $branchName = $res->name;
-                                            $branchCode = $res->code;
-                                            $bid = $res->bid;
-
-                                            $displayText = $branchCode . " : " . $branchName;
-                                            ?>
-                                            <option value="<?= $bid ?>"><?= $displayText ?></option>
+                                        <select name="labbranch" class="input-text" id="labBranchDropdown" onchange="loadcurrentSampleNo();
+                                                    load_test();">
+                                            <option value="%" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
                                             <?php
-                                        }
-                                        ?>
-                                    </select>
-                                    
-                                    <input type="hidden" name="crBranch_id" id="crBranch_id">
-                                    <input type="checkbox" name="lock_branch" id="lock_branch" value="1" style="margin:0">
-                                    Lock
+                                            $Result = DB::select("SELECT name, code, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
 
-                                </td>
-                            </tr>
+                                            foreach ($Result as $res) {
+                                                $branchName = $res->name;
+                                                $branchCode = $res->code;
+                                                $bid = $res->bid;
 
-                           
+                                                $displayText = $branchCode . " : " . $branchName;
+                                                ?>
+                                                <option value="<?= $bid ?>"><?= $displayText ?></option>
+                                                <?php
+                                            }
+                                            ?>
+                                        </select>
+                                        
+                                        <input type="hidden" name="crBranch_id" id="crBranch_id">
+                                        <input type="checkbox" name="lock_branch" id="lock_branch" value="1" style="margin:0">
+                                        Lock
 
-                            <tr>
-                                <td>
+                                    </td>
+                                </tr>
 
-                                    <label class='form_label_sm2'>T.P.NO</label>
+                            
 
-                                </td>
+                                <tr>
+                                    <td>
 
-                                <td>
-                                    <input type="hidden" id="user_Uid">
-                                    <input type="text" id="Ser_tpno" class="input-text" oninput="searchUserRecords()" maxlength="20" autocomplete="off" placeholder="Enter TP Number" >
-                                    
-                                    <input type="checkbox" name="any_filter" id="any_filter" value="1" style="margin:0"> Any
+                                        <label class='form_label_sm2'>T.P.NO</label>
 
-                                    <div id="tpno_suggestions"
-                                         class="p_suggest">
+                                    </td>
 
-                                    </div>
+                                    <td>
+                                        <input type="hidden" id="user_Uid">
+                                        <input type="text" id="Ser_tpno" class="input-text" oninput="searchUserRecords()" maxlength="20" autocomplete="off" placeholder="Enter TP Number" >
+                                        
+                                        <input type="checkbox" name="any_filter" id="any_filter" value="1" style="margin:0"> Any
 
+                                        <div id="tpno_suggestions"
+                                            class="p_suggest">
 
-                                </td>
-
-                                <td>
-                                    <label style="">Source</label>
-                                </td>
-
-                                <td>
-                                    <select type="text" name="source" class="input-text" id="source" >
-                                        <option value="1">Walking</option>
-                                        <option value="2">Centers</option>
-                                    </select>
-                                </td>
-                            </tr>
-
-                        </table>
+                                        </div>
 
 
+                                    </td>
 
-                    </td>
+                                    <td>
+                                        <label style="">Source</label>
+                                    </td>
 
-                    <td class="pregHeadercol2">
+                                    <td>
+                                        <select type="text" name="source" class="input-text" id="source" >
+                                            <option value="1">Walking</option>
+                                            <option value="2">Centers</option>
+                                        </select>
+                                    </td>
+                                </tr>
 
-                        <table>
-                            <tr>
-                                <td>
-
-                                    Bill
-                                </td>
-
-                                <td>
-
-                                    <input type="date" name="ser_date" class="input-text" id="ser_date" style="">
+                            </table>
 
 
 
-                                </td>
+                        </td>
 
-                                <td>
-                                    <label class="form_label_sm">SampleNo</label>
-                                    
+                        <td class="pregHeadercol2">
 
+                            <table>
+                                    <tr>
+                                        <td>
 
-                                </td>
-                                
-                                <td>
-                                    <input type="text" name="ser_sampleno" class="input-text" id="ser_sampleno" style="">
-                                    <input type="checkbox" name="ignore_date" class="ignore_date" value="1">
-                                    <label><b>Skip Date</b></label>
-                                </td>
+                                            Bill
+                                        </td>
 
-                                <td >
-                                    <input type="button"  class="btn" id="ser_btn" value="Search" onclick="view_search_patient()" style="float:left; margin: 0; padding: 5; width: 80px">
-                                </td>
+                                        <td>
 
-                            </tr>
-
-                            <tr>
-                                <td>
-                                    IID
-                                </td>
-                                <td>
-                                    <input type="text" name="invoiceId" class="input-text" id="invoiceId" readonly>
-                                </td>
-
-                                <td>
-                                    <label class="form_label_sm">Date</label> 
-                                     
-                                </td>
-
-                                <td>
-                                    <input type="text" name="patientDate" class="input-text" id="patientDate" readonly>
-                                </td>
-                                <td> 
-                                <input type="button" class="btn" id="backBtn" value="Back" onclick="" style="float:left; margin: 0; padding: 0; width: 60px">
-                                    <input type="button"  class="btn" id="frontBtn" value="Front" onclick="" style="float:right; margin: 0; padding: 0; width: 60px">
-                                </td>
-                                
-                            </tr>
+                                            <input type="date" name="ser_date" class="input-text" id="ser_date" style="">
 
 
-                            <tr>
-                                <td></td>
-                                <td>
+
+                                        </td>
+
+                                        <td>
+                                            <label class="form_label_sm">SampleNo</label>
+                                            
 
 
-                                </td>
-                                <td>
-                                    
-                                </td>
-                                <td>
-                                    
+                                        </td>
+                                        
+                                        <td>
+                                            <input type="text" name="ser_sampleno" class="input-text" id="ser_sampleno" style="">
+                                            <input type="checkbox" name="ignore_date" class="ignore_date" value="1">
+                                            <label><b>Skip Date</b></label>
+                                        </td>
 
-                                </td>
-                            </tr>
+                                        <td >
+                                            <input type="button"  class="btn" id="ser_btn" value="Search" onclick="view_search_patient()" style="float:left; margin: 0; padding: 5; width: 80px">
+                                        </td>
 
-                        </table>
-                    </td>
-              </tr>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            IID
+                                        </td>
+                                        <td>
+                                            <input type="text" name="invoiceId" class="input-text" id="invoiceId" readonly>
+                                        </td>
+
+                                        <td>
+                                            <label class="form_label_sm">Inv. Date</label> 
+                                            
+                                        </td>
+
+                                        <td>
+                                            <input type="text" name="patientDate" class="input-text" id="patientDate" readonly>
+                                        </td>
+                                        <td> 
+                                        <input type="button" class="btn" id="backBtn" value="Back" onclick="" style="float:left; margin: 0; padding: 0; width: 60px">
+                                            <input type="button"  class="btn" id="frontBtn" value="Front" onclick="" style="float:right; margin: 0; padding: 0; width: 60px">
+                                        </td>
+                                        
+                                    </tr>
+
+
+                                    <tr>
+                                        <td></td>
+                                        <td>
+
+
+                                        </td>
+                                        <td>
+                                            
+                                        </td>
+                                        <td>
+                                            
+
+                                        </td>
+                                    </tr>
+
+                            </table>
+                        </td>
+                </tr>
             </table>
-
             
         </div>
 
@@ -2206,9 +2301,9 @@ $(document).ready(function () {
         
         <table valign="top">
             <tr>
+                                    <!--Left Side -->
                 <td width='50%' valign = "top">
                     
-                    <!--Left Side -->
                         
                     <div style="padding: 10px; border: 2px #8e7ef7 solid; margin-right: 5px; border-radius: 10px;  ">
 
@@ -2281,7 +2376,7 @@ $(document).ready(function () {
                                 ?>
                             </select>
 
-                            <input type="button" style="color:green" class="btn" id="resetbtn" style='margin:0px;' value="+" onclick="window.location.href ='{{ url('/doc-reference') }}';">
+                            <input type="button" style="color:green" class="btn" id="addref" style='margin:0px;' value="+" onclick="window.location.href ='{{ url('/doc-reference') }}';">
                         </div>
                         
                         <hr style=" background-color: rgb(19, 153, 211); height: 2px; border: none; ">
@@ -2431,13 +2526,9 @@ $(document).ready(function () {
                     
                     
                 </td>
-                
+                                    <!-- Right Side -->
                 <td valign = "top">
                     
-                            <!-- Right Side -->
-                            
-                            
-
                     <div style="flex: 1; padding-left: 10px; padding-right: 10px; border: 2px #8e7ef7 solid; border-radius: 10px; width: 95%">
                         
                         <div id="testCodeButtons" style="display: flex; align-items: center; margin-top: 5px; overflow-x: scroll; width: 600px;">
@@ -2636,7 +2727,7 @@ $(document).ready(function () {
                                     </td>
                                     
                                     <td>
-                                        <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="printInvoice()">
+                                        <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="print_invoicebtn" value="Print Invoice " onclick="printInvoice()" disabled>
                                     </td>
                                     
                                     <td>
@@ -2649,8 +2740,6 @@ $(document).ready(function () {
                     </div>
 
 
-                    
-                    
 
                         <!-- Button to open the modal -->
                         <!--    <input type="button" style="color:black; width: 210px; height: 50px;" 
