@@ -296,6 +296,12 @@ Route::get('/getRefCode', 'PatientRegistrationController@getRefCode');
 Route::get('/getSearchPatient', 'PatientRegistrationController@getSearchSampleData');
 Route::get('/get_Single_Barcode', 'PatientRegistrationController@getSingleBarcode');
 Route::post('/checkSampleNo', 'PatientRegistrationController@checkSampleNo');
+Route::get('getPatientDetailsBySample', 'PatientRegistrationController@getPatientDetailsBySample');
+Route::get('getLastPatientDetails', 'PatientRegistrationController@getLastPatientDetails');
+Route::post('updatePatientDetails', 'PatientRegistrationController@updatePatientDetails');
+
+
+
 
 
 

@@ -14,51 +14,7 @@ if (!isset($_SESSION)) {
 
 class PatientRegistrationController extends Controller
 {
-    // public function loadSampleNumber()
-    // {
-    //     $date = date('Y-m-d');
-    //     $sampleNo = '';
-    //     $format = '';
-    //     $labBranchId = Input::get('labBranchId');
-    //     if ($labBranchId == '%') {
-    //         $format = date('ymd');
-
-    //         $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ?", [$date]);
-    //         if (!empty($sampleResult)) {
-    //             foreach ($sampleResult as $result) {
-    //                 $currentNo = $result->max_sample_no;
-    //                 if ($currentNo) {
-    //                     $sampleNo = $format . str_pad($currentNo + 1, 2, '0', STR_PAD_LEFT);
-    //                 } else {
-    //                     $sampleNo = $format . "01";
-    //                 }
-    //             }
-    //         } else {
-    //             $sampleNo = $format . "01";
-    //         }
-    //     } else {
-    //         $branchCode = DB::select("SELECT code FROM labbranches WHERE bid = ? and Lab_lid = ?", [$labBranchId, $_SESSION['lid']]);
-    //         foreach ($branchCode as $bcode) {
-    //             $format = $bcode->code;
-    //         }
-
-    //         $sampleResult = DB::select("SELECT MAX(CONVERT(REGEXP_REPLACE(SUBSTRING(sampleNo, 7), '[^0-9]', ''), SIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = '" . $_SESSION['lid'] . "' AND date = ? and sampleNo like '" . $format . "%'", [$date]);
-    //         if (!empty($sampleResult)) {
-    //             foreach ($sampleResult as $result) {
-    //                 $currentNo = $result->max_sample_no;
-    //                 if ($currentNo) {
-    //                     $sampleNo = $format . str_pad($currentNo + 1, 2, '0', STR_PAD_LEFT);
-    //                 } else {
-    //                     $sampleNo = $format . "01";
-    //                 }
-    //             }
-    //         } else {
-    //             $sampleNo = $format . "01";
-    //         }
-    //     }
-
-    //     return $sampleNo;
-    // }
+    
 
 
     public function loadSampleNumber()
@@ -188,38 +144,6 @@ class PatientRegistrationController extends Controller
     }
 
 
-    // public function getAllUsers()
-    // {
-    //     $tpno = Input::get('Usertpno'); 
-
-    //     $query = DB::table('user')->select('fname', 'lname', 'tpno');
-
-
-    //     if (!empty($tpno)) {
-    //         $query->where('tpno', 'LIKE', '%' . $tpno . '%');
-    //     }
-
-    //     $Result = $query->orderBy('fname', 'ASC')->get();
-
-    //     return Response::json($Result);
-    // }
-
-    // public function getAllUsers()
-    // {
-    //     $tpno = Input::get('Usertpno');
-
-    //     $user = DB::table('user as a')
-    //         ->select('a.uid','a.fname', 'a.lname', 'a.tpno', 'b.initials')
-    //         ->from(DB::raw('user as a, patient as b, lps as c'))
-    //         ->whereRaw('a.uid = b.user_uid')
-    //         ->whereRaw('b.pid = c.patient_pid')
-    //         ->where('c.Lab_lid', $_SESSION['lid'])
-    //         ->where('a.tpno', 'like', $tpno . '%')
-    //         ->groupBy('a.uid')
-    //         ->get();
-
-    //     return Response::json($user);
-    // }
 
     public function getAllUsers()
     {
@@ -867,76 +791,227 @@ class PatientRegistrationController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
-}
+    }
 
 
-public function getSingleBarcode() {
-        $tgid = Input::get('tgid'); // test group id
-        $sno = Input::get('sno');
-        // $specialBarcodes = Input::get('specialBarcodes'); 
-        $labLid = $_SESSION['lid']; // assuming you store it in session
-        $containerId = '';
-        $containerIdList = [];
+    public function getSingleBarcode() 
+        {
+            $tgid = Input::get('tgid'); // test group id
+            $sno = Input::get('sno');
+            // $specialBarcodes = Input::get('specialBarcodes'); 
+            $labLid = $_SESSION['lid']; // assuming you store it in session
+            $containerId = '';
+            $containerIdList = [];
 
-        // Get container id
-        $result = DB::select("SELECT sample_containers_scid FROM Testgroup WHERE tgid = ? AND Lab_lid = ? LIMIT 1", [$tgid,  $labLid]);
-        if (!empty($result)) {
-            $containerId = $result[0]->sample_containers_scid;
+            // Get container id
+            $result = DB::select("SELECT sample_containers_scid FROM Testgroup WHERE tgid = ? AND Lab_lid = ? LIMIT 1", [$tgid,  $labLid]);
+            if (!empty($result)) {
+                $containerId = $result[0]->sample_containers_scid;
+            }
+
+            $barcodeData = [];
+
+            // if (!empty($specialBarcodes)) {
+            //     $TGID = '';
+            //     $barcodeSuffix = '';
+            //     $barcodeSuffixN = '';
+            //     $count = 0;
+            //     // $specialBarcodeExists = false;
+
+            //     foreach ($specialBarcodes as $entry) {
+            //         list($id, $suffix) = explode(':', $entry);
+            //         if ($tgid == $id) {
+            //             // $specialBarcodeExists = true;
+            //             $TGID = $id;
+            //             $barcodeSuffix = $suffix;
+            //             break;
+            //         }
+            //     }
+
+            //     // if ($specialBarcodeExists) {
+            //     //     $tests = DB::select("SELECT a.name FROM test a, Lab_has_test b WHERE Testgroup_tgid = ? AND a.tid = b.test_tid", [$TGID]);
+            //     //     foreach ($tests as $test) {
+            //     //         $barcodeSuffixN = $count == 0 ? $barcodeSuffix : $barcodeSuffix . $count;
+            //     //         $barcodeData[] = [
+            //     //             'test' => $test->name,
+            //     //             'sample_no' => $sno . '-' . $barcodeSuffixN,
+            //     //             'container_id' => $containerId
+            //     //         ];
+            //     //         $count++;
+            //     //     }
+            //     // } else {
+            //     //     $barcodeData[] = [
+            //     //         'test' => Input::get('testGroupName'),
+            //     //         'sample_no' => $sno,
+            //     //         'container_id' => $containerId
+            //     //     ];
+            //     // }
+
+            // } else {
+            //     $barcodeData[] = [
+            //         'test' => Input::get('testGroupName'),
+            //         'sample_no' => $sno,
+            //         'container_id' => $containerId
+            //     ];
+            // }
+
+            return Response::json([
+                'success' => true,
+                'barcodes' => $containerId
+            ]);
         }
 
-        $barcodeData = [];
 
-        // if (!empty($specialBarcodes)) {
-        //     $TGID = '';
-        //     $barcodeSuffix = '';
-        //     $barcodeSuffixN = '';
-        //     $count = 0;
-        //     // $specialBarcodeExists = false;
+    public function getPatientDetailsBySample()
+    {
+        $sampleNO = Input::get('sampleNO');
+        $direction = Input::get('direction'); // 'back' or 'front'
+        $labLid = $_SESSION['lid'];
+        $date = Input::get('patientDate');
 
-        //     foreach ($specialBarcodes as $entry) {
-        //         list($id, $suffix) = explode(':', $entry);
-        //         if ($tgid == $id) {
-        //             // $specialBarcodeExists = true;
-        //             $TGID = $id;
-        //             $barcodeSuffix = $suffix;
-        //             break;
-        //         }
-        //     }
+        // Convert sample number to integer part for comparison (e.g. 'S10' -> 10 or '25060202' as integer)
+        $sampleNum = intval($sampleNO);
 
-        //     // if ($specialBarcodeExists) {
-        //     //     $tests = DB::select("SELECT a.name FROM test a, Lab_has_test b WHERE Testgroup_tgid = ? AND a.tid = b.test_tid", [$TGID]);
-        //     //     foreach ($tests as $test) {
-        //     //         $barcodeSuffixN = $count == 0 ? $barcodeSuffix : $barcodeSuffix . $count;
-        //     //         $barcodeData[] = [
-        //     //             'test' => $test->name,
-        //     //             'sample_no' => $sno . '-' . $barcodeSuffixN,
-        //     //             'container_id' => $containerId
-        //     //         ];
-        //     //         $count++;
-        //     //     }
-        //     // } else {
-        //     //     $barcodeData[] = [
-        //     //         'test' => Input::get('testGroupName'),
-        //     //         'sample_no' => $sno,
-        //     //         'container_id' => $containerId
-        //     //     ];
-        //     // }
+        $query = DB::table('lps as a')
+            ->join('patient as b', 'a.patient_pid', '=', 'b.pid')
+            ->join('user as c', 'b.user_uid', '=', 'c.uid')
+            ->select('a.refby', 'b.initials', 'c.fname', 'c.lname', 'b.age', 'c.tpno', 'c.address', 'a.sampleNO','b.months','b.days')
+            ->where('a.Lab_lid', '=', $labLid)
+            ->where('a.date', '=', $date);
 
-        // } else {
-        //     $barcodeData[] = [
-        //         'test' => Input::get('testGroupName'),
-        //         'sample_no' => $sno,
-        //         'container_id' => $containerId
-        //     ];
-        // }
+        if ($direction == 'back') {
+            $query->where('a.sampleNO', '<', $sampleNO)
+                ->orderBy('a.sampleNO', 'DESC');
+        } else if ($direction == 'front') {
+            $query->where('a.sampleNO', '>', $sampleNO)
+                ->orderBy('a.sampleNO', 'ASC');
+        }
+
+        $result = $query->first();
+
+        if ($result) {
+            return Response::json([
+                'status' => 'success',
+                'data' => $result
+            ]);
+        } else {
+            return Response::json([
+                'status' => 'not_found',
+                'message' => 'No details found.'
+            ]);
+        }
+    }
+    
+
+
+    public function getLastPatientDetails()
+    {
+        $labLid = $_SESSION['lid'];
+        $date = Input::get('patientDate');
+
+        $result = DB::table('lps as a')
+            ->join('patient as b', 'a.patient_pid', '=', 'b.pid')
+            ->join('user as c', 'b.user_uid', '=', 'c.uid')
+            ->select('a.refby', 'b.initials', 'c.fname', 'c.lname', 'b.age', 'c.tpno', 'c.address', 'a.sampleNO', 'b.months', 'b.days')
+            ->where('a.Lab_lid', '=', $labLid)
+            ->where('a.date', '=', $date)
+            ->orderBy('a.sampleNO', 'DESC')
+            ->first();
+
+        if ($result) {
+            return Response::json([
+                'status' => 'success',
+                'data' => $result
+            ]);
+        } else {
+            return Response::json([
+                'status' => 'not_found',
+                'message' => 'No patient found for the selected date.'
+            ]);
+        }
+    }
+
+
+
+    public function updatePatientDetails()
+    {
+        $sampleNO = Input::get('sampleNO');
+        $labLid = $_SESSION['lid'];
+        $date = Input::get('patientDate');
+
+        // Find patient via sample number
+        $lps = DB::table('lps')
+            ->where('sampleNO', '=', $sampleNO)
+            ->where('Lab_lid', '=', $labLid)
+            ->where('date', '=', $date)
+            ->first();
+
+        if (!$lps) {
+            return Response::json([
+                'status' => 'error',
+                'message' => 'Sample not found.'
+            ]);
+        }
+
+        // Update lps
+        DB::table('lps')
+            ->where('lpsid', '=', $lps->lpsid)
+            ->update([
+                'refby' => Input::get('refby')
+            ]);
+
+        // Update patient
+        DB::table('patient')
+            ->where('pid', '=', $lps->patient_pid)
+            ->update([
+                'initials' => Input::get('initials'),
+                'age' => Input::get('years'),
+                'months' => Input::get('months'),
+                'days' => Input::get('days')
+            ]);
+
+        // Update user
+        $patient = DB::table('patient')->where('pid', '=', $lps->patient_pid)->first();
+        if ($patient) {
+            DB::table('user')
+                ->where('uid', '=', $patient->user_uid)
+                ->update([
+                    'fname' => Input::get('fname'),
+                    'lname' => Input::get('lname'),
+                    'tpno' => Input::get('tpno'),
+                    'address' => Input::get('address')
+                ]);
+        }
 
         return Response::json([
-            'success' => true,
-            'barcodes' => $containerId
+            'status' => 'success',
+            'message' => 'Patient details updated successfully'
         ]);
     }
 
-         
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
+

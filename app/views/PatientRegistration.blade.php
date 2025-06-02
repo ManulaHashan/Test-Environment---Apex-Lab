@@ -915,6 +915,46 @@ function view_selected_patient(sampleNo, date)
     });
 }
 
+$(document).on('change', '.patient_details_edit', function () {
+    if ($(this).is(':checked')) {
+        // Enable all readonly fields
+        $("#fname").attr("readonly", false);
+        $("#lname").attr("readonly", false);
+        $("#initial").attr("readonly", false);
+        $("#years").attr("readonly", false);
+        $("#months").attr("readonly", false);
+        $("#days").attr("readonly", false);
+        $("#dob").attr("readonly", false);
+        $("#male").attr("disabled", false);
+        $("#female").attr("disabled", false);
+        $("#nic").attr("readonly", false);
+        $("#address").attr("readonly", false);
+        $("#refcode").attr("readonly", false);
+        $("#refDropdown").attr("disabled", false);
+        $("#testname").attr("readonly", false);
+        $("#packageDropdown").attr("readonly", false);
+        $("#updatebtn").attr("disabled", false); // Optional
+    } else {
+        // Revert fields back to readonly
+        $("#fname").attr("readonly", true);
+        $("#lname").attr("readonly", true);
+        $("#initial").attr("readonly", true);
+        $("#years").attr("readonly", true);
+        $("#months").attr("readonly", true);
+        $("#days").attr("readonly", true);
+        $("#dob").attr("readonly", true);
+        $("#male").attr("disabled", true);
+        $("#female").attr("disabled", true);
+        $("#nic").attr("readonly", true);
+        $("#address").attr("readonly", true);
+        $("#refcode").attr("readonly", true);
+        $("#refDropdown").attr("disabled", true);
+        $("#testname").attr("readonly", true);
+        $("#packageDropdown").attr("readonly", true);
+        $("#updatebtn").attr("disabled", true); // Optional
+    }
+});
+
 
 // ******************Bill search Function in billing UI************************************
 function view_search_patient()
@@ -1879,6 +1919,154 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+//*************************************************************************************************
+// Get Last Patient button process
+
+function loadLastPatient() {
+    var date = $('#patientDate').val();
+
+    $.ajax({
+        url: '/getLastPatientDetails',
+        method: 'GET',
+        data: {
+            patientDate: date
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                var data = response.data;
+                $('#refby').val(data.refby);
+                $('#initial').val(data.initials);
+                $('#fname').val(data.fname);
+                $('#lname').val(data.lname);
+                $('#years').val(data.age);
+                $('#months').val(data.months);
+                $('#days').val(data.days);
+                $('#Ser_tpno').val(data.tpno);
+                $('#address').val(data.address);
+                $('#sampleNO').val(data.sampleNO);
+
+                let femaleInitials = ['Mrs', 'Miss'];
+                let maleInitials = ['Mr', 'Dr', 'Hons'];
+
+                if (femaleInitials.includes(data.initials)) {
+                    $('#female').prop('checked', true);
+                } else if (maleInitials.includes(data.initials)) {
+                    $('#male').prop('checked', true);
+                } else {
+                    $('input[name="gender"]').prop('checked', false);
+                }
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function() {
+            alert('Error occurred while loading last patient.');
+        }
+    });
+}
+
+
+//*************************************************************************************************
+// Back Front buttons process
+
+function loadPatient(direction) {
+    var currentSampleNo = $('#sampleNo').val(); // input field
+    var lab_lid = $('#lab_lid').val(); // hidden or dropdown
+    var date = $('#patientDate').val(); // input date field
+
+    $.ajax({
+        url: '/getPatientDetailsBySample',
+        method: 'GET',
+        data: {
+            sampleNO: currentSampleNo,
+            direction: direction, // 'back' or 'front'
+            lab_lid: lab_lid,
+            patientDate: date
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                var data = response.data;
+                $('#refby').val(data.refby);
+                $('#initial').val(data.initials);
+                $('#fname').val(data.fname);
+                $('#lname').val(data.lname);
+                $('#years').val(data.years);
+                $('#months').val(data.months);
+                $('#days').val(data.days);
+                $('#Ser_tpno').val(data.tpno);
+                $('#address').val(data.address);
+                $('#sampleNO').val(data.sampleNO); // update to new sample
+
+
+                 let femaleInitials = ['Mrs', 'Miss'];
+                let maleInitials = ['Mr', 'Dr', 'Hons'];
+
+                if (femaleInitials.includes(data.initials)) {
+                    $('#female').prop('checked', true);
+                } else if (maleInitials.includes(data.initials)) {
+                    $('#male').prop('checked', true);
+                } else {
+                    // If unknown or not matched, uncheck both
+                    $('input[name="gender"]').prop('checked', false);
+                }
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function() {
+            alert('Error occurred while loading data.');
+        }
+    });
+}
+
+// Button click bindings
+$('#btnBack').on('click', function() {
+    loadPatient('back');
+});
+
+$('#btnFront').on('click', function() {
+    loadPatient('front');
+});
+
+
+//*************************************************************************************************
+// PatientDetails update process
+
+function updatePatientDetails() {
+    let sampleNO = $('#sampleNo').val();
+    // let lab_lid = $('#lab_lid').val();
+    let patientDate = $('#patientDate').val();
+
+    $.ajax({
+        url: '/updatePatientDetails',
+        method: 'POST',
+        data: {
+            sampleNO: sampleNO,
+            // lab_lid: lab_lid,
+            patientDate: patientDate,
+            refby: $('#refby').val(),
+            initials: $('#initial').val(),
+            fname: $('#fname').val(),
+            lname: $('#lname').val(),
+            years: $('#years').val(),
+            months: $('#months').val(),
+            days: $('#days').val(),
+            tpno: $('#Ser_tpno').val(),
+            address: $('#address').val(),
+            gender: $('input[name="gender"]:checked').val()
+        },
+        success: function (response) {
+            if (response.status === 'success') {
+                alert('Patient details updated successfully!');
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function () {
+            alert('Error occurred while updating patient details.');
+        }
+    });
+}
 
 </script>
 
@@ -2310,9 +2498,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                         <td>
                                             <input type="text" name="patientDate" class="input-text" id="patientDate" readonly>
                                         </td>
-                                        <td> 
-                                        <input type="button" class="btn" id="backBtn" value="Back" onclick="" style="float:left; margin: 0; padding: 0; width: 60px">
-                                            <input type="button"  class="btn" id="frontBtn" value="Front" onclick="" style="float:right; margin: 0; padding: 0; width: 60px">
+                                        <td>
+                                            <input type="button" class="btn" id="backBtn" value="Back" onclick="loadPatient('back')" style="float:left; margin: 0; padding: 0; width: 60px">
+                                            <input type="button" class="btn" id="frontBtn" value="Front" onclick="loadPatient('front')" style="float:right; margin: 0; padding: 0; width: 60px">
                                         </td>
                                         
                                     </tr>
@@ -2361,6 +2549,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </select>
                             <input type="text" name=" fname" class="input-text" id="fname" style="width: 180px" placeholder="First Name">
                             <input type="text" name=" lname" class="input-text" id="lname" style="width: 180px" placeholder="Last Name">
+                            <input type="checkbox" name="patient_details_edit" class="patient_details_edit" value="1">
                         </div>
 
                         <div style="display: flex; align-items: center; margin-top: 10px; ">
@@ -2756,11 +2945,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </td>
                                     
                                     <td>
-                                        <input type="button" style="color:rgb(245, 168, 34); width: 190px; height: 40px; margin: 0px;" class="btn" id="updatebtn" value="Update Details " onclick="">
+                                        <input type="button" style="color:rgb(245, 168, 34); width: 190px; height: 40px; margin: 0px;" class="btn" id="updatebtn" value="Update Details " onclick="updatePatientDetails()">
                                     </td>
                                     
                                     <td>
-                                    <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="getlastpatientbtn" value="Get Last patient" onclick=""> 
+                                    <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="getlastpatientbtn" value="Get Last patient" onclick="loadLastPatient()"> 
                                     </td>
                                 </tr>
                                 
