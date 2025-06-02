@@ -921,6 +921,10 @@ function view_search_patient()
 {
     var searchDate = $('#ser_date').val();
     var searchSampleNo = $('#ser_sampleno').val();
+    if (!searchSampleNo || searchSampleNo.trim() === "") {
+        alert('Please enter a sample number to search.');
+        return;
+    }
     $.ajax({
         type: "GET",
         url: "getSearchPatient",
@@ -1098,13 +1102,6 @@ function view_search_patient()
 }
 
 
-
-
-//*************************************************************************************************
-function resetPage()
-{
-    window.location.href = '/patientRegistration';
-}
 
 
 //*************************************************************************************************
@@ -1446,7 +1443,7 @@ function printInvoice() {
     var years = $('#years').val().trim();
     var testRows = $('#test_tbl tbody tr').length;
 
-    if (fname === "" || lname === "" || years === "" || testRows === 0) {
+    if (fname === "" || years === "" || testRows === 0) {
         alert("Please fill all required fields and add at least one test before printing.");
         return; // Stop execution
     }
@@ -1834,6 +1831,52 @@ $(document).ready(function () {
 });
 
 
+
+
+//*************************************************************************************************
+// page reset function
+function resetPage()
+{
+    window.location.href = '/patientRegistration';
+}
+
+
+
+//*************************************************************************************************
+// Branch lock checkbox process
+
+document.addEventListener('DOMContentLoaded', function () {
+    const lockBranchCheckbox = document.getElementById('lock_branch');
+    const labBranchDropdown = document.getElementById('labBranchDropdown');
+
+    function toggleDropdownLock() {
+        if (lockBranchCheckbox.checked) {
+            labBranchDropdown.disabled = true;
+
+            localStorage.setItem('lab_branch_value', labBranchDropdown.value);
+        } else {
+            labBranchDropdown.disabled = false;
+
+            localStorage.removeItem('lab_branch_value');
+        }
+    }
+
+    lockBranchCheckbox.addEventListener('change', toggleDropdownLock);
+    lockBranchCheckbox.addEventListener('change', function () {
+        localStorage.setItem('lock_branch_checked', lockBranchCheckbox.checked);
+    });
+
+    const savedCheck = localStorage.getItem('lock_branch_checked');
+    const savedBranchValue = localStorage.getItem('lab_branch_value');
+
+    if (savedCheck === 'true') {
+        lockBranchCheckbox.checked = true;
+        if (savedBranchValue) {
+            labBranchDropdown.value = savedBranchValue;
+        }
+        toggleDropdownLock();
+    }
+});
 
 
 

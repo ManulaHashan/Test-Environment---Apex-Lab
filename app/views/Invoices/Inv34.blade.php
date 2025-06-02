@@ -67,6 +67,8 @@ $result_get_testgroup_details = DB::select("
     FROM lps AS a, Testgroup AS b 
     WHERE a.Testgroup_tgid = b.tgid 
       AND a.sampleNo LIKE '" . $sno . "%'
+      And a.date = '" . $date . "'
+      AND a.Lab_lid = " . $_SESSION['lid'] . "
 ");
 
 
