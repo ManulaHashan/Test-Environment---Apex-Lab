@@ -1387,7 +1387,7 @@ $(document).ready(function ()
 {
     $("#fname").on("input", function () {
         let value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z\s]/g, ""));
+        $(this).val(value.replace(/[^a-zA-Z.\s]/g, ""));
     });
 });
 
