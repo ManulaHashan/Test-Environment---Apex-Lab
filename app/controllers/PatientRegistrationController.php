@@ -670,7 +670,7 @@ class PatientRegistrationController extends Controller
         ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
         ->leftJoin('refference as r', 'a.refference_idref', '=', 'r.idref')
         ->join('patient as p', 'a.patient_pid', '=', 'p.pid')
-        ->where('a.sampleNo', 'like', $searchSampleNo . '%')
+        ->where('a.sampleNo', '=', $searchSampleNo )
         ->where('a.date', $searchDate)
         ->where('a.Lab_lid', $_SESSION['lid'])
         ->select(

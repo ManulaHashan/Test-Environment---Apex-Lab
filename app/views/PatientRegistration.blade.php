@@ -672,6 +672,7 @@ function savePatientDetails()
         url: "/savePatient",
         data: postData, // NOT JSON.stringify – Laravel 4.2 doesn't auto-handle JSON well
         beforeSend: function () {
+             $("#loaderOverlay").show(); // Show loader and block page
             console.log("Sending data to server...");
         },
         success: function (response) {
@@ -690,6 +691,9 @@ function savePatientDetails()
                     (xhr.responseJSON.error || xhr.responseJSON.message || 'Unknown error') :
                     'Server communication failed';
             alert('Error: ' + errorMsg);
+        },
+            complete: function () {
+            $("#loaderOverlay").hide(); // Always hide loader after request finishes
         }
     });
 }
@@ -1228,34 +1232,34 @@ function selectTP(tpno, userID)
             }
 
 
-if (data.dob && data.dob !== '0000-00-00') {
-    var dob = new Date(data.dob);
-    var today = new Date();
+    if (data.dob && data.dob !== '0000-00-00') {
+        var dob = new Date(data.dob);
+        var today = new Date();
 
-    var ageYears = today.getFullYear() - dob.getFullYear();
-    var ageMonths = today.getMonth() - dob.getMonth();
-    var ageDays = today.getDate() - dob.getDate();
+        var ageYears = today.getFullYear() - dob.getFullYear();
+        var ageMonths = today.getMonth() - dob.getMonth();
+        var ageDays = today.getDate() - dob.getDate();
 
-    if (ageDays < 0) {
-        ageMonths--;
-        var lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-        ageDays += lastMonth.getDate();
+        if (ageDays < 0) {
+            ageMonths--;
+            var lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            ageDays += lastMonth.getDate();
+        }
+
+        if (ageMonths < 0) {
+            ageYears--;
+            ageMonths += 12;
+        }
+
+        $('#years').val(ageYears);
+        $('#months').val(ageMonths);
+        $('#days').val(ageDays);
+    } else {
+        // '0000-00-00' / null / missing DOB - use age values from DB
+        $('#years').val(data.age != null ? data.age : '');
+        $('#months').val(data.months != null ? data.months : '');
+        $('#days').val(data.days != null ? data.days : '');
     }
-
-    if (ageMonths < 0) {
-        ageYears--;
-        ageMonths += 12;
-    }
-
-    $('#years').val(ageYears);
-    $('#months').val(ageMonths);
-    $('#days').val(ageDays);
-} else {
-    // '0000-00-00' / null / missing DOB - use age values from DB
-    $('#years').val(data.age != null ? data.age : '');
-    $('#months').val(data.months != null ? data.months : '');
-    $('#days').val(data.days != null ? data.days : '');
-}
 
 
         },
@@ -1873,9 +1877,11 @@ function getUniqueSampleNo(initialSampleNo, patientDate, callback) {
 
 $(document).ready(function () {
     $("#savebtn").click(function () {
-        // console.log("Save Button Clicked");
+        // 🔒 Disable button & show loader
+        $("#savebtn").prop("disabled", true);
+        $("#loaderOverlay").show();
 
-        getAllTableRecords(); 
+        getAllTableRecords();
 
         setTimeout(function () {
             let initialSampleNo = $("#sampleNo").val();
@@ -1883,18 +1889,24 @@ $(document).ready(function () {
 
             if (!initialSampleNo || !patientDate) {
                 alert("Sample Number or Patient Date is empty");
+                $("#loaderOverlay").hide(); // ❌ Hide loader
+                $("#savebtn").prop("disabled", false); // 🔓 Enable button
                 return;
             }
 
             getUniqueSampleNo(initialSampleNo, patientDate, function (uniqueSampleNo) {
                 if (uniqueSampleNo !== null) {
-                    $("#sampleNo").val(uniqueSampleNo); 
-                    savePatientDetails(); 
+                    $("#sampleNo").val(uniqueSampleNo);
+                    savePatientDetails(); // 🚀 Trigger save
+                } else {
+                    $("#loaderOverlay").hide();
+                    $("#savebtn").prop("disabled", false);
                 }
             });
         }, 300);
     });
 });
+
 
 
 
@@ -3167,6 +3179,13 @@ function selectRef(code, idref, name) {
         <!--<div style="width:1350px; display: flex;">-->
             
             
+<!-- Loader overlay -->
+<div id="loaderOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255,255,255,0.8); z-index:9999; text-align:center;">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <img src="/images/load.gif" alt="Loading..." />
+        <p>Saving patient details...</p>
+    </div>
+</div>
 
 
             
