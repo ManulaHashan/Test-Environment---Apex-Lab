@@ -1833,7 +1833,7 @@ function barcodePrint(isGroup) {
 // 1. SampleNo uniqueness check function
 function getUniqueSampleNo(initialSampleNo, patientDate, callback) {
     let attempt = 0;
-    let sampleNo = parseInt(initialSampleNo);
+    let sampleNo = initialSampleNo;
 
     function tryNext() {
         if (attempt >= 5) {

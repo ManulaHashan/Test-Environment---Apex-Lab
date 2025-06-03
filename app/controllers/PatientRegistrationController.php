@@ -929,7 +929,7 @@ class PatientRegistrationController extends Controller
             ->select('a.refby', 'b.initials', 'c.fname', 'c.lname', 'b.age', 'c.tpno', 'c.address', 'a.sampleNO', 'b.months', 'b.days')
             ->where('a.Lab_lid', '=', $labLid)
             ->where('a.date', '=', $date)
-            ->orderBy('a.sampleNO', 'DESC')
+            ->orderBy('a.lpsid', 'DESC')
             ->first();
 
         if ($result) {
