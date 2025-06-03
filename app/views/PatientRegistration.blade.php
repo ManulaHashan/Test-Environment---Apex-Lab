@@ -363,7 +363,7 @@ $(document).ready(function () {
         if (priorityCell.text().trim() === '***') {
 
             priorityCell.text('-');
-            $(this).val('Make Priority').css('color', 'gray');
+            $(this).val('Make Priority').css('color', 'blue');
             selectedRow.css('background-color', '');
         } else {
 
@@ -384,7 +384,7 @@ $(document).ready(function () {
             $('#make_priority').val('Remove Priority').css('color', 'red');
             $(this).css('background-color', 'pink');
         } else {
-            $('#make_priority').val('Make Priority').css('color', 'gray');
+            $('#make_priority').val('Make Priority').css('color', 'blue');
             $(this).css('background-color', '');
         }
     });
@@ -2157,6 +2157,8 @@ function selectRef(code, idref, name) {
 
 
 <style>
+
+    
     .container {
         width: 100%;
         height: 100vh;
@@ -2437,8 +2439,63 @@ function selectRef(code, idref, name) {
     cursor: not-allowed;
     border: 1px solid #999;
     
-}
+    }
 
+    #print_barcode {
+    color: rgb(45, 194, 181);
+    width: 90%;
+    background-color: transparent;
+    border: 2px solid rgb(45, 194, 181);
+    transition: all 0.3s ease;
+    }
+
+    #print_barcode:hover {
+        background-color: rgb(45, 194, 181);
+        color: white;
+        cursor: pointer;
+    }
+
+    #group_barcode {
+        color: rgb(45, 194, 181);
+        width: 90%;
+        background-color: transparent;
+        border: 2px solid rgb(45, 194, 181);
+        transition: all 0.3s ease;
+    }
+
+    #group_barcode:hover {
+        background-color: rgb(45, 194, 181);
+        color: white;
+        cursor: pointer;
+    }
+
+    #remove_barcode {
+        color: rgb(45, 194, 181);
+        width: 90%;
+        background-color: transparent;
+        border: 2px solid rgb(45, 194, 181);
+        transition: all 0.3s ease;
+    }
+
+    #remove_barcode:hover {
+        background-color: rgb(45, 194, 181);
+        color: white;
+        cursor: pointer;
+    }
+
+     /* #make_priority {
+        color: #7230ec;
+        width: 90%;
+        background-color: transparent;
+        border: 2px solid #7230ec;
+        transition: all 0.3s ease;
+    } */
+
+    #make_priority:hover {
+        background-color: #b1f1ee;
+        /* color: white; */
+        cursor: pointer;
+    }
 </style>
 
 @stop
@@ -2920,7 +2977,7 @@ function selectRef(code, idref, name) {
                             
                             <tr>
                                 <td width="50%" valign="top">
-                                    <input type="button" style="color:gray; margin: 0; width: 100%;" class="btn" id="make_priority" value="Make Priority" onclick="">
+                                    <input type="button"  class="btn" id="make_priority" value="Make Priority" onclick="">
                                     
                                     <input type="text" name=" inv_remark" class="input-text" id="inv_remark" style="width: 92%; margin-top: 5px;" placeholder="Invoice Remark">
                                     
@@ -2988,9 +3045,9 @@ function selectRef(code, idref, name) {
                                 <td width="49%" valign="top" align="right"> 
                                     <label style="width: 140px; font-size: 10pt;  "><b>Repeat Samples</b></label>
                                     <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1">
-                                    <input type="button" style="color:gray; width: 90%; " class="btn" id="print_barcode" value="Print Barcode " onclick="barcodePrint(false)">
-                                    <input type="button" style="color:gray; width: 90%;" class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);">
-                                    <input type="button" style="color:gray; width: 90%;" class="btn" id="remove_barcode" value="Remove Barcode" onclick="">
+                                    <input type="button"  class="btn" id="print_barcode" value="Print Barcode " onclick="barcodePrint(false)">
+                                    <input type="button"  class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);">
+                                    <input type="button"  class="btn" id="remove_barcode" value="Remove Barcode" onclick="">
                                     
                                     {{-- <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords(); savePatientDetails()">  --}}
                                         <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save">
@@ -3176,23 +3233,17 @@ function selectRef(code, idref, name) {
             
         </table>
         
-        <!--<div style="width:1350px; display: flex;">-->
             
             
-<!-- Loader overlay -->
-<div id="loaderOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255,255,255,0.8); z-index:9999; text-align:center;">
-    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
-        <img src="/images/load.gif" alt="Loading..." />
-        <p>Saving patient details...</p>
-    </div>
-</div>
+                            <!-- Loader  -->
+                            <div id="loaderOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255,255,255,0.8); z-index:9999; text-align:center;">
+                                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+                                    <img src="/images/load.gif" alt="Loading..." />
+                                    <p>Saving patient details...</p>
+                                </div>
+                            </div>
 
 
-            
-
-        <!--</div>-->
-    <!--</div>-->
-    <!--</div>-->
 
 </div>
 

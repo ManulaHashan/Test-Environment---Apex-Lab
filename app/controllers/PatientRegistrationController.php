@@ -218,18 +218,18 @@ class PatientRegistrationController extends Controller
     //     return Response::json($references);
     // }
     public function getRefCode()
-{
-    $keyword = Input::get('keyword');
-    $labLid = $_SESSION['lid'];
+    {
+        $keyword = Input::get('keyword');
+        $labLid = $_SESSION['lid'];
 
-    $references = DB::table('refference')
-        ->where('lid', '=', $labLid)
-        ->where('code', 'LIKE', '%' . $keyword . '%')
-        ->select('code', 'name', 'idref')
-        ->get();
+        $references = DB::table('refference')
+            ->where('lid', '=', $labLid)
+            ->where('code', 'LIKE', '%' . $keyword . '%')
+            ->select('code', 'name', 'idref')
+            ->get();
 
-    return Response::json($references);
-}
+        return Response::json($references);
+    }
 
     
 
