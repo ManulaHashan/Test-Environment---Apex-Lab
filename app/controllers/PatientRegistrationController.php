@@ -153,7 +153,7 @@ class PatientRegistrationController extends Controller
         $query = DB::table('user as a')
             ->join('patient as b', 'a.uid', '=', 'b.user_uid')
             ->join('lps as c', 'b.pid', '=', 'c.patient_pid')
-            ->select('a.uid', 'a.fname', 'a.lname', 'a.tpno', 'b.initials')
+            ->select('a.uid', 'a.fname', 'a.lname', 'a.tpno','b.age', 'b.initials')
             ->where('c.Lab_lid', $_SESSION['lid']);
 
         if ($anyFilter) {

@@ -1228,35 +1228,36 @@ function selectTP(tpno, userID)
             }
 
 
-            if (data.dob) {
+if (data.dob && data.dob !== '0000-00-00') {
+    var dob = new Date(data.dob);
+    var today = new Date();
 
-                var dob = new Date(data.dob);
-                var today = new Date();
+    var ageYears = today.getFullYear() - dob.getFullYear();
+    var ageMonths = today.getMonth() - dob.getMonth();
+    var ageDays = today.getDate() - dob.getDate();
 
-                var ageYears = today.getFullYear() - dob.getFullYear();
-                var ageMonths = today.getMonth() - dob.getMonth();
-                var ageDays = today.getDate() - dob.getDate();
+    if (ageDays < 0) {
+        ageMonths--;
+        var lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        ageDays += lastMonth.getDate();
+    }
 
-                if (ageDays < 0) {
-                    ageMonths--;
-                    var lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-                    ageDays += lastMonth.getDate();
-                }
+    if (ageMonths < 0) {
+        ageYears--;
+        ageMonths += 12;
+    }
 
-                if (ageMonths < 0) {
-                    ageYears--;
-                    ageMonths += 12;
-                }
+    $('#years').val(ageYears);
+    $('#months').val(ageMonths);
+    $('#days').val(ageDays);
+} else {
+    // '0000-00-00' / null / missing DOB - use age values from DB
+    $('#years').val(data.age != null ? data.age : '');
+    $('#months').val(data.months != null ? data.months : '');
+    $('#days').val(data.days != null ? data.days : '');
+}
 
-                $('#years').val(ageYears);
-                $('#months').val(ageMonths);
-                $('#days').val(ageDays);
-            } else {
 
-                $('#years').val(data.age || '');
-                $('#months').val(data.months || '');
-                $('#days').val(data.days || '');
-            }
         },
         error: function (xhr) {
             alert('Error loading user data: ' + xhr.statusText);
