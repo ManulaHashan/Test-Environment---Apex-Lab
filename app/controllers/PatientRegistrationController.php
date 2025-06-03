@@ -204,19 +204,33 @@ class PatientRegistrationController extends Controller
         return Response::json($user);
     }
 
-    public function getRefCode()
-    {
-        $keyword = Input::get('keyword');
+    // public function getRefCode()
+    // {
+    //     $keyword = Input::get('keyword');
        
     
-        $references = DB::table('refference')
-            ->where('lid', '=', $_SESSION['lid'])
-            ->where('code', 'LIKE', '%' . $keyword . '%')
-            ->select('code', 'name', 'idref')
-            ->get();
+    //     $references = DB::table('refference')
+    //         ->where('lid', '=', $_SESSION['lid'])
+    //         ->where('code', 'LIKE', '%' . $keyword . '%')
+    //         ->select('code', 'name', 'idref')
+    //         ->get();
     
-        return Response::json($references);
-    }
+    //     return Response::json($references);
+    // }
+    public function getRefCode()
+{
+    $keyword = Input::get('keyword');
+    $labLid = $_SESSION['lid'];
+
+    $references = DB::table('refference')
+        ->where('lid', '=', $labLid)
+        ->where('code', 'LIKE', '%' . $keyword . '%')
+        ->select('code', 'name', 'idref')
+        ->get();
+
+    return Response::json($references);
+}
+
     
 
 
@@ -989,6 +1003,22 @@ class PatientRegistrationController extends Controller
         ]);
     }
 
+
+
+public function getRefName()
+{
+    $keyword = Input::get('keyword');
+    $labLid = $_SESSION['lid'];
+
+    $results = DB::table('refference')
+        ->where('lid', '=', $labLid)
+        ->whereNotNull('name')
+        ->where('name', 'LIKE', '%' . $keyword . '%')
+        ->orderBy('name', 'asc')
+        ->get(['idref', 'name', 'code']);
+
+    return Response::json($results);
+}
 
 
 

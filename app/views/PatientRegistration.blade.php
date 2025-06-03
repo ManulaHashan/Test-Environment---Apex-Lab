@@ -1264,8 +1264,40 @@ function selectTP(tpno, userID)
     });
 }
 
-function searchRefferenceCode()
-{
+// function searchRefferenceCode()
+// {
+//     var refCode = $('#refcode').val();
+
+//     if (refCode.length < 1) {
+//         $('#refcode_suggestions').hide();
+//         return;
+//     }
+
+//     $.ajax({
+//         type: "GET",
+//         url: "/getRefCode",
+//         data: {
+//             keyword: refCode
+//         },
+//         success: function (data) {
+//             var suggestionsHtml = '';
+//             if (data.length > 0) {
+//                 $.each(data, function (index, ref) {
+//                     suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\')">' +
+//                             ref.code + ' - ' + ref.name + '</div>';
+//                 });
+//                 $('#refcode_suggestions').html(suggestionsHtml).show();
+//             } else {
+//                 $('#refcode_suggestions').hide();
+//             }
+//         },
+//         error: function (xhr) {
+//             console.error('Error:', xhr.statusText);
+//         }
+//     });
+// }
+
+function searchRefferenceCode() {
     var refCode = $('#refcode').val();
 
     if (refCode.length < 1) {
@@ -1276,15 +1308,14 @@ function searchRefferenceCode()
     $.ajax({
         type: "GET",
         url: "/getRefCode",
-        data: {
-            keyword: refCode
-        },
+        data: { keyword: refCode },
         success: function (data) {
             var suggestionsHtml = '';
             if (data.length > 0) {
                 $.each(data, function (index, ref) {
-                    suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\')">' +
-                            ref.code + ' - ' + ref.name + '</div>';
+                    suggestionsHtml += '<div class="suggestion-item" style="padding:5px; cursor:pointer;" onclick="selectRef(\'' +
+                        ref.code + '\', \'' + ref.idref + '\', \'' + ref.name + '\')">' +
+                        ref.code + ' - ' + ref.name + '</div>';
                 });
                 $('#refcode_suggestions').html(suggestionsHtml).show();
             } else {
@@ -1297,14 +1328,8 @@ function searchRefferenceCode()
     });
 }
 
-function selectRef(code, idref)
-{
 
-    $('#refcode').val(code);
-    $('#refcode_suggestions').hide();
-    $('#hidden_idref').val(idref);
-    $('#refDropdown').val(idref);
-}
+
 //-----------------------------------------------------------------------
 $('#refDropdown').on('change', function () {
     var selectedOption = $(this).find('option:selected');
@@ -2068,6 +2093,52 @@ function updatePatientDetails() {
     });
 }
 
+
+
+
+function searchRefName() {
+    var keyword = $('#refDropdown').val();
+
+    if (keyword.length < 1) {
+        $('#refname_suggestions').hide();
+        return;
+    }
+
+    $.ajax({
+        type: "GET",
+        url: "/getRefName", // you need to handle this route in backend
+        data: {
+            keyword: keyword
+        },
+        success: function (data) {
+            var suggestionsHtml = '';
+            if (data.length > 0) {
+                $.each(data, function (index, ref) {
+                    suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\', \'' + ref.name + '\')">' +
+                        ref.name + ' (' + ref.code + ')</div>';
+                });
+                $('#refname_suggestions').html(suggestionsHtml).show();
+            } else {
+                $('#refname_suggestions').hide();
+            }
+        },
+        error: function (xhr) {
+            console.error('Error:', xhr.statusText);
+        }
+    });
+}
+
+function selectRef(code, idref, name) {
+    $('#refcode').val(code);
+    $('#refDropdown').val(name); // Show ref name in text input
+    $('#ref').val(idref);        // Store idref in hidden input
+
+    $('#refcode_suggestions').hide();
+     $('#refname_suggestions').hide();
+}
+
+
+
 </script>
 
 
@@ -2155,7 +2226,7 @@ function updatePatientDetails() {
 
     .autocomplete-suggestions
     {
-        border: 1px solid #e1dede;
+        border: none;
         border-radius: 15px;
         background-color: white;
         max-height: 150px;
@@ -2163,7 +2234,22 @@ function updatePatientDetails() {
         position: absolute;
         z-index: 1000;
         width: 300px;
-        margin-top: 60px;
+        margin-top: 150px;
+        margin-left: 95px;
+
+
+    }
+    .autocomplete-suggestions2
+    {
+         border: none;
+        border-radius: 15px;
+        background-color: white;
+        max-height: 150px;
+        overflow-y: auto;
+        position: absolute;
+        z-index: 1000;
+        width: 300px;
+        margin-top: 120px;
         margin-left: 185px;
 
 
@@ -2583,31 +2669,19 @@ function updatePatientDetails() {
                         </div>
                         <div style="display: flex; align-items: center; margin-top: 0px;">
                             <label class='form_label_sm'>Ref.By</label>
-                            <input type="text" name="refcode" class="input-text" id="refcode" style="width: 60px" oninput="searchRefferenceCode()" placeholder="Ref. Code">
+
+                            <input type="text" name="refcode" class="input-text" id="refcode" style="width: 60px" 
+                                oninput="searchRefferenceCode()" placeholder="Ref. Code">
                             <div id="refcode_suggestions" class="autocomplete-suggestions"></div>
-                            <input type="hidden" id="hidden_idref" name="idref">
+
+                            <input type="hidden" name="ref" id="ref">
                             
-                            <select name="ref" style="width: 325px; height: 27px;" class="input-text" id="refDropdown" onchange="updateRefCode()" placeholder="Referred By Name">
-
-                                <option value=""></option>
-                                <?php
-                                $Result = DB::select("select idref, name,code from refference where lid = '" . $_SESSION['lid'] . "' AND name IS NOT NULL ORDER BY name ASC");
-
-                                foreach ($Result as $res) {
-                                    $refId = $res->idref;
-                                    $refName = $res->name;
-                                    $refCode = $res->code;
-                                    ?>
-
-                                    <option value="<?= $refId ?>" data-code="<?= $refCode ?>"><?= $refName ?> </option>
+                           <input type="text" name="refDropdown" id="refDropdown" class="input-text" style="width: 325px; height: 27px;" 
+                                placeholder="Referred By Name" oninput="searchRefName()">
+                            <div id="refname_suggestions" class="autocomplete-suggestions2"></div>
 
 
-
-                                    <?php
-                                }
-                                ?>
-                            </select>
-
+                            
                             <input type="button" style="color:green" class="btn" id="addref" style='margin:0px;' value="+" onclick="window.location.href ='{{ url('/doc-reference') }}';">
                         </div>
                         

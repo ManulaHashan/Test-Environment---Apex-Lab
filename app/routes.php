@@ -299,6 +299,8 @@ Route::post('/checkSampleNo', 'PatientRegistrationController@checkSampleNo');
 Route::get('getPatientDetailsBySample', 'PatientRegistrationController@getPatientDetailsBySample');
 Route::get('getLastPatientDetails', 'PatientRegistrationController@getLastPatientDetails');
 Route::post('updatePatientDetails', 'PatientRegistrationController@updatePatientDetails');
+Route::get('/getRefName', 'PatientRegistrationController@getRefName');
+
 
 
 
