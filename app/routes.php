@@ -300,6 +300,8 @@ Route::get('getPatientDetailsBySample', 'PatientRegistrationController@getPatien
 Route::get('getLastPatientDetails', 'PatientRegistrationController@getLastPatientDetails');
 Route::post('updatePatientDetails', 'PatientRegistrationController@updatePatientDetails');
 Route::get('/getRefName', 'PatientRegistrationController@getRefName');
+Route::get('getTestParametersByTGID', 'PatientRegistrationController@getTestParametersByTGID');
+
 
 
 
@@ -807,6 +809,17 @@ Route::get('/printBarcode/{id}', function($id) {
     
     
     return View::make('Barcodes.Common_Barcode' )->with('sno', $arr[0])->with('date', $arr[1])->with('isGroup', $arr[2])->with('tgid', $arr[3])->with('testGroupName', $arr[4]);
+});
+
+//Print parameeter Barcode Route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/printParameterBarcode/{id}', function($id) {
+
+    $arr = explode("&", $id);
+
+    $lid = $_SESSION["lid"];
+    
+    
+    return View::make('Barcodes.Test_parameeter_wise_Bcode' )->with('sno', $arr[0])->with('date',  $arr[1])->with('tgid', $arr[2])->with('testGroupName', $arr[3])->with('orderNo', $arr[4]);
 });
 
 // text code buttons route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

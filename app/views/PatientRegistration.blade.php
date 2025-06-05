@@ -1173,10 +1173,10 @@ function searchUserRecords()
     var Usertpno = $('#Ser_tpno').val();
     var anyFilter = $('#any_filter').is(':checked') ? 1 : 0;
 
-    if (Usertpno.length < 4) {
+    if ((anyFilter && Usertpno.length < 3) || (!anyFilter && Usertpno.length < 10)) {
         $('#tpno_suggestions').hide();
         return;
-    }
+      }
 
     $.ajax({
         type: "GET",
@@ -1499,6 +1499,7 @@ window.onclick = function (event) {
         closeModal();
     }
 }
+
 
 // Save payment function (example placeholder)
 function savePayment() {
@@ -2150,7 +2151,129 @@ function selectRef(code, idref, name) {
      $('#refname_suggestions').hide();
 }
 
+// Function to open the barcode modal
+function openBcodeModal() {
+    var selectedRow = $('#Branch_record_tbl').find('tr.selected-row');
 
+    if (selectedRow.length === 0) {
+        alert("Please select a test!");
+        return; // Stop here if no test selected
+    }
+
+    // If test is selected → continue
+    testWiseBarcodeLoad();
+}
+
+
+// Function to close the barcode modal
+function closeBcodeModal() {
+    document.getElementById("barCodeModal").style.display = "none";
+}
+
+// Close the barcode modal if the user clicks outside of it
+// window.onclick = function (event) {
+//     if (event.target == document.getElementById("barCodeModal")) {
+//         closeBcodeModal();
+//     }
+// }
+
+
+function testWiseBarcodeLoad() {
+    var date = $('#patientDate').val();
+    var sno = $('#sampleNo').val();
+    var selectedRow = $('#Branch_record_tbl').find('tr.selected-row');
+    
+    if (selectedRow.length === 0) {
+        alert("Please select a test!");
+        return;
+    }
+
+    var tgid = selectedRow.find('td').eq(0).text();
+    var testGroupName = selectedRow.find('td').eq(1).text();
+
+    $('#test_name').text(testGroupName); 
+    $('#test_ID').val(tgid); 
+    
+
+    $('#test_para_record_tbl').empty();
+
+    $.ajax({
+        url: 'getTestParametersByTGID', // Route path
+        type: 'GET',
+        data: {
+            tgid: tgid,
+            testGroupName:testGroupName
+        },
+        success: function (data) {
+            if (data.length > 0) {
+                $.each(data, function (index, item) {
+                    var row = '<tr>' +
+                        '<td>' + item.orderno + ' </td>' +
+                        '<td>' + item.reportname + ' </td>' +
+                        '</tr>';
+                    $('#test_para_record_tbl').append(row);
+                });
+            } else {
+                $('#test_para_record_tbl').append('<tr><td>No parameters found.</td></tr>');
+            }
+
+            $('#barCodeModal').css('display', 'block');
+        },
+        error: function () {
+            alert("Error loading parameters.");
+        }
+    });
+}
+
+// Table Row selection function
+$(document).on('click', '#test_param_record_tbl tr', function (event) {
+    event.stopPropagation();
+    $('#test_param_record_tbl tr').removeClass('selected-row');
+    $(this).addClass('selected-row');
+});
+
+
+
+function parameeterBarcodePrint() {
+    var date = $('#patientDate').val();
+    var sno = $('#sampleNo').val();
+    // var inv_balance = $('#due').val();
+
+    var selectedRow = "";
+    var tgid = $('#test_ID').val();
+    var testGroupName = "";
+    var orderNo = "";
+    
+
+    
+
+        selectedRow = $('#test_param_record_tbl').find('tr.selected-row');
+
+        if (selectedRow.length === 0) {
+            alert("Please select a test!");
+            return;
+        }
+
+        orderNo = selectedRow.find('td').eq(0).text();
+        testGroupName = selectedRow.find('td').eq(1).text();
+    
+
+    
+
+
+    var win = window.open("printParameterBarcode/" + sno + "&" + date+ "&" + tgid + "&" + testGroupName + "&" + orderNo, '_blank');
+
+    setTimeout(function () {
+        win.print();
+    }, 5000);
+
+
+    setTimeout(function () {
+        win.close();
+        // resetPage();
+    }, 8000);
+
+}
 
 </script>
 
@@ -2293,6 +2416,28 @@ function selectRef(code, idref, name) {
         width: 80%;
     }
 
+
+    
+    .bcodemodal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+
+    .bcodemodal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 20%;
+    }
     .close {
         color: #aaa;
         float: right;
@@ -2496,6 +2641,13 @@ function selectRef(code, idref, name) {
         /* color: white; */
         cursor: pointer;
     }
+
+
+
+    #test_param_record_tbl tr {
+        cursor: pointer;
+    }
+    
 </style>
 
 @stop
@@ -2977,8 +3129,13 @@ function selectRef(code, idref, name) {
                             
                             <tr>
                                 <td width="50%" valign="top">
-                                    <input type="button"  class="btn" id="make_priority" value="Make Priority" onclick="">
                                     
+                                      <div style="display: flex; gap: 10px;">
+                                        <input type="button" class="btn" id="make_priority" value="Make Priority" onclick="">
+                                        <input type="button" style="color: black;" 
+                                            onclick="openBcodeModal()" class="btn" id="test_wise_bcode" value="Test wise Bcode">
+                                     </div>
+                                                                    
                                     <input type="text" name=" inv_remark" class="input-text" id="inv_remark" style="width: 92%; margin-top: 5px;" placeholder="Invoice Remark">
                                     
                                     <div style="display: flex; align-items: center;margin-top: 10px; font-size: 12px; ">
@@ -3116,7 +3273,6 @@ function selectRef(code, idref, name) {
                     </div>
 
 
-
                         <!-- Button to open the modal -->
                         <!--    <input type="button" style="color:black; width: 210px; height: 50px;" 
                             onclick="openModal()" class="btn" id="update_payment" value="Open Modal">-->
@@ -3226,7 +3382,55 @@ function selectRef(code, idref, name) {
                         </div>
                     </div>
                     
+
                     
+                    
+                           <!-- Test Wice barcode Modal -->
+                    <div id="barCodeModal" class="bcodemodal">
+                        <!-- Modal content -->
+                        <div class="bcodemodal-content">
+                            <span class="close" onclick="closeBcodeModal()">&times;</span>
+                            <h1>Test Wise Barcode </h1>
+                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <label for="test_name" style="font-size: 14px; min-width: 90px;"><b>Test Name:</b></label>
+                                <label id="test_name" style="  width: 190px;"></label>
+                                <input type="text" id="test_ID" hidden> 
+                            </div>
+                             <div class="pageTableScope" style="display: block; height: auto; margin-top: 10px; width: 100%;">
+                                <!-- Left Side: Table -->
+                                <div style="flex: 0 0 50%; padding-left: 10px;">
+                                     <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="test_param_record_tbl" width="100%" border="0" cellspacing="2" cellpadding="0">
+                                        <tbody>
+                                            <tr>
+                                                <td valign="top">
+                                                    <table border="1" style="border-color: #ffffff;" cellpadding="0" cellspacing="0" class="TableWithBorder" width="100%">
+                                                        <thead>
+                                                            <tr class="viewTHead">
+                                                                <td width="15%" class="fieldText" align="left">Order No</td>
+                                                                <td width="15%" class="fieldText" align="left">Parameter List</td>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="test_para_record_tbl">
+                                                            <!-- Dynamic content goes here -->
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                   
+                                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                        <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:rgb(23, 43, 179)" class="btn" id="ser_btn" value="Print Barcode" onclick = "parameeterBarcodePrint();" >
+                                    </div>
+                                </div>
+
+                                
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </td>
                 
             </tr>

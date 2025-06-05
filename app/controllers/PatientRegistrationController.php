@@ -1021,6 +1021,21 @@ public function getRefName()
 }
 
 
+public function getTestParametersByTGID()
+{
+    $tgid = Input::get('tgid');
+   $labLid = $_SESSION['lid']; 
+
+    $results = DB::table('Lab_has_test')
+        ->select('reportname', 'orderno','Testgroup_tgid')
+        ->where('Testgroup_tgid', '=', $tgid)
+        ->where('Lab_lid', '=', $labLid) 
+        ->get();
+
+    return Response::json($results);
+}
+
+
 
 
 
