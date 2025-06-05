@@ -369,7 +369,7 @@ $(document).ready(function () {
 
             priorityCell.html('<span style="color: red;">***</span>');
             $(this).val('Remove Priority').css('color', 'red');
-            selectedRow.css('background-color', 'pink');
+            selectedRow.css('background-color', '');
         }
     });
 
