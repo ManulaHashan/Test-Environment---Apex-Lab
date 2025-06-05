@@ -876,7 +876,9 @@ class PatientRegistrationController extends Controller
         }
 
 
-    public function getPatientDetailsBySample()
+   
+   
+        public function getPatientDetailsBySample()
     {
         $sampleNO = Input::get('sampleNO');
         $direction = Input::get('direction'); // 'back' or 'front'

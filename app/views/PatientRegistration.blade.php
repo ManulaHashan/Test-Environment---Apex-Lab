@@ -1592,206 +1592,7 @@ $(document).ready(function () {
 
 
 
-// Single Barcode Process
 
-function getSingleBarcode() {
-    var selectedRow = $('#Branch_record_tbl').find('tr.selected-row');
-
-    if (selectedRow.length === 0) {
-        alert("Please select a test!");
-        return;
-    }
-
-    var tgid = selectedRow.find('td').eq(0).text();
-    var testGroupName = selectedRow.find('td').eq(1).text();
-    var sno = $('#sampleNo').val();
-
-    var initials = $('#initial').val();
-    var fname = $('#fname').val();
-    var lname = $('#lname').val();
-    var bill_date = $('#patientDate').val();
-    var years = 0;
-    var months = 0;
-    var days = 0;
-
-    if (initials == "" || fname == "" || lname == "") {
-        alert("Please fill patient details first!");
-        return;
-    } else if ($('#years').val() == "" && $('#months').val() == "" && $('#days').val() == "") {
-        alert("Please fill patient age first!");
-        return;
-    }
-
-    if ($('#years').val() != "") {
-        years = $('#years').val();
-    } else {
-        years = 0;
-    }
-
-    if ($('#months').val() != "") {
-        months = $('#months').val();
-    } else {
-        months = 0;
-    }
-
-    if ($('#days').val() != "") {
-        days = $('#days').val();
-    } else {
-        days = 0;
-    }
-
-    var now = new Date();
-    var hours = now.getHours().toString().padStart(2, '0');
-    var minutes = now.getMinutes().toString().padStart(2, '0');
-    var seconds = now.getSeconds().toString().padStart(2, '0');
-
-    var time = hours + ":" + minutes + ":" + seconds;
-
-    $('#bcode_sno').html(sno);
-    $('#bcode_p_name').html(initials + ". " + fname + " " + lname);
-    $('#bcode_testname').html(testGroupName);
-    $('#barcode_date').html(bill_date);
-    $('#barcode_time').html(time);
-    $('#barcode_p_age').html(years + " Y " + months + " M " + days + " D");
-
-
-    // var gender = $('input[name="gender"]:checked').val();
-    //     if (gender == "1") {
-    //         console.log("Male selected");
-    //     } else if (gender == "2") {
-    //         console.log("Female selected");
-    //     } else {
-    //         console.log("No gender selected");
-    //     }
-
-
-
-
-    // JsBarcode("#barcode", sno, {
-    //     format: "CODE128",
-    //     lineColor: "#000000",
-    //     width: 2,
-    //     height: 100,
-    //     displayValue: true
-    // });
-    // bcode_sno
-    JsBarcode("#barcodeCanvas", sno, {
-        format: "CODE128",
-        displayValue: false,
-        lineColor: "#000",
-        width: 3,
-        height: 60,
-        margin: 0
-    });
-
-
-    const barcodeContainer = document.getElementById("print_bcode");
-    const printWindow = document.getElementById('print-frame').contentWindow;
-
-    const canvas = document.querySelector("#barcodeCanvas");
-    const imageDataUrl = canvas.toDataURL("image/png");
-
-
-    const clone = barcodeContainer.cloneNode(true);
-    const canvasEl = clone.querySelector("#barcodeCanvas");
-
-
-    const img = document.createElement("img");
-    img.src = imageDataUrl;
-    img.alt = "Barcode";
-    img.style.display = "block";
-    img.style.margin = "0 auto";
-    img.style.maxWidth = "100%";
-
-    canvasEl.parentNode.replaceChild(img, canvasEl);
-
-
-    const styleContent = `
-    @media print {
-        body {
-        margin: 0;
-        padding: 0;
-        }
-    }
-
-    .barcode-label {
-        position: absolute;
-        top: 10mm;
-        left: 10mm;
-        transform: scale(0.8); /* Increased from 0.1 to 0.3 */
-        transform-origin: top left;
-        width: 300px;
-        border: 1px solid #000;
-        padding: 10px;
-        background-color: #fff;
-       
-    }
-
-    .barcode-top {
-        text-align: center;
-        font-weight: bold;
-        font-size: 14px;
-        margin-bottom: 5px;
-    }
-
-    .barcode-info {
-        margin-top: 5px;
-        font-size: 12px;
-    }
-
-    .barcode-footer {
-        display: flex;
-        justify-content: space-between;
-        font-size: 10px;
-        margin-top: 5px;
-    }
-    `;
-
-    printWindow.document.open();
-    printWindow.document.write(`
-    <html>
-        <head>
-        <style>${styleContent}</style>
-        </head>
-        <body onload="window.print();">
-        ${clone.outerHTML}
-        </body>
-    </html>
-    `);
-    printWindow.document.close();
-
-
-
-
-
-
-    // alert(tgid);
-
-    // var specialBarcodes = ["101:AB", "102:CD"]; 
-
-    // $.ajax({
-    //     url: "get_Single_Barcode",
-    //     method: 'GET',
-    //     data: {
-    //         tgid: tgid,
-    //         testGroupName: testGroupName,
-    //         sno: sno
-    //         // specialBarcodes: specialBarcodes
-    //     },
-    //     success: function (response) {
-    //         if (response.success) {
-
-    //             alert(response.barcodes);
-    //             // response.barcodes.forEach(function (barcode) {
-    //             //     printReferenceBarcode(
-    //             //         barcode.test,
-    //             //         barcode.sample_no
-    //             //     );
-    //             // });
-    //         }
-    //     }
-    // });
-}
 
 function barcodePrint(isGroup) {
     var date = $('#patientDate').val();
@@ -2233,7 +2034,7 @@ $(document).on('click', '#test_param_record_tbl tr', function (event) {
 });
 
 
-
+// parameeter wise Barcode Print process
 function parameeterBarcodePrint() {
     var date = $('#patientDate').val();
     var sno = $('#sampleNo').val();
@@ -2274,6 +2075,13 @@ function parameeterBarcodePrint() {
     }, 8000);
 
 }
+
+
+// Barcode status update prosess
+
+
+
+
 
 </script>
 
@@ -2609,6 +2417,20 @@ function parameeterBarcodePrint() {
     }
 
     #group_barcode:hover {
+        background-color: rgb(45, 194, 181);
+        color: white;
+        cursor: pointer;
+    }
+
+       #test_wise_bcode {
+        color: rgb(45, 194, 181);
+        width: 90%;
+        background-color: transparent;
+        border: 2px solid rgb(45, 194, 181);
+        transition: all 0.3s ease;
+    }
+
+    #test_wise_bcode:hover {
         background-color: rgb(45, 194, 181);
         color: white;
         cursor: pointer;
@@ -3132,8 +2954,7 @@ function parameeterBarcodePrint() {
                                     
                                       <div style="display: flex; gap: 10px;">
                                         <input type="button" class="btn" id="make_priority" value="Make Priority" onclick="">
-                                        <input type="button" style="color: black;" 
-                                            onclick="openBcodeModal()" class="btn" id="test_wise_bcode" value="Test wise Bcode">
+                                        
                                      </div>
                                                                     
                                     <input type="text" name=" inv_remark" class="input-text" id="inv_remark" style="width: 92%; margin-top: 5px;" placeholder="Invoice Remark">
@@ -3204,6 +3025,7 @@ function parameeterBarcodePrint() {
                                     <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1">
                                     <input type="button"  class="btn" id="print_barcode" value="Print Barcode " onclick="barcodePrint(false)">
                                     <input type="button"  class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);">
+                                    <input type="button"  class="btn" id="test_wise_bcode" value="Test Wise Bcode" onclick="openBcodeModal();">
                                     <input type="button"  class="btn" id="remove_barcode" value="Remove Barcode" onclick="">
                                     
                                     {{-- <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords(); savePatientDetails()">  --}}
