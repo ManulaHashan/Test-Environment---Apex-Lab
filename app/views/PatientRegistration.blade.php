@@ -2077,10 +2077,49 @@ function parameeterBarcodePrint() {
 }
 
 
-// Barcode status update prosess
+// Remove Barcode status update prosess
 
 
+function removeBarcode() {
+    var selectedRow = $('#Branch_record_tbl').find('tr.selected-row');
 
+    if (selectedRow.length === 0) {
+        alert("Please select a test!");
+        return;
+    }
+
+    // Assuming sampleNo and date are in specific columns of the selected row
+    var date = $('#patientDate').val();
+    var sno = $('#sampleNo').val();
+
+    if (!sno || !date) {
+        alert("Sample number or date is missing!");
+        return;
+    }
+
+    // AJAX request to update status
+    $.ajax({
+        url: '/remove-barcode', // Route to handle the update
+        type: 'POST',
+        data: {
+            sampleNo: sno,
+            date: date
+           
+        },
+        success: function(response) {
+            if (response.success) {
+                alert("Barcode status updated to 'pending' successfully!");
+                // Optionally, update the UI (e.g., change status column text)
+                // selectedRow.find('td.status-column').text('pending'); // Adjust if you have a status column
+            } else {
+                alert("Failed to update status: " + response.message);
+            }
+        },
+        error: function(xhr) {
+            alert("An error occurred: " + xhr.responseText);
+        }
+    });
+}
 
 
 </script>
@@ -3026,7 +3065,7 @@ function parameeterBarcodePrint() {
                                     <input type="button"  class="btn" id="print_barcode" value="Print Barcode " onclick="barcodePrint(false)">
                                     <input type="button"  class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);">
                                     <input type="button"  class="btn" id="test_wise_bcode" value="Test Wise Bcode" onclick="openBcodeModal();">
-                                    <input type="button"  class="btn" id="remove_barcode" value="Remove Barcode" onclick="">
+                                    <input type="button"  class="btn" id="remove_barcode" value="Remove Barcode" onclick="removeBarcode();">
                                     
                                     {{-- <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save" onclick="getAllTableRecords(); savePatientDetails()">  --}}
                                         <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save">

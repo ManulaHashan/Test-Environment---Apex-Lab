@@ -1038,6 +1038,45 @@ public function getTestParametersByTGID()
 }
 
 
+public function removeBarcode()
+    {
+        // Get input data
+        $sampleNo = Input::get('sampleNo');
+        $date = Input::get('date');
+
+        // Validate input
+        if (empty($sampleNo) || empty($date)) {
+            return Response::json([
+                'success' => false,
+                'message' => 'Sample number or date is missing'
+            ], 400);
+        }
+
+        try {
+            // Update status to 'pending' in lps table
+            $updated = DB::table('lps')
+                ->where('sampleNo', $sampleNo)
+                ->where('date', $date)
+                ->update(['status' => 'pending']);
+
+            if ($updated) {
+                return Response::json([
+                    'success' => true,
+                    'message' => 'Status updated to pending'
+                ]);
+            } else {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'No matching record found'
+                ], 404);
+            }
+        } catch (Exception $e) {
+            return Response::json([
+                'success' => false,
+                'message' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 

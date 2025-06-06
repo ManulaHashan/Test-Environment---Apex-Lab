@@ -214,18 +214,20 @@ foreach ($sample_containerName as $sample_containerName) {
                         </div>
                     </td>
                 </tr>
-            </table><?php   
+            </table><?php 
+            DB::table('lps')
+                ->where('sampleNo', $sno)
+                ->where('date', $date)
+                ->update(['status' => 'barcorded']);  
         }
-        else
-        {?>
-             <table>
+     else { ?>
+            <table>
                 <tr class="barcode-row">
                     <td>
                         <div class="barcode-label">
                             <div class="barcode-top">
-                                <div class="barcode-left"><?= htmlspecialchars($sno)  ?></div>
+                                <div class="barcode-left"><?= htmlspecialchars($sno) ?></div>
                                 <div class="barcode-right"><?= $container_Name ?></div>
-                                
                             </div>
                             <canvas id="barcodeCanvas_single"></canvas>
                             <div class="hr-wrapper">
@@ -244,19 +246,24 @@ foreach ($sample_containerName as $sample_containerName) {
                         </div>
                     </td>
                 </tr>
-            </table><?php
-        }?>
-
-    <script>
-        JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno) ?>", {
-            format: "CODE128",
-            displayValue: false,
-            lineColor: "#000",
-            width: 3,
-            height: 60,
-            margin: 0,
-        });
-    </script>
+            </table>
+            <script>
+                JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno) ?>", {
+                    format: "CODE128",
+                    displayValue: false,
+                    lineColor: "#000",
+                    width: 3,
+                    height: 60,
+                    margin: 0,
+                });
+            </script>
+            <?php
+            // Update lps table status to 'barcorded'
+            DB::table('lps')
+                ->where('sampleNo', $sno)
+                ->where('date', $date)
+                ->update(['status' => 'barcorded']);
+        } ?>
 
 <?php else: ?>
     <!-- Grouped Barcodes -->
@@ -420,6 +427,12 @@ foreach ($groupedTests as $scid => $tgids) {
         <?php
     }
 }
+
+DB::table('lps')
+            ->where('sampleNo', 'LIKE', $sno . '%')
+            ->where('date', $date)
+            ->update(['status' => 'barcorded']);
+
 ?>
 
     </table>

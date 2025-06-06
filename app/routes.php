@@ -301,6 +301,7 @@ Route::get('getLastPatientDetails', 'PatientRegistrationController@getLastPatien
 Route::post('updatePatientDetails', 'PatientRegistrationController@updatePatientDetails');
 Route::get('/getRefName', 'PatientRegistrationController@getRefName');
 Route::get('getTestParametersByTGID', 'PatientRegistrationController@getTestParametersByTGID');
+Route::post('remove-barcode', 'PatientRegistrationController@removeBarcode');
 
 
 
