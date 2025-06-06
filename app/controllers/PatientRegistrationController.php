@@ -153,7 +153,7 @@ class PatientRegistrationController extends Controller
         $query = DB::table('user as a')
             ->join('patient as b', 'a.uid', '=', 'b.user_uid')
             ->join('lps as c', 'b.pid', '=', 'c.patient_pid')
-            ->select('a.uid', 'a.fname', 'a.lname', 'a.tpno','b.age', 'b.initials')
+            ->select('a.uid', 'a.fname', 'a.lname', 'a.tpno','b.age', 'b.initials','a.address', 'a.nic')
             ->where('c.Lab_lid', $_SESSION['lid']);
 
         if ($anyFilter) {
@@ -161,7 +161,9 @@ class PatientRegistrationController extends Controller
             $query->where(function($q) use ($tpno) {
                 $q->where('a.tpno', 'like', '%' . $tpno . '%')
                 ->orWhere('a.fname', 'like', '%' . $tpno . '%')
-                ->orWhere('a.lname', 'like', '%' . $tpno . '%');
+                ->orWhere('a.lname', 'like', '%' . $tpno . '%')
+                ->orWhere('a.address', 'like', '%' . $tpno . '%')
+                ->orWhere('a.nic', 'like', '%' . $tpno . '%');
             });
         } else {
             // Default tpno search
