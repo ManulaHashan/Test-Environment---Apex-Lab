@@ -3073,15 +3073,15 @@ function closeBcodeModal() {
 
                         <div style="display: flex; align-items: center;  ">
                             <label class='form_label_sm'>Patient Name</label>
-                            <select type="text" name="initial" class="input-text" id="initial" style="width: 70px;">
+                            <select type="text" name="initial" class="input-text" id="initial" style="width: 70px;" >
                                 <option value="Mr">Mr</option>
                                 <option value="Mrs">Mrs</option>
                                 <option value="Miss">Miss</option>
                                 <option value="Dr">Dr</option>
                                 <option value="Hons">Hons</option>
                             </select>
-                            <input type="text" name=" fname" class="input-text" id="fname" style="width: 180px" placeholder="First Name">
-                            <input type="text" name=" lname" class="input-text" id="lname" style="width: 180px" placeholder="Last Name">
+                            <input type="text" name=" fname" class="input-text" id="fname" style="width: 180px" placeholder="First Name"autocomplete="off">
+                            <input type="text" name=" lname" class="input-text" id="lname" style="width: 180px" placeholder="Last Name"autocomplete="off">
                             <input type="checkbox" name="patient_details_edit" id="patient_details_edit" class="patient_details_edit" value="1">
                         </div>
 
@@ -3112,19 +3112,19 @@ function closeBcodeModal() {
                         </div>
                         <div style="display: flex; align-items: center; margin-top: 5px;">
                             <label class='form_label_sm'>Address</label>
-                            <input type="text" name="address" class="input-text" id="address" style="width: 450px">
+                            <input type="text" name="address" class="input-text" id="address" style="width: 450px"autocomplete="off">
                         </div>
                         <div style="display: flex; align-items: center; margin-top: 0px;">
                             <label class='form_label_sm'>Ref.By</label>
 
                             <input type="text" name="refcode" class="input-text" id="refcode" style="width: 60px" 
-                                oninput="searchRefferenceCode()" placeholder="Ref. Code">
+                                oninput="searchRefferenceCode()" placeholder="Ref. Code" autocomplete="off">
                             <div id="refcode_suggestions" class="autocomplete-suggestions"></div>
 
                             <input type="hidden" name="ref" id="ref">
                             
                            <input type="text" name="refDropdown" id="refDropdown" class="input-text" style="width: 325px; height: 27px;" 
-                                placeholder="Referred By Name" oninput="searchRefName()">
+                                placeholder="Referred By Name" oninput="searchRefName()" autocomplete="off">
                             <div id="refname_suggestions" class="autocomplete-suggestions2"></div>
 
 
@@ -3144,7 +3144,7 @@ function closeBcodeModal() {
                         <div style="display: flex; align-items: center; margin-top: 5px;">
                             <label class='form_label_sm'><b>Test Name</b></label>
                             <!-- Using onchange event here to trigger the function when a valid value is selected -->
-                            <input type="text" name="testname" class="input-text" id="testname" list="testlist" onchange="setDataToTable(this.value)" style="width: 100px">
+                            <input type="text" name="testname" class="input-text" id="testname" list="testlist" onchange="setDataToTable(this.value)" style="width: 100px"autocomplete="off">
                             <datalist id="testlist">
 
                             </datalist>
@@ -3165,7 +3165,7 @@ function closeBcodeModal() {
                             <input type="text" name="packageDropdown" class="input-text" id="packageDropdown"
                                 list="package_test_list"
                                 onchange="load_package_tests()"
-                                style="width: 400px">
+                                style="width: 400px" autocomplete="off">
 
                             <datalist id="package_test_list">
 
