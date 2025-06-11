@@ -1009,83 +1009,100 @@ class PatientRegistrationController extends Controller
 
 
 
-public function getRefName()
-{
-    $keyword = Input::get('keyword');
-    $labLid = $_SESSION['lid'];
-
-    $results = DB::table('refference')
-        ->where('lid', '=', $labLid)
-        ->whereNotNull('name')
-        ->where('name', 'LIKE', '%' . $keyword . '%')
-        ->orderBy('name', 'asc')
-        ->get(['idref', 'name', 'code']);
-
-    return Response::json($results);
-}
-
-
-public function getTestParametersByTGID()
-{
-    $tgid = Input::get('tgid');
-   $labLid = $_SESSION['lid']; 
-
-    $results = DB::table('Lab_has_test')
-        ->select('reportname', 'orderno','Testgroup_tgid')
-        ->where('Testgroup_tgid', '=', $tgid)
-        ->where('Lab_lid', '=', $labLid) 
-        ->get();
-
-    return Response::json($results);
-}
-
-
-public function removeBarcode()
+    public function getRefName()
     {
-        // Get input data
-        $sampleNo = Input::get('sampleNo');
-        $date = Input::get('date');
+        $keyword = Input::get('keyword');
+        $labLid = $_SESSION['lid'];
 
-        // Validate input
-        if (empty($sampleNo) || empty($date)) {
-            return Response::json([
-                'success' => false,
-                'message' => 'Sample number or date is missing'
-            ], 400);
-        }
+        $results = DB::table('refference')
+            ->where('lid', '=', $labLid)
+            ->whereNotNull('name')
+            ->where('name', 'LIKE', '%' . $keyword . '%')
+            ->orderBy('name', 'asc')
+            ->get(['idref', 'name', 'code']);
 
-        try {
-            // Update status to 'pending' in lps table
-            $updated = DB::table('lps')
-                ->where('sampleNo', $sampleNo)
-                ->where('date', $date)
-                ->update(['status' => 'pending']);
-
-            if ($updated) {
-                return Response::json([
-                    'success' => true,
-                    'message' => 'Status updated to pending'
-                ]);
-            } else {
-                return Response::json([
-                    'success' => false,
-                    'message' => 'No matching record found'
-                ], 404);
-            }
-        } catch (Exception $e) {
-            return Response::json([
-                'success' => false,
-                'message' => 'Database error: ' . $e->getMessage()
-            ], 500);
-        }
+        return Response::json($results);
     }
 
 
+    public function getTestParametersByTGID()
+    {
+        $tgid = Input::get('tgid');
+        $labLid = $_SESSION['lid']; 
+
+        $results = DB::table('Lab_has_test')
+            ->select('reportname', 'orderno','Testgroup_tgid')
+            ->where('Testgroup_tgid', '=', $tgid)
+            ->where('Lab_lid', '=', $labLid) 
+            ->get();
+
+        return Response::json($results);
+    }
 
 
+    public function removeBarcode()
+        {
+            // Get input data
+            $sampleNo = Input::get('sampleNo');
+            $date = Input::get('date');
+
+            // Validate input
+            if (empty($sampleNo) || empty($date)) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Sample number or date is missing'
+                ], 400);
+            }
+
+            try {
+                // Update status to 'pending' in lps table
+                $updated = DB::table('lps')
+                    ->where('sampleNo', $sampleNo)
+                    ->where('date', $date)
+                    ->update(['status' => 'pending']);
+
+                if ($updated) {
+                    return Response::json([
+                        'success' => true,
+                        'message' => 'Status updated to pending'
+                    ]);
+                } else {
+                    return Response::json([
+                        'success' => false,
+                        'message' => 'No matching record found'
+                    ], 404);
+                }
+            } catch (Exception $e) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Database error: ' . $e->getMessage()
+                ], 500);
+            }
+        }
 
 
+public function barcodeFeatureChecking()
+{
+    // Check if the session variable 'lid' is set
+    if (!isset($_SESSION['lid'])) {
+        return Response::json(['error' => 'Session expired.'], 401);
+    }
 
+    $labLid = $_SESSION['lid']; 
+
+    // Log the labLid value for debugging
+    \Log::info('Lab ID: ' . $labLid);
+
+    $barcodeFeature = DB::table('Lab_features')
+        ->where('Lab_lid', '=', $labLid)
+        ->where('features_idfeatures', '=', 20)
+        ->exists();
+
+    return Response::json(['hasFeature' => $barcodeFeature]);
+}
+
+
+   
 
 
 
