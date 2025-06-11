@@ -16,65 +16,104 @@ Add New Patient
 
 <script>
 
-$(document).ready(function () {
-    window.scrollTo(0, 85);
-    
-    const today = new Date().toISOString().split('T')[0];
-    $('#ser_date').val(today);
-    $('#patientDate').val(today);
-    const params = new URLSearchParams(window.location.search);
+    $(document).ready(function () {
+        window.scrollTo(0, 85);
+        
+        const today = new Date().toISOString().split('T')[0];
+        $('#ser_date').val(today);
+        $('#patientDate').val(today);
+        const params = new URLSearchParams(window.location.search);
 
-    const sampleNo = params.get('sampleNo');
-    const date = params.get('date');
+        const sampleNo = params.get('sampleNo');
+        const date = params.get('date');
 
-    if (sampleNo) {
-        document.getElementById('sampleNo').value = sampleNo;
-        view_selected_patient(sampleNo, date);
-    } else {
-        loadcurrentSampleNo();
-    }
+        if (sampleNo) {
+            document.getElementById('sampleNo').value = sampleNo;
+            view_selected_patient(sampleNo, date);
+        } else {
+            loadcurrentSampleNo();
+        }
 
-    if (date) {
-        document.getElementById('selected_date').value = date;
-    }
+        if (date) {
+            document.getElementById('selected_date').value = date;
+        }
 
-    load_test();
+        load_test();
 
-    // AJAX call to check barcode feature
-    $.ajax({
-        url: 'patient-registration',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            console.log(response); // Check the response
-            if (response.hasFeature) {
-                console.log("Feature available: Showing buttons");
-                $('#print_barcode').show(); // Show the buttons
-                $('#group_barcode').show();
-                $('#test_wise_bcode').show();
-                $('#remove_barcode').show();
-            } else {
-                console.log("Feature not available: Hiding buttons");
-                $('#print_barcode').hide();
-                $('#group_barcode').hide();
-                $('#test_wise_bcode').hide();
-                $('#remove_barcode').hide();
+        // AJAX call to check barcode feature
+    // Check if all buttons are initially hidden
+        console.log('Initial display states:');
+        ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode'].forEach(id => {
+            console.log(id + ':', $('#' + id).css('display'));
+        });
+
+        $.ajax({
+            url: '/barcode-feature-checking',
+            type: 'GET',
+            success: function (response) {
+                console.log('AJAX response received:', response);
+
+                if (response.hasFeature) {
+                    $('#print_barcode').show();
+                    $('#group_barcode').show();
+                    $('#test_wise_bcode').show();
+                    $('#remove_barcode').show();
+
+                    // Log display after showing
+                    console.log('Buttons shown based on feature present');
+                    ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode'].forEach(id => {
+                        console.log(id + ':', $('#' + id).css('display'));
+                    });
+                } else {
+                    console.log('Feature not present; buttons remain hidden');
+                }
+            },
+            error: function (xhr) {
+                console.error('AJAX error:', xhr.status, xhr.statusText);
+                if (xhr.status === 401) {
+                    alert('Session expired. Please log in again.');
+                }
             }
-        },
-        error: function(xhr) {
-            alert('Error occurred: ' + xhr.responseText);
+        });
+
+             $.ajax({
+            url: '/reportnig-feature-checking',
+            type: 'GET',
+            success: function (response) {
+                console.log('AJAX response received:', response);
+
+                if (response.hasFeature) {
+                    $('#smstd').show();
+                    $('#emailtd').show();
+                    $('#whatsapptd').show();
+
+
+                    // Log display after showing
+                    console.log('Buttons shown based on feature present');
+                    ['sms', 'email', 'whatsapp'].forEach(id => {
+                        console.log(id + ':', $('#' + id).css('display'));
+                    });
+                } else {
+                    console.log('Feature not present; buttons remain hidden');
+                }
+            },
+            error: function (xhr) {
+                console.error('AJAX error:', xhr.status, xhr.statusText);
+                if (xhr.status === 401) {
+                    alert('Session expired. Please log in again.');
+                }
+            }
+        });
+
+        checkInvoiceField();
+        $('#invoiceId').on('change keyup paste', checkInvoiceField);
+
+        function checkInvoiceField() {
+            const hasValue = $('#invoiceId').val().trim() !== '';
+            $('#update_payment').prop('disabled', !hasValue);
+            console.log('Invoice field check:', hasValue ? 'has value' : 'empty');
         }
     });
-
-    checkInvoiceField();
-    $('#invoiceId').on('change keyup paste', checkInvoiceField);
-
-    function checkInvoiceField() {
-        const hasValue = $('#invoiceId').val().trim() !== '';
-        $('#update_payment').prop('disabled', !hasValue);
-        console.log('Invoice field check:', hasValue ? 'has value' : 'empty');
-    }
-});
 
 
 
@@ -2530,27 +2569,27 @@ function closeBcodeModal() {
     }
 
     #savebtn:disabled {
-    background-color: #ccc;
-    color: #666;
-    cursor: not-allowed;
-    border: 1px solid #999;
+        background-color: #ccc;
+        color: #666;
+        cursor: not-allowed;
+        border: 1px solid #999;
     
     }
 
     #print_invoicebtn:disabled {
-    background-color: #ccc;
-    color: #666;
-    cursor: not-allowed;
-    border: 1px solid #999;
+        background-color: #ccc;
+        color: #666;
+        cursor: not-allowed;
+        border: 1px solid #999;
     
     }
 
     #print_barcode {
-    color: rgb(45, 194, 181);
-    width: 90%;
-    background-color: transparent;
-    border: 2px solid rgb(45, 194, 181);
-    transition: all 0.3s ease;
+        color: rgb(45, 194, 181);
+        width: 90%;
+        background-color: transparent;
+        border: 2px solid rgb(45, 194, 181);
+        transition: all 0.3s ease;
     }
 
     #print_barcode:hover {
@@ -2635,14 +2674,75 @@ function closeBcodeModal() {
 
 
     .patientConfirmModal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-width: 900px;
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 900px;
     }
 
+     /* Initially hide all barcode buttons */
+        #print_barcode,
+        #group_barcode,
+        #test_wise_bcode,
+        #remove_barcode,
+        #rep_chkboxlbl,
+        #rep_chkbox {
+            display: none;
+        }
+
+          /* Initially hide all reportnig check boxes */
+        #smstd,
+        #emailtd,
+        #whatsapptd{
+            display: none;
+        }
+          #print_barcode {
+            padding: 8px 16px;
+            margin: 4px;
+            background-color: #af288e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        #group_barcode {
+            padding: 8px 16px;
+            margin: 4px;
+            background-color: #af288e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+          #test_wise_bcode {
+            padding: 8px 16px;
+            margin: 4px;
+            background-color: #af288e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+          #remove_barcode {
+            padding: 8px 16px;
+            margin: 4px;
+            background-color: #af288e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+       
+
+       
+        
     
 </style>
 
@@ -3143,17 +3243,17 @@ function closeBcodeModal() {
                                             <input type="checkbox" name="hard_copy" id="hard_copy" value="Hard Copy" checked ><br/>Hard Copy
                                         </td>
 
-                                        <td width="25%">
+                                        <td width="25%" id="smstd">
                                             
                                             <input type="checkbox" name="sms" id="sms" value="SMS" style=""><br/>SMS
                                         </td>
 
-                                        <td width="25%">
+                                        <td width="25%" id="emailtd">
                                             
                                         <input type="checkbox" name="email" id="email" value="Email" style=""><br/>Email
                                         </td>
 
-                                        <td width="25%"> 
+                                        <td width="25%" id="whatsapptd"> 
                                             
                                         <input type="checkbox" name="whatsapp" id="whatsapp" value="WhatsApp" style=""><br/>WhatsApp
                                         </td>
@@ -3194,24 +3294,22 @@ function closeBcodeModal() {
                                 <td valign="top" width="0.5%" ><div style="background-color: #4b9bf0; width: 3px; height: 180px; margin-left: 10px;"></div></td>
                                 
                                 
-                           <td width="49%" valign="top" align="right"> 
-                            
-                             @if (isset($hasFeature) && $hasFeature)
-                                <label style="width: 140px; font-size: 10pt;"><b>Repeat Samples</b></label>
-                                <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1">
-                                <input type="button" class="btn" id="print_barcode" value="Print Barcode" style="display:none;">
-                                <input type="button" class="btn" id="group_barcode" value="Group Barcodes" style="display:none;">
-                                <input type="button" class="btn" id="test_wise_bcode" value="Test Wise Bcode" style="display:none;">
-                                <input type="button" class="btn" id="remove_barcode" value="Remove Barcode" style="display:none;">
-                            @endif
-                                {{-- <input type="button" style="color:green; width: 90%; height: 40px;" class="btn" id="savebtn" value="Save"> --}}
-                            
-                                  <input type="button"
-                                            style="color:rgb(13, 134, 59); width: 190px; height: 40px; margin: 0px;"
-                                            class="btn" id="save_Model" value="Save & Confirm"
-                                            onclick="patientConfirmModal()">
-                            
-                            </td>
+                          <td width="49%" valign="top" align="right"> 
+                            <label style="width: 140px; font-size: 10pt;" id="rep_chkboxlbl"><b>Repeat Samples</b></label>
+                            <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1" />
+                            <input type="button" class="btn" id="print_barcode" value="Print Barcode" />
+                            <input type="button" class="btn" id="group_barcode" value="Group Barcodes" />
+                            <input type="button" class="btn" id="test_wise_bcode" value="Test Wise Bcode" />
+                            <input type="button" class="btn" id="remove_barcode" value="Remove Barcode" />
+                            <input
+                                type="button"
+                                style="color:rgb(13, 134, 59); width: 190px; height: 40px; margin: 0px;"
+                                class="btn"
+                                id="save_Model"
+                                value="Save & Confirm"
+                                onclick="patientConfirmModal()"
+                            />
+                        </td>
 
                             
                         </table>

@@ -1083,15 +1083,11 @@ class PatientRegistrationController extends Controller
 
 public function barcodeFeatureChecking()
 {
-    // Check if the session variable 'lid' is set
     if (!isset($_SESSION['lid'])) {
         return Response::json(['error' => 'Session expired.'], 401);
     }
 
     $labLid = $_SESSION['lid']; 
-
-    // Log the labLid value for debugging
-    \Log::info('Lab ID: ' . $labLid);
 
     $barcodeFeature = DB::table('Lab_features')
         ->where('Lab_lid', '=', $labLid)
@@ -1101,6 +1097,22 @@ public function barcodeFeatureChecking()
     return Response::json(['hasFeature' => $barcodeFeature]);
 }
 
+
+public function reportingFeatureChecking()
+{
+    if (!isset($_SESSION['lid'])) {
+        return Response::json(['error' => 'Session expired.'], 401);
+    }
+
+    $labLid = $_SESSION['lid']; 
+
+    $reportFeature = DB::table('Lab_features')
+        ->where('Lab_lid', '=', $labLid)
+        ->where('features_idfeatures', '=', 18)
+        ->exists();
+
+    return Response::json(['hasFeature' => $reportFeature]);
+}
 
    
 

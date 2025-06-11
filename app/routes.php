@@ -302,7 +302,9 @@ Route::post('updatePatientDetails', 'PatientRegistrationController@updatePatient
 Route::get('/getRefName', 'PatientRegistrationController@getRefName');
 Route::get('getTestParametersByTGID', 'PatientRegistrationController@getTestParametersByTGID');
 Route::post('remove-barcode', 'PatientRegistrationController@removeBarcode');
-Route::get('patient-registration', array('as' => 'patientRegistration', 'uses' => 'PatientRegistrationController@barcodeFeatureChecking'));
+Route::get('/barcode-feature-checking', 'PatientRegistrationController@barcodeFeatureChecking');
+Route::get('/reportnig-feature-checking', 'PatientRegistrationController@reportingFeatureChecking');
+
 
 
 
