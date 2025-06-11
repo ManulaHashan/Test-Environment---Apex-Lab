@@ -652,6 +652,9 @@ $(document).ready(function () {
 
         if (testData.length === 0) {
             alert('Please add at least one test to the table.');
+            closepatientConfirmModal();
+             $("#loaderOverlay").hide();
+              $("#savebtn").prop("disabled", false);
             return;
         }
 
