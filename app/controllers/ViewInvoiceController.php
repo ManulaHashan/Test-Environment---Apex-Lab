@@ -136,6 +136,11 @@ class ViewInvoiceController extends Controller{
                     <td align="center">' . htmlspecialchars($item->sampleNo) . '</td>
                     <td align="left">' . htmlspecialchars($item->name) . '</td>
                 </tr>';
+                }else if($item->status=='barcorded'){
+                    $html .= '<tr style="background-color:rgb(182, 55, 241);">
+                    <td align="center">' . htmlspecialchars($item->sampleNo) . '</td>
+                    <td align="left">' . htmlspecialchars($item->name) . '</td>
+                </tr>';
                 }else{
                     $html .= '<tr style="background-color:rgb(82, 241, 74);">
                     <td align="center">' . htmlspecialchars($item->sampleNo) . '</td>

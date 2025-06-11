@@ -545,7 +545,8 @@ class PatientRegistrationController extends Controller
             'a.refby',
             'r.idref as ref_id',
             'a.specialnote',
-            'r.code'
+            'r.code',
+            'a.status'
         )
         ->get();
     
@@ -668,28 +669,29 @@ class PatientRegistrationController extends Controller
         
         
         // Retrieve all lps records matching the sampleNo, date, and Lab ID
-        $lpsRecords = DB::table('lps as a')
-        ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
-        ->leftJoin('refference as r', 'a.refference_idref', '=', 'r.idref')
-        ->join('patient as p', 'a.patient_pid', '=', 'p.pid')
-        ->where('a.sampleNo', '=', $searchSampleNo )
-        ->where('a.date', $searchDate)
-        ->where('a.Lab_lid', $_SESSION['lid'])
-        ->select(
-            'a.lpsid',
-            'a.patient_pid',
-            'a.date',
-            'a.sampleNo',
-            'a.type',
-            'a.urgent_sample',
-            'a.Testgroup_tgid',
-            'b.name',
-            'a.refby',
-            'r.idref as ref_id',
-            'a.specialnote',
-            'r.code'
-        )
-        ->get();
+       $lpsRecords = DB::table('lps as a')
+            ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
+            ->leftJoin('refference as r', 'a.refference_idref', '=', 'r.idref')
+            ->join('patient as p', 'a.patient_pid', '=', 'p.pid')
+            ->where('a.sampleNo', 'like', $searchSampleNo.'%')
+            ->where('a.date', $searchDate)
+            ->where('a.Lab_lid', $_SESSION['lid'])
+            ->select(
+                'a.lpsid',
+                'a.patient_pid',
+                'a.date',
+                'a.sampleNo',
+                'a.type',
+                'a.urgent_sample',
+                'a.Testgroup_tgid',
+                'b.name',
+                'a.refby',
+                'r.idref as ref_id',
+                'a.specialnote',
+                'r.code',
+                'a.status'
+            )
+            ->get();
     
         
         if (empty($lpsRecords)) {

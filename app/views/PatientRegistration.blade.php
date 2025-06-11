@@ -1029,37 +1029,44 @@ Add New Patient
                         $('#hard_copy').prop('checked', true);
                     }
 
-
                     $('#Branch_record_tbl').empty();
 
                     testData.forEach(test => {
                         let rowStyle = '';
                         let urgentDisplay = '';
+                        let isChecked = true;
 
                         // Check if the test's lpsid is marked as urgent in lpsRecords
                         const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
+                        const barcodedcheck = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.status == 'barcorded');
+
+                        // Set row style to pink if either condition is met
+                        if (barcodedcheck) {
+                            rowStyle = 'style="background-color: pink;"';
+                            isChecked = false;
+                        }
 
                         if (matchingLps) {
-                            rowStyle = 'style="background-color: pink;"';
                             urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
                         }
 
                         const newRow = `
-                                <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
-                                    <td align="left">${test.tgid}</td>
-                                    <td align="left">${test.group}</td>
-                                    <td align="right" class="price-column">${test.price.toFixed(2)}</td>
-                                    <td align="left">${test.time}</td>
-                                    <td align="right">${test.f_time}</td>
-                                    <td align="left">
-                                        <input type="checkbox" class="barcode-checkbox" checked>
-                                    </td>
-                                    <td align="center">${urgentDisplay}</td>  
-                                    <td align="center">${test.type}</td>  
-                                </tr>`;
+                            <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
+                                <td align="left">${test.tgid}</td>
+                                <td align="left">${test.group}</td>
+                                <td align="right" class="price-column">${test.price.toFixed(2)}</td>
+                                <td align="left">${test.time}</td>
+                                <td align="right">${test.f_time}</td>
+                                <td align="left">
+                                     <input type="checkbox" class="barcode-checkbox" ${isChecked ? 'checked' : ''}>
+                                </td>
+                                <td align="center">${urgentDisplay}</td>  
+                                <td align="center">${test.type}</td>  
+                            </tr>`;
 
                         $('#Branch_record_tbl').append(newRow);
                     });
+
 
 
                 if (sampleNo == "") {
@@ -1265,12 +1272,20 @@ Add New Patient
                     testData.forEach(test => {
                         let rowStyle = '';
                         let urgentDisplay = '';
+                         let isChecked = true;
 
                         // Check if the test's lpsid is marked as urgent in lpsRecords
                         const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
+                        const barcodedcheck = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.status == 'barcorded');
+
+                        // Set row style to pink if either condition is met
+                        if (barcodedcheck) {
+                            rowStyle = 'style="background-color: pink;"';
+                            isChecked = false;
+                        }
 
                         if (matchingLps) {
-                            rowStyle = 'style="background-color: pink;"';
+                          
                             urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
                         }
 
@@ -1282,7 +1297,7 @@ Add New Patient
                                     <td align="left">${test.time}</td>
                                     <td align="right">${test.f_time}</td>
                                     <td align="left">
-                                        <input type="checkbox" class="barcode-checkbox" checked>
+                                          <input type="checkbox" class="barcode-checkbox" ${isChecked ? 'checked' : ''}>
                                     </td>
                                     <td align="center">${urgentDisplay}</td>  
                                     <td align="center">${test.type}</td>  
@@ -1710,11 +1725,18 @@ Add New Patient
         var fname = $('#fname').val().trim();
         // var lname = $('#lname').val().trim();
         var years = $('#years').val().trim();
+        var months = $('#months').val().trim();
+        var days = $('#days').val().trim();
         var testRows = $('#test_tbl tbody tr').length;
 
-        if (fname === "" || years === "" || testRows === 0) {
+        if (
+        fname === "" || 
+        (years === "" && months === "" && days === "") || 
+        testRows === 0
+        ) 
+        {
             alert("Please fill all required fields and add at least one test before printing.");
-            return; // Stop execution
+            return; 
         }
 
         var date = $('#patientDate').val();
@@ -3429,7 +3451,7 @@ function closeBcodeModal() {
                             <input type="button" class="btn" id="print_barcode" value="Print Barcode"  onclick="barcodePrint(false);" />
                             <input type="button" class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);" />
                             <input type="button" class="btn" id="test_wise_bcode" value="Test Wise Bcode" onclick="openBcodeModal();" />
-                            <input type="button" class="btn" id="remove_barcode" value="Remove Barcode" />
+                            <input type="button" class="btn" id="remove_barcode" value="Remove Barcode" onclick="removeBarcode();" />
                             <input
                                 type="button"
                                 style="color:rgb(13, 134, 59); width: 190px; height: 40px; margin: 0px;"
