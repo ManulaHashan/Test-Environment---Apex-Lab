@@ -178,12 +178,19 @@ foreach ($sample_containerName as $sample_containerName) {
     $container_Name = $sample_containerName->containerName;
 }
 
+if ($rep_barcode == "1") {
+   $repeatBarcode = " - R";
+}else{
+   $repeatBarcode = "";
+}
+
 ?>
 
 <?php if ($isGroup == "false"): ?>
     <!-- Single Barcode -->
 
     <?php 
+
 
         if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
             $specialChar = $matches[1];?>
@@ -193,7 +200,7 @@ foreach ($sample_containerName as $sample_containerName) {
                     <td>
                         <div class="barcode-label">
                             <div class="barcode-top">
-                                <div class="barcode-left"><?= htmlspecialchars($sno) . " - " . $specialChar ?></div>
+                                <div class="barcode-left"><?= htmlspecialchars($sno) . " - " . $specialChar . "" .$repeatBarcode ?></div>
                                 <div class="barcode-right"><?= $container_Name ?></div>
                             </div>
                             <canvas id="barcodeCanvas_single"></canvas>
@@ -226,7 +233,7 @@ foreach ($sample_containerName as $sample_containerName) {
                     <td>
                         <div class="barcode-label">
                             <div class="barcode-top">
-                                <div class="barcode-left"><?= htmlspecialchars($sno) ?></div>
+                                <div class="barcode-left"><?= htmlspecialchars($sno) . "" .$repeatBarcode ?></div>
                                 <div class="barcode-right"><?= $container_Name ?></div>
                             </div>
                             <canvas id="barcodeCanvas_single"></canvas>
@@ -337,7 +344,7 @@ foreach ($groupedTests as $scid => $tgids) {
                 <td>
                     <div class="barcode-label">
                         <div class="barcode-top">
-                            <div class="barcode-left"><?= htmlspecialchars($sno) ." - " . $duplicateMap[$tgid]   ?></div>
+                            <div class="barcode-left"><?= htmlspecialchars($sno) ." - " . $duplicateMap[$tgid] . "" .$repeatBarcode   ?></div>
                             <div class="barcode-right"><?=$sample_container->sample ?></div>
                         </div>
                         <canvas id="<?= htmlspecialchars($barcodeID) ?>"></canvas>
@@ -393,7 +400,7 @@ foreach ($groupedTests as $scid => $tgids) {
             <td>
                 <div class="barcode-label">
                     <div class="barcode-top">
-                        <div class="barcode-left"><?= htmlspecialchars($sno)  ?></div>
+                        <div class="barcode-left"><?= htmlspecialchars($sno) . "" .$repeatBarcode  ?></div>
                         <div class="barcode-right"><?=$sample_container->sample ?></div>
                     </div>
                     <canvas id="<?= htmlspecialchars($barcodeID) ?>"></canvas>

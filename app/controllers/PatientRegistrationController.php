@@ -1041,80 +1041,99 @@ class PatientRegistrationController extends Controller
 
 
     public function removeBarcode()
-        {
-            // Get input data
-            $sampleNo = Input::get('sampleNo');
-            $date = Input::get('date');
+    {
+        // Get input data
+        $sampleNo = Input::get('sampleNo');
+        $date = Input::get('date');
 
-            // Validate input
-            if (empty($sampleNo) || empty($date)) {
-                return Response::json([
-                    'success' => false,
-                    'message' => 'Sample number or date is missing'
-                ], 400);
-            }
-
-            try {
-                // Update status to 'pending' in lps table
-                $updated = DB::table('lps')
-                    ->where('sampleNo', $sampleNo)
-                    ->where('date', $date)
-                    ->update(['status' => 'pending']);
-
-                if ($updated) {
-                    return Response::json([
-                        'success' => true,
-                        'message' => 'Status updated to pending'
-                    ]);
-                } else {
-                    return Response::json([
-                        'success' => false,
-                        'message' => 'No matching record found'
-                    ], 404);
-                }
-            } catch (Exception $e) {
-                return Response::json([
-                    'success' => false,
-                    'message' => 'Database error: ' . $e->getMessage()
-                ], 500);
-            }
+        // Validate input
+        if (empty($sampleNo) || empty($date)) {
+            return Response::json([
+                'success' => false,
+                'message' => 'Sample number or date is missing'
+            ], 400);
         }
 
+        try {
+            // Update status to 'pending' in lps table
+            $updated = DB::table('lps')
+                ->where('sampleNo', $sampleNo)
+                ->where('date', $date)
+                ->update(['status' => 'pending']);
 
-public function barcodeFeatureChecking()
-{
-    if (!isset($_SESSION['lid'])) {
-        return Response::json(['error' => 'Session expired.'], 401);
+            if ($updated) {
+                return Response::json([
+                    'success' => true,
+                    'message' => 'Status updated to pending'
+                ]);
+            } else {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'No matching record found'
+                ], 404);
+            }
+        } catch (Exception $e) {
+            return Response::json([
+                'success' => false,
+                'message' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    $labLid = $_SESSION['lid']; 
 
-    $barcodeFeature = DB::table('Lab_features')
-        ->where('Lab_lid', '=', $labLid)
-        ->where('features_idfeatures', '=', 20)
-        ->exists();
+    public function barcodeFeatureChecking()
+    {
+        if (!isset($_SESSION['lid'])) {
+            return Response::json(['error' => 'Session expired.'], 401);
+        }
 
-    return Response::json(['hasFeature' => $barcodeFeature]);
-}
+        $labLid = $_SESSION['lid']; 
 
+        $barcodeFeature = DB::table('Lab_features')
+            ->where('Lab_lid', '=', $labLid)
+            ->where('features_idfeatures', '=', 20)
+            ->exists();
 
-public function reportingFeatureChecking()
-{
-    if (!isset($_SESSION['lid'])) {
-        return Response::json(['error' => 'Session expired.'], 401);
+        return Response::json(['hasFeature' => $barcodeFeature]);
     }
 
-    $labLid = $_SESSION['lid']; 
 
-    $reportFeature = DB::table('Lab_features')
-        ->where('Lab_lid', '=', $labLid)
-        ->where('features_idfeatures', '=', 18)
-        ->exists();
+    public function reportingFeatureChecking()
+    {
+        if (!isset($_SESSION['lid'])) {
+            return Response::json(['error' => 'Session expired.'], 401);
+        }
 
-    return Response::json(['hasFeature' => $reportFeature]);
-}
+        $labLid = $_SESSION['lid']; 
+
+        $reportFeature = DB::table('Lab_features')
+            ->where('Lab_lid', '=', $labLid)
+            ->where('features_idfeatures', '=', 18)
+            ->exists();
+
+        return Response::json(['hasFeature' => $reportFeature]);
+    }
 
    
+
+public function patientDetailsEditingFeatureChecking()
+{
+
+    $userUid = $_SESSION['uid'];
+
+    $patientDetailsEditingFeature = DB::table('privillages')
+        ->where('user_uid', '=',  $userUid)
+        ->where('options_idoptions', '=', 13)
+        ->exists();
+
+    return Response::json(['hasPdetailsUpdateFeature' => $patientDetailsEditingFeature]);
+}
+
+
+
+
+
+
 
 
 

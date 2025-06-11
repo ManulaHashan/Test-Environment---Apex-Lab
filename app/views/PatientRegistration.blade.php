@@ -30,23 +30,8 @@ Add New Patient
         if (sampleNo) {
             document.getElementById('sampleNo').value = sampleNo;
             view_selected_patient(sampleNo, date);
-        } else {
-            loadcurrentSampleNo();
-        }
 
-        if (date) {
-            document.getElementById('selected_date').value = date;
-        }
-
-        load_test();
-
-        // AJAX call to check barcode feature
-    // Check if all buttons are initially hidden
-        console.log('Initial display states:');
-        ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode'].forEach(id => {
-            console.log(id + ':', $('#' + id).css('display'));
-        });
-
+              // Barcode Privilage checking
         $.ajax({
             url: '/barcode-feature-checking',
             type: 'GET',
@@ -58,10 +43,13 @@ Add New Patient
                     $('#group_barcode').show();
                     $('#test_wise_bcode').show();
                     $('#remove_barcode').show();
+                    $('#rep_chkboxlbl').show();
+                    $('#rep_chkbox').show();
+                   
 
                     // Log display after showing
                     console.log('Buttons shown based on feature present');
-                    ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode'].forEach(id => {
+                    ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode','rep_chkbox','rep_chkboxlbl'].forEach(id => {
                         console.log(id + ':', $('#' + id).css('display'));
                     });
                 } else {
@@ -76,6 +64,7 @@ Add New Patient
             }
         });
 
+        //  reportnig method Privilage checking
              $.ajax({
             url: '/reportnig-feature-checking',
             type: 'GET',
@@ -104,6 +93,140 @@ Add New Patient
                 }
             }
         });
+              //  patientData privilage checking
+               $.ajax({
+                url: '/patientDetailsEditing-feature-checking',
+                type: 'GET',
+                success: function (response) {
+                    console.log('AJAX response received:', response);
+
+                    if (response.hasPdetailsUpdateFeature) {
+                        $('.updatebtntd').show(); 
+                        console.log('Buttons and checkbox shown based on feature present');
+                    } else {
+                        $('.updatebtntd').hide(); 
+                        console.log('Feature not present; buttons and checkbox remain hidden');
+                    }
+
+                    
+                    console.log('updatebtntd:', $('.updatebtntd').css('display'));
+                },
+                error: function (xhr) {
+                    console.error('AJAX error:', xhr.status, xhr.statusText);
+                    if (xhr.status === 401) {
+                        alert('Session expired. Please log in again.');
+                    }
+                }
+            });
+        } else {
+            loadcurrentSampleNo();
+            
+        }
+
+        if (date) {
+            document.getElementById('selected_date').value = date;
+        }
+
+        load_test();
+
+        // AJAX call to check barcode feature
+    // Check if all buttons are initially hidden
+        console.log('Initial display states:');
+        ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode'].forEach(id => {
+            console.log(id + ':', $('#' + id).css('display'));
+        });
+
+        // Barcode Privilage checking
+        $.ajax({
+            url: '/barcode-feature-checking',
+            type: 'GET',
+            success: function (response) {
+                console.log('AJAX response received:', response);
+
+                if (response.hasFeature) {
+                    $('#print_barcode').show();
+                    $('#group_barcode').show();
+                    $('#test_wise_bcode').show();
+                    $('#remove_barcode').show();
+                    $('#rep_chkboxlbl').show();
+                    $('#rep_chkbox').show();
+                   
+
+                    // Log display after showing
+                    console.log('Buttons shown based on feature present');
+                    ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode','rep_chkbox','rep_chkboxlbl'].forEach(id => {
+                        console.log(id + ':', $('#' + id).css('display'));
+                    });
+                } else {
+                    console.log('Feature not present; buttons remain hidden');
+                }
+            },
+            error: function (xhr) {
+                console.error('AJAX error:', xhr.status, xhr.statusText);
+                if (xhr.status === 401) {
+                    alert('Session expired. Please log in again.');
+                }
+            }
+        });
+
+        //  reportnig method Privilage checking
+             $.ajax({
+            url: '/reportnig-feature-checking',
+            type: 'GET',
+            success: function (response) {
+                console.log('AJAX response received:', response);
+
+                if (response.hasFeature) {
+                    $('#smstd').show();
+                    $('#emailtd').show();
+                    $('#whatsapptd').show();
+
+
+                    // Log display after showing
+                    console.log('Buttons shown based on feature present');
+                    ['sms', 'email', 'whatsapp'].forEach(id => {
+                        console.log(id + ':', $('#' + id).css('display'));
+                    });
+                } else {
+                    console.log('Feature not present; buttons remain hidden');
+                }
+            },
+            error: function (xhr) {
+                console.error('AJAX error:', xhr.status, xhr.statusText);
+                if (xhr.status === 401) {
+                    alert('Session expired. Please log in again.');
+                }
+            }
+        });
+
+
+        //  patientData privilage checking
+            $.ajax({
+                url: '/patientDetailsEditing-feature-checking',
+                type: 'GET',
+                success: function (response) {
+                    console.log('AJAX response received:', response);
+
+                    if (response.hasPdetailsUpdateFeature) {
+                        $('.updatebtntd').show(); 
+                        console.log('Buttons and checkbox shown based on feature present');
+                    } else {
+                        $('.updatebtntd').hide(); 
+                        console.log('Feature not present; buttons and checkbox remain hidden');
+                    }
+
+                    
+                    console.log('updatebtntd:', $('.updatebtntd').css('display'));
+                },
+                error: function (xhr) {
+                    console.error('AJAX error:', xhr.status, xhr.statusText);
+                    if (xhr.status === 401) {
+                        alert('Session expired. Please log in again.');
+                    }
+                }
+            });
+
+
 
         checkInvoiceField();
         $('#invoiceId').on('change keyup paste', checkInvoiceField);
@@ -1010,7 +1133,8 @@ Add New Patient
             $("#refDropdown").attr("disabled", false);
             $("#testname").attr("readonly", false);
             $("#packageDropdown").attr("readonly", false);
-            $("#updatebtn").attr("disabled", false); // Optional
+            $("#updatebtn").attr("disabled", false); 
+            // $("#updatebtn").hide(); 
         } else {
             // Revert fields back to readonly
             $("#fname").attr("readonly", true);
@@ -1028,7 +1152,8 @@ Add New Patient
             $("#refDropdown").attr("disabled", true);
             $("#testname").attr("readonly", true);
             $("#packageDropdown").attr("readonly", true);
-            $("#updatebtn").attr("disabled", true); // Optional
+             $("#updatebtn").attr("disabled", true); 
+            //  $("#updatebtn").show();
         }
     });
 
@@ -1676,7 +1801,7 @@ Add New Patient
         var tgid = "";
         var testGroupName = "";
         
-
+      
         if (isGroup == false) {
 
             selectedRow = $('#Branch_record_tbl').find('tr.selected-row');
@@ -2698,6 +2823,10 @@ function closeBcodeModal() {
         #whatsapptd{
             display: none;
         }
+
+ 
+
+      
           #print_barcode {
             padding: 8px 16px;
             margin: 4px;
@@ -2953,7 +3082,7 @@ function closeBcodeModal() {
                             </select>
                             <input type="text" name=" fname" class="input-text" id="fname" style="width: 180px" placeholder="First Name">
                             <input type="text" name=" lname" class="input-text" id="lname" style="width: 180px" placeholder="Last Name">
-                            <input type="checkbox" name="patient_details_edit" class="patient_details_edit" value="1">
+                            <input type="checkbox" name="patient_details_edit" id="patient_details_edit" class="patient_details_edit" value="1">
                         </div>
 
                         <div style="display: flex; align-items: center; margin-top: 10px; ">
@@ -3294,12 +3423,12 @@ function closeBcodeModal() {
                                 <td valign="top" width="0.5%" ><div style="background-color: #4b9bf0; width: 3px; height: 180px; margin-left: 10px;"></div></td>
                                 
                                 
-                          <td width="49%" valign="top" align="right"> 
+                            <td width="49%" valign="top" align="right"> 
                             <label style="width: 140px; font-size: 10pt;" id="rep_chkboxlbl"><b>Repeat Samples</b></label>
                             <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1" />
-                            <input type="button" class="btn" id="print_barcode" value="Print Barcode" />
-                            <input type="button" class="btn" id="group_barcode" value="Group Barcodes" />
-                            <input type="button" class="btn" id="test_wise_bcode" value="Test Wise Bcode" />
+                            <input type="button" class="btn" id="print_barcode" value="Print Barcode"  onclick="barcodePrint(false);" />
+                            <input type="button" class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);" />
+                            <input type="button" class="btn" id="test_wise_bcode" value="Test Wise Bcode" onclick="openBcodeModal();" />
                             <input type="button" class="btn" id="remove_barcode" value="Remove Barcode" />
                             <input
                                 type="button"
@@ -3344,9 +3473,10 @@ function closeBcodeModal() {
                                         <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="view_invoicebtn" value="View Invoice" onclick="goToViewInvoice()">
                                     </td>
                                     
-                                    <td>
-                                        <input type="button" style="color:rgb(245, 168, 34); width: 190px; height: 40px; margin: 0px;" class="btn" id="updatebtn" value="Update Details " onclick="updatePatientDetails()">
-                                    </td>
+                                   <td class="updatebtntd" style="display: none;"> <!-- Ensure this is initially hidden -->
+                                         <input type="button" style="color:rgb(245, 168, 34); width: 190px; height: 40px; margin: 0px;" class="btn" id="updatebtn" value="Update Details" onclick="updatePatientDetails()">
+                                  </td>
+
                                     
                                     <td>
                                     <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="getlastpatientbtn" value="Get Last patient" onclick="loadLastPatient()"> 
