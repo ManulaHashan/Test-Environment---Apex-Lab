@@ -970,7 +970,7 @@ Add New Patient
 
 
 
-                    $('#refDropdown').val(firstRecord.ref_id || '');
+                    $('#refDropdown').val(firstRecord.ref_name || '');
                     $('#refDropdown option').filter(function () {
                         return $(this).text().trim() === firstRecord.refby;
                     }).prop('selected', true);
@@ -1207,7 +1207,7 @@ Add New Patient
                     $('#sampleNo').val(searchSampleNo || '');
 
 
-                    $('#refDropdown').val(firstRecord.ref_id || '');
+                    $('#refDropdown').val(firstRecord.ref_name || '');
                     $('#refDropdown option').filter(function () {
                         return $(this).text().trim() === firstRecord.refby;
                     }).prop('selected', true);
@@ -2158,7 +2158,9 @@ Add New Patient
                 sampleNO: sampleNO,
                 // lab_lid: lab_lid,
                 patientDate: patientDate,
-                refby: $('#refby').val(),
+                refby: $('#refDropdown').val(), 
+                ref: $('#ref').val(),             
+                refcode: $('#refcode').val(),
                 initials: $('#initial').val(),
                 fname: $('#fname').val(),
                 lname: $('#lname').val(),
