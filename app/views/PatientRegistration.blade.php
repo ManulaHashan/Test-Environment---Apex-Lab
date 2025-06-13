@@ -734,7 +734,8 @@ Add New Patient
         var nic = $('#nic').val();
         var address = $('#address').val();
         var refcode = $('#refcode').val();
-        var ref = $('#refDropdown').val();
+        var refName  = $('#refDropdown').val();
+        var ref = $('#ref').val();
         var testname = $('#testname').val();
         var pkgname = $('#pkgname').val();
         var fast_time = $('#fast_time').val();
@@ -843,6 +844,7 @@ Add New Patient
             address: address,
             refcode: refcode,
             ref: ref,
+            refName: refName,
             testname: testname,
             pkgname: pkgname,
             fast_time: fast_time,
@@ -1036,6 +1038,7 @@ Add New Patient
                         let urgentDisplay = '';
                         let isChecked = true;
 
+                        // Check if the test's lpsid is marked as urgent in lpsRecords
                         const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
                         const barcodedcheck = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.status == 'barcorded');
 
@@ -1552,7 +1555,47 @@ Add New Patient
         });
     }
 
+    function searchRefName() {
+        var keyword = $('#refDropdown').val();
 
+        if (keyword.length < 1) {
+            $('#refname_suggestions').hide();
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/getRefName", // you need to handle this route in backend
+            data: {
+                keyword: keyword
+            },
+            success: function (data) {
+                var suggestionsHtml = '';
+                if (data.length > 0) {
+                    $.each(data, function (index, ref) {
+                        suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\', \'' + ref.name + '\')">' +
+                            ref.name + ' (' + ref.code + ')</div>';
+                    });
+                    $('#refname_suggestions').html(suggestionsHtml).show();
+                } else {
+                    $('#refname_suggestions').hide();
+                }
+            },
+            error: function (xhr) {
+                console.error('Error:', xhr.statusText);
+            }
+        });
+    }
+
+
+    function selectRef(code, idref, name) {
+        $('#refcode').val(code);
+        $('#refDropdown').val(name); // Show ref name in text input
+        $('#ref').val(idref);        // Store idref in hidden input
+
+        $('#refcode_suggestions').hide();
+        $('#refname_suggestions').hide();
+    }
 
     //-----------------------------------------------------------------------
     $('#refDropdown').on('change', function () {
@@ -2142,46 +2185,7 @@ Add New Patient
 
 
 
-    function searchRefName() {
-        var keyword = $('#refDropdown').val();
-
-        if (keyword.length < 1) {
-            $('#refname_suggestions').hide();
-            return;
-        }
-
-        $.ajax({
-            type: "GET",
-            url: "/getRefName", // you need to handle this route in backend
-            data: {
-                keyword: keyword
-            },
-            success: function (data) {
-                var suggestionsHtml = '';
-                if (data.length > 0) {
-                    $.each(data, function (index, ref) {
-                        suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\', \'' + ref.name + '\')">' +
-                            ref.name + ' (' + ref.code + ')</div>';
-                    });
-                    $('#refname_suggestions').html(suggestionsHtml).show();
-                } else {
-                    $('#refname_suggestions').hide();
-                }
-            },
-            error: function (xhr) {
-                console.error('Error:', xhr.statusText);
-            }
-        });
-    }
-
-    function selectRef(code, idref, name) {
-        $('#refcode').val(code);
-        $('#refDropdown').val(name); // Show ref name in text input
-        $('#ref').val(idref);        // Store idref in hidden input
-
-        $('#refcode_suggestions').hide();
-        $('#refname_suggestions').hide();
-    }
+   
 
     // Function to open the barcode modal
     function openBcodeModal() {
@@ -2304,7 +2308,6 @@ Add New Patient
 
     // Remove Barcode status update prosess
 
-  
 
     function removeBarcode() {
         var selectedRow = $('#Branch_record_tbl').find('tr.selected-row');
@@ -2314,7 +2317,7 @@ Add New Patient
             return;
         }
 
-        var tgid = selectedRow.find('td').eq(0).text();
+        // Assuming sampleNo and date are in specific columns of the selected row
         var date = $('#patientDate').val();
         var sno = $('#sampleNo').val();
 
@@ -2323,19 +2326,20 @@ Add New Patient
             return;
         }
 
+        // AJAX request to update status
         $.ajax({
-            url: '/remove-barcode', 
+            url: '/remove-barcode', // Route to handle the update
             type: 'POST',
             data: {
                 sampleNo: sno,
-                date: date,
-                tgid: tgid
+                date: date
             
             },
             success: function(response) {
                 if (response.success) {
                     alert("Barcode status updated to 'pending' successfully!");
-                    
+                    // Optionally, update the UI (e.g., change status column text)
+                    // selectedRow.find('td.status-column').text('pending'); // Adjust if you have a status column
                 } else {
                     alert("Failed to update status: " + response.message);
                 }

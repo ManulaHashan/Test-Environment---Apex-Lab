@@ -274,14 +274,14 @@ if ($rep_barcode == "1") {
                 ->update(['status' => 'barcorded']);  
         } ?>
 
+
+
 <?php else: ?>
     <!-- Grouped Barcodes -->
     <table>
         <?php
 
-        
-
-        
+      
 $groupedTests = [];
 
 $results = DB::select("
@@ -290,6 +290,8 @@ $results = DB::select("
     LEFT JOIN Testgroup b ON a.Testgroup_tgid = b.tgid  
     WHERE a.date = ? AND a.sampleNo LIKE ?
 ", [$date, $sno . '%']);
+
+ $allTgids = array_unique(array_column($results, 'Testgroup_tgid'));
 
 foreach ($results as $row) {
     $scid = $row->sample_containers_scid;
@@ -437,11 +439,11 @@ foreach ($groupedTests as $scid => $tgids) {
     }
 }
 
-                DB::table('lps')
-                ->where('sampleNo','like', $sno . '%')
-                ->where('date', $date)
-                ->where('Testgroup_tgid', $tgid)
-                ->update(['status' => 'barcorded']);  
+               DB::table('lps')
+            ->where('sampleNo', 'like', $sno . '%')
+            ->where('date', $date)
+            ->whereIn('Testgroup_tgid', $allTgids)
+            ->update(['status' => 'barcorded']);  
 
 ?>
 

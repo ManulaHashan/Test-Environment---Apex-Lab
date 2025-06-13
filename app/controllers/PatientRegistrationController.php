@@ -275,7 +275,8 @@ class PatientRegistrationController extends Controller
         $user = DB::table('user')->where('uid', $useruid)->first();
          
         $testData = Input::get('test_data');
-        $refId = Input::get('ref');
+        $refId = Input::get('ref'); // idref එක ගන්න
+        $refName = Input::get('refName'); // Referred By Name එක ගන්න (optional)
 
 
         $reference = DB::table('refference')->where('idref', $refId)->first();
@@ -349,8 +350,8 @@ class PatientRegistrationController extends Controller
                 'sampleNo' => $test['sampleNo'],
                 'arivaltime' => $now,
                 'refby' => $refName, 
+                'refference_idref' => $refId,
                 'type' => Input::get('type'),
-                'refference_idref' => Input::get('ref'),
                 'fastingtime' => Input::get('fast_time'),
                 'entered_uid' => '',
                 'price' => $test['price'],
