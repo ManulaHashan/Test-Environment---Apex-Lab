@@ -1418,6 +1418,13 @@ Add New Patient
         });
     }
 
+    function handleKeyPress(event) {
+    
+    if (event.keyCode === 13 || event.which === 13) {
+        searchUserRecords();
+        return false; 
+    }
+    }
 
     function selectTP(tpno, userID)
     {
@@ -1808,11 +1815,12 @@ Add New Patient
         });
     });
 
-    // *-*-*-*-*-*-*-*-*-*-*most recent test buttons-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    
 
 
 
 
+// *-*-*-*-*-*-*-*-*-*-*Print Barcode and Group Barcode Button Process-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
     function barcodePrint(isGroup) {
         var date = $('#patientDate').val();
@@ -1935,6 +1943,7 @@ Add New Patient
 
     //*************************************************************************************************
     // page reset function
+
     function resetPage()
     {
         window.location.href = '/patientRegistration';
@@ -1946,36 +1955,38 @@ Add New Patient
     // Branch lock checkbox process
 
     document.addEventListener('DOMContentLoaded', function () {
+
         const lockBranchCheckbox = document.getElementById('lock_branch');
         const labBranchDropdown = document.getElementById('labBranchDropdown');
 
-        function toggleDropdownLock() {
-            if (lockBranchCheckbox.checked) {
-                labBranchDropdown.disabled = true;
+            function toggleDropdownLock() {
+                if (lockBranchCheckbox.checked) {
+                    labBranchDropdown.disabled = true;
 
-                localStorage.setItem('lab_branch_value', labBranchDropdown.value);
-            } else {
-                labBranchDropdown.disabled = false;
+                    localStorage.setItem('lab_branch_value', labBranchDropdown.value);
+                } else {
+                    labBranchDropdown.disabled = false;
 
-                localStorage.removeItem('lab_branch_value');
+                    localStorage.removeItem('lab_branch_value');
+                }
             }
-        }
 
-        lockBranchCheckbox.addEventListener('change', toggleDropdownLock);
-        lockBranchCheckbox.addEventListener('change', function () {
-            localStorage.setItem('lock_branch_checked', lockBranchCheckbox.checked);
-        });
+                    lockBranchCheckbox.addEventListener('change', toggleDropdownLock);
+                    lockBranchCheckbox.addEventListener('change', 
+                            function () {
+                                localStorage.setItem('lock_branch_checked', lockBranchCheckbox.checked);
+                            });
 
         const savedCheck = localStorage.getItem('lock_branch_checked');
         const savedBranchValue = localStorage.getItem('lab_branch_value');
 
-        if (savedCheck === 'true') {
-            lockBranchCheckbox.checked = true;
-            if (savedBranchValue) {
-                labBranchDropdown.value = savedBranchValue;
-            }
-            toggleDropdownLock();
-        }
+                if (savedCheck === 'true') {
+                    lockBranchCheckbox.checked = true;
+                    if (savedBranchValue) {
+                        labBranchDropdown.value = savedBranchValue;
+                    }
+                    toggleDropdownLock();
+                }
     });
 
 
@@ -1994,7 +2005,8 @@ Add New Patient
             success: function(response) {
                 if (response.status === 'success') {
                     var data = response.data;
-                    $('#refby').val(data.refby);
+                    $('#refDropdown').val(data.refby);
+                    $('#refcode').val(data.code);
                     $('#initial').val(data.initials);
                     $('#fname').val(data.fname);
                     $('#lname').val(data.lname);
@@ -2960,8 +2972,8 @@ function closepatientConfirmModal() {
 
                                     <td>
                                         <input type="hidden" id="user_Uid">
-                                        <input type="text" id="Ser_tpno" class="input-text" oninput="searchUserRecords()" maxlength="20" autocomplete="off" placeholder="Enter TP Number" >
-                                        
+                                        {{-- <input type="text" id="Ser_tpno" class="input-text" oninput="searchUserRecords()" maxlength="20" autocomplete="off" placeholder="Enter TP Number" > --}}
+                                        <input type="text" id="Ser_tpno" class="input-text" onkeypress="handleKeyPress(event)" maxlength="20" autocomplete="off" placeholder="Enter TP Number">                                 
                                         <input type="checkbox" name="any_filter" id="any_filter" value="1" style="margin:0"> Any
 
                                         <div id="tpno_suggestions"

@@ -932,7 +932,8 @@ class PatientRegistrationController extends Controller
         $result = DB::table('lps as a')
             ->join('patient as b', 'a.patient_pid', '=', 'b.pid')
             ->join('user as c', 'b.user_uid', '=', 'c.uid')
-            ->select('a.refby', 'b.initials', 'c.fname', 'c.lname', 'b.age', 'c.tpno', 'c.address', 'a.sampleNO', 'b.months', 'b.days')
+            ->join('refference as d', 'a.refference_idref' ,'=', 'd.idref')
+            ->select('a.refby','d.code', 'b.initials', 'c.fname', 'c.lname', 'b.age', 'c.tpno', 'c.address', 'a.sampleNO', 'b.months', 'b.days')
             ->where('a.Lab_lid', '=', $labLid)
             ->where('a.date', '=', $date)
             ->orderBy('a.lpsid', 'DESC')
@@ -1118,18 +1119,18 @@ class PatientRegistrationController extends Controller
 
    
 
-public function patientDetailsEditingFeatureChecking()
-{
+    public function patientDetailsEditingFeatureChecking()
+    {
 
-    $userUid = $_SESSION['uid'];
+        $userUid = $_SESSION['uid'];
 
-    $patientDetailsEditingFeature = DB::table('privillages')
-        ->where('user_uid', '=',  $userUid)
-        ->where('options_idoptions', '=', 13)
-        ->exists();
+        $patientDetailsEditingFeature = DB::table('privillages')
+            ->where('user_uid', '=',  $userUid)
+            ->where('options_idoptions', '=', 13)
+            ->exists();
 
-    return Response::json(['hasPdetailsUpdateFeature' => $patientDetailsEditingFeature]);
-}
+        return Response::json(['hasPdetailsUpdateFeature' => $patientDetailsEditingFeature]);
+    }
 
 
 
