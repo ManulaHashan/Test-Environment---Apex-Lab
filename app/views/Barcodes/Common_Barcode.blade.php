@@ -140,7 +140,7 @@ $duplicateBarsetRow = DB::table('addpatientconfigs')
 $patient_pid = "";
 $arival_time = "";
 
-$result_get_patient_pid = DB::select("SELECT patient_pid, arivaltime FROM lps WHERE date = ? AND sampleNo LIKE ? GROUP BY patient_pid", [$date, $sno . '%']);
+$result_get_patient_pid = DB::select("select patient_pid, arivaltime FROM lps WHERE date = ? AND sampleNo LIKE ? GROUP BY patient_pid", [$date, $sno . '%']);
 foreach ($result_get_patient_pid as $lps_details) {
     $patient_pid = $lps_details->patient_pid;
     $arival_time = $lps_details->arivaltime;

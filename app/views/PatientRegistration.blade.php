@@ -1730,28 +1730,28 @@ Add New Patient
         var testRows = $('#test_tbl tbody tr').length;
 
         if (
-        fname === "" || 
-        (years === "" && months === "" && days === "") || 
-        testRows === 0
-        ) 
-        {
-            alert("Please fill all required fields and add at least one test before printing.");
-            return; 
-        }
+            fname === "" || 
+            (years === "" && months === "" && days === "") || 
+            testRows === 0
+            ) 
+            {
+                alert("Please fill all required fields and add at least one test before printing.");
+                return; 
+            }
 
-        var date = $('#patientDate').val();
-        var sno = $('#sampleNo').val();
+            var date = $('#patientDate').val();
+            var sno = $('#sampleNo').val();
 
-        var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
+            var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
 
-        setTimeout(function () {
-            win.print();
-        }, 5000);
+            setTimeout(function () {
+                win.print();
+            }, 5000);
 
-        setTimeout(function () {
-            win.close();
-            resetPage();
-        }, 8000);
+            setTimeout(function () {
+                win.close();
+                resetPage();
+            }, 8000);
     }
 
     //   document.getElementById("btnPrint").addEventListener("click", function () {
@@ -2181,7 +2181,7 @@ Add New Patient
             return; // Stop here if no test selected
         }
 
-        // If test is selected → continue
+        
         testWiseBarcodeLoad();
     }
 
@@ -2190,18 +2190,7 @@ Add New Patient
     function closeBcodeModal() {
         document.getElementById("barCodeModal").style.display = "none";
     }
-   // Function to close the barcode modal
-    function closepatientConfirmModal() {
-        document.getElementById("patientConfirmModal").style.display = "none";
-    }
-    
 
-    // Close the barcode modal if the user clicks outside of it
-    // window.onclick = function (event) {
-    //     if (event.target == document.getElementById("barCodeModal")) {
-    //         closeBcodeModal();
-    //     }
-    // }
 
 
     function testWiseBarcodeLoad() {
@@ -2408,7 +2397,7 @@ function patientConfirmModal() {
 }
 
 
-function closeBcodeModal() {
+function closepatientConfirmModal() {
     document.getElementById('patientConfirmModal').style.display = 'none';
 }
 
