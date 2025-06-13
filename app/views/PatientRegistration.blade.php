@@ -574,7 +574,7 @@ Add New Patient
 
             if (priorityCell.text().trim() === '***') {
                 $('#make_priority').val('Remove Priority').css('color', 'red');
-                $(this).css('background-color', 'pink');
+                $(this).css('background-color', '');
             } else {
                 $('#make_priority').val('Make Priority').css('color', 'blue');
                 $(this).css('background-color', '');
