@@ -223,8 +223,9 @@ if ($rep_barcode == "1") {
                 </tr>
             </table><?php 
             DB::table('lps')
-                ->where('sampleNo', $sno)
+                ->where('sampleNo','like', $sno . '%')
                 ->where('date', $date)
+                ->where('Testgroup_tgid', $tgid)
                 ->update(['status' => 'barcorded']);  
         }
      else { ?>
@@ -266,10 +267,11 @@ if ($rep_barcode == "1") {
             </script>
             <?php
             // Update lps table status to 'barcorded'
-            DB::table('lps')
-                ->where('sampleNo', $sno)
+           DB::table('lps')
+                ->where('sampleNo','like', $sno . '%')
                 ->where('date', $date)
-                ->update(['status' => 'barcorded']);
+                ->where('Testgroup_tgid', $tgid)
+                ->update(['status' => 'barcorded']);  
         } ?>
 
 <?php else: ?>
@@ -436,9 +438,10 @@ foreach ($groupedTests as $scid => $tgids) {
 }
 
 DB::table('lps')
-            ->where('sampleNo', 'LIKE', $sno . '%')
-            ->where('date', $date)
-            ->update(['status' => 'barcorded']);
+                ->where('sampleNo','like', $sno . '%')
+                ->where('date', $date)
+                ->where('Testgroup_tgid', $tgid)
+                ->update(['status' => 'barcorded']);  
 
 ?>
 
