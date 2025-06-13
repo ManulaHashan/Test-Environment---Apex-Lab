@@ -213,7 +213,7 @@ if ($rep_barcode == "1") {
                                 <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
                                 <div><?= htmlspecialchars($testGroupName) ?></div>
                                 <div class="barcode-footer">
-                                    <span><?= htmlspecialchars($date) ?></span>
+                                     <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
                                     <span><?= htmlspecialchars($arival_time) ?></span>
                                     <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
                                 </div>
@@ -246,7 +246,7 @@ if ($rep_barcode == "1") {
                                 <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
                                 <div><?= htmlspecialchars($testGroupName) ?></div>
                                 <div class="barcode-footer">
-                                    <span><?= htmlspecialchars($date) ?></span>
+                                     <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
                                     <span><?= htmlspecialchars($arival_time) ?></span>
                                     <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
                                 </div>
@@ -359,7 +359,7 @@ foreach ($groupedTests as $scid => $tgids) {
                             <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
                             <div><?= htmlspecialchars($abbr) ?></div>
                             <div class="barcode-footer">
-                                <span><?= htmlspecialchars($date) ?></span>
+                                <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
                                 <span><?= htmlspecialchars($arival_time) ?></span>
                                 <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
                             </div>
@@ -415,7 +415,7 @@ foreach ($groupedTests as $scid => $tgids) {
                         <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
                         <div><?= htmlspecialchars($testsList) ?></div>
                         <div class="barcode-footer">
-                            <span><?= htmlspecialchars($date) ?></span>
+                            <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
                             <span><?= htmlspecialchars($arival_time) ?></span>
                             <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
                         </div>
