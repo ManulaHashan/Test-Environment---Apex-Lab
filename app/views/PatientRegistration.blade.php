@@ -1036,7 +1036,6 @@ Add New Patient
                         let urgentDisplay = '';
                         let isChecked = true;
 
-                        // Check if the test's lpsid is marked as urgent in lpsRecords
                         const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
                         const barcodedcheck = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.status == 'barcorded');
 
@@ -2305,6 +2304,7 @@ Add New Patient
 
     // Remove Barcode status update prosess
 
+  
 
     function removeBarcode() {
         var selectedRow = $('#Branch_record_tbl').find('tr.selected-row');
@@ -2314,7 +2314,7 @@ Add New Patient
             return;
         }
 
-        // Assuming sampleNo and date are in specific columns of the selected row
+        var tgid = selectedRow.find('td').eq(0).text();
         var date = $('#patientDate').val();
         var sno = $('#sampleNo').val();
 
@@ -2323,20 +2323,19 @@ Add New Patient
             return;
         }
 
-        // AJAX request to update status
         $.ajax({
-            url: '/remove-barcode', // Route to handle the update
+            url: '/remove-barcode', 
             type: 'POST',
             data: {
                 sampleNo: sno,
-                date: date
+                date: date,
+                tgid: tgid
             
             },
             success: function(response) {
                 if (response.success) {
                     alert("Barcode status updated to 'pending' successfully!");
-                    // Optionally, update the UI (e.g., change status column text)
-                    // selectedRow.find('td.status-column').text('pending'); // Adjust if you have a status column
+                    
                 } else {
                     alert("Failed to update status: " + response.message);
                 }

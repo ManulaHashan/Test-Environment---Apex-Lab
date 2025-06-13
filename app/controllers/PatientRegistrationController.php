@@ -1048,6 +1048,7 @@ class PatientRegistrationController extends Controller
         // Get input data
         $sampleNo = Input::get('sampleNo');
         $date = Input::get('date');
+        $tgid = Input::get('tgid');
 
         // Validate input
         if (empty($sampleNo) || empty($date)) {
@@ -1057,10 +1058,12 @@ class PatientRegistrationController extends Controller
             ], 400);
         }
 
+ 
         try {
             // Update status to 'pending' in lps table
             $updated = DB::table('lps')
-                ->where('sampleNo', $sampleNo)
+                ->where('sampleNo', 'like', $sampleNo .'%')
+                ->where('Testgroup_tgid', $tgid)
                 ->where('date', $date)
                 ->update(['status' => 'pending']);
 

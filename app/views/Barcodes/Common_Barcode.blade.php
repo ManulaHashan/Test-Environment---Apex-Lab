@@ -437,7 +437,7 @@ foreach ($groupedTests as $scid => $tgids) {
     }
 }
 
-DB::table('lps')
+                DB::table('lps')
                 ->where('sampleNo','like', $sno . '%')
                 ->where('date', $date)
                 ->where('Testgroup_tgid', $tgid)
