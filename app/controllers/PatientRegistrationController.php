@@ -883,29 +883,45 @@ class PatientRegistrationController extends Controller
 
    
    
-        public function getPatientDetailsBySample()
+    public function getPatientDetailsBySample()
     {
         $sampleNO = Input::get('sampleNO');
-        $direction = Input::get('direction'); // 'back' or 'front'
+        $direction = Input::get('direction'); 
         $labLid = $_SESSION['lid'];
         $date = Input::get('patientDate');
 
-        // Convert sample number to integer part for comparison (e.g. 'S10' -> 10 or '25060202' as integer)
-        $sampleNum = intval($sampleNO);
-
-        $query = DB::table('lps as a')
-            ->join('patient as b', 'a.patient_pid', '=', 'b.pid')
-            ->join('user as c', 'b.user_uid', '=', 'c.uid')
-            ->select('a.refby', 'b.initials', 'c.fname', 'c.lname', 'b.age', 'c.tpno', 'c.address', 'a.sampleNO','b.months','b.days')
-            ->where('a.Lab_lid', '=', $labLid)
-            ->where('a.date', '=', $date);
+       $query = DB::table('lps as a')
+        ->join('patient as b', 'a.patient_pid', '=', 'b.pid')
+        ->join('user as c', 'b.user_uid', '=', 'c.uid')
+        ->leftJoin('refference as d', 'd.idref', '=', 'a.refference_idref')
+        ->select(
+            'a.sampleNo', 
+            'a.refby',
+            'b.initials',
+            'c.fname',
+            'c.lname',
+            'b.age',
+            'c.tpno',
+            'c.address',
+            'a.sampleNo as sampleNO',
+            'b.months',
+            'b.days',
+            'd.code'
+        )
+        ->where('a.Lab_lid', '=', $labLid)
+        ->where('a.date', '=', $date)
+        ->groupBy('c.uid');
 
         if ($direction == 'back') {
+           
             $query->where('a.sampleNO', '<', $sampleNO)
-                ->orderBy('a.sampleNO', 'DESC');
+                ->orderBy('a.sampleNO', 'DESC')
+                ->limit(1);
         } else if ($direction == 'front') {
+           
             $query->where('a.sampleNO', '>', $sampleNO)
-                ->orderBy('a.sampleNO', 'ASC');
+                ->orderBy('a.sampleNO', 'ASC')
+                ->limit(1);
         }
 
         $result = $query->first();
@@ -918,7 +934,7 @@ class PatientRegistrationController extends Controller
         } else {
             return Response::json([
                 'status' => 'not_found',
-                'message' => 'No details found.'
+                'message' => 'No more records found in this direction.'
             ]);
         }
     }

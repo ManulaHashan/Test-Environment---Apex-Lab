@@ -2083,55 +2083,57 @@ Add New Patient
     //*************************************************************************************************
     // Back Front buttons process
 
-    function loadPatient(direction) {
-        var currentSampleNo = $('#sampleNo').val(); // input field
-        var lab_lid = $('#lab_lid').val(); // hidden or dropdown
-        var date = $('#patientDate').val(); // input date field
+   function loadPatient(direction) {
+    var currentSampleNo = $('#sampleNo').val();
+    var lab_lid = $('#lab_lid').val();
+    var date = $('#patientDate').val();
 
-        $.ajax({
-            url: '/getPatientDetailsBySample',
-            method: 'GET',
-            data: {
-                sampleNO: currentSampleNo,
-                direction: direction, // 'back' or 'front'
-                lab_lid: lab_lid,
-                patientDate: date
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    var data = response.data;
-                    $('#refby').val(data.refby);
-                    $('#initial').val(data.initials);
-                    $('#fname').val(data.fname);
-                    $('#lname').val(data.lname);
-                    $('#years').val(data.years);
-                    $('#months').val(data.months);
-                    $('#days').val(data.days);
-                    $('#Ser_tpno').val(data.tpno);
-                    $('#address').val(data.address);
-                    $('#sampleNO').val(data.sampleNO); // update to new sample
+    //  var refcode = $('#refcode').val();
+    //     var refName  = $('#refDropdown').val();
+    //     var ref = $('#ref').val();
+    $.ajax({
+        url: '/getPatientDetailsBySample',
+        method: 'GET',
+        data: {
+            sampleNO: currentSampleNo,
+            direction: direction,
+            lab_lid: lab_lid,
+            patientDate: date
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                var data = response.data;
+                $('#refDropdown').val(data.refby);
+                $('#refcode').val(data.code);
+                $('#initial').val(data.initials);
+                $('#fname').val(data.fname);
+                $('#lname').val(data.lname);
+                $('#years').val(data.age);
+                $('#months').val(data.months);
+                $('#days').val(data.days);
+                $('#Ser_tpno').val(data.tpno);
+                $('#address').val(data.address);
+                $('#sampleNo').val(data.sampleNO); 
 
+                let femaleInitials = ['Mrs', 'Miss'];
+                let maleInitials = ['Mr', 'Dr', 'Hons'];
 
-                    let femaleInitials = ['Mrs', 'Miss'];
-                    let maleInitials = ['Mr', 'Dr', 'Hons'];
-
-                    if (femaleInitials.includes(data.initials)) {
-                        $('#female').prop('checked', true);
-                    } else if (maleInitials.includes(data.initials)) {
-                        $('#male').prop('checked', true);
-                    } else {
-                        // If unknown or not matched, uncheck both
-                        $('input[name="gender"]').prop('checked', false);
-                    }
+                if (femaleInitials.includes(data.initials)) {
+                    $('#female').prop('checked', true);
+                } else if (maleInitials.includes(data.initials)) {
+                    $('#male').prop('checked', true);
                 } else {
-                    alert(response.message);
+                    $('input[name="gender"]').prop('checked', false);
                 }
-            },
-            error: function() {
-                alert('Error occurred while loading data.');
+            } else {
+                alert(response.message);
             }
-        });
-    }
+        },
+        error: function() {
+            alert('Error occurred while loading data.');
+        }
+    });
+}
 
     // Button click bindings
     $('#btnBack').on('click', function() {
