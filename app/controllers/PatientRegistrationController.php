@@ -667,8 +667,23 @@ class PatientRegistrationController extends Controller
     {
         $searchDate = Input::get('searchDate');
         $searchSampleNo = Input::get('searchSampleNo');
+        $ignoredate = Input::get('ignoreDate');
         
-        
+       if ($ignoredate == "true") {
+        $searchDateResult = DB::table('lps')
+            ->where('sampleNo', 'like', $searchSampleNo.'%')
+            ->where('Lab_lid', $_SESSION['lid'])
+            ->where('date', '>', '1990-01-01')
+            ->limit(1)
+            ->select('date')
+            ->first();  // execute the query
+
+            if ($searchDateResult) {
+                $searchDate = $searchDateResult->date;  // extract date value
+            } else {
+                $searchDate = null;  // or set a default if no record found
+            }
+        }
         // Retrieve all lps records matching the sampleNo, date, and Lab ID
        $lpsRecords = DB::table('lps as a')
             ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
@@ -696,7 +711,7 @@ class PatientRegistrationController extends Controller
     
         
         if (empty($lpsRecords)) {
-            return Response::json(['success' => false, 'message' => 'Sample not found']);
+            return Response::json(['success' => false, 'message' => 'Sample not Found']);
         }
         
         // Use the first lps record to get patient info

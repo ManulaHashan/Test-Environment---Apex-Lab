@@ -1189,16 +1189,19 @@ Add New Patient
     {
         var searchDate = $('#ser_date').val();
         var searchSampleNo = $('#ser_sampleno').val();
+        var ignoredate = $('#ignore_date').is(':checked');
         if (!searchSampleNo || searchSampleNo.trim() === "") {
             alert('Please enter a sample number to search.');
             return;
         }
+
         $.ajax({
             type: "GET",
             url: "getSearchPatient",
             data: {
                 'searchDate': searchDate,
-                'searchSampleNo': searchSampleNo
+                'searchSampleNo': searchSampleNo,
+                'ignoreDate': ignoredate
             },
             dataType: "json",
             success: function (response) {
@@ -3105,7 +3108,7 @@ function closepatientConfirmModal() {
                                         
                                         <td>
                                             <input type="text" name="ser_sampleno" class="input-text" id="ser_sampleno" style="">
-                                            <input type="checkbox" name="ignore_date" class="ignore_date" value="1">
+                                            <input type="checkbox" name="ignore_date" id="ignore_date" class="ignore_date" value="1">
                                             <label><b>Skip Date</b></label>
                                         </td>
 
