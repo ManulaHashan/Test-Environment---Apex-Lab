@@ -883,60 +883,193 @@ class PatientRegistrationController extends Controller
 
    
    
-    public function getPatientDetailsBySample()
+    // public function getPatientDetailsBySample()
+    // {
+    //     $sampleNO = Input::get('sampleNO');
+    //     $direction = Input::get('direction'); 
+    //     $labLid = $_SESSION['lid'];
+    //     $date = Input::get('patientDate');
+
+    //    $query = DB::table('lps as a')
+    //     ->join('patient as b', 'a.patient_pid', '=', 'b.pid')
+    //     ->join('user as c', 'b.user_uid', '=', 'c.uid')
+    //     ->leftJoin('refference as d', 'd.idref', '=', 'a.refference_idref')
+    //     ->select(
+    //         'a.sampleNo', 
+    //         'a.refby',
+    //         'b.initials',
+    //         'c.fname',
+    //         'c.lname',
+    //         'b.age',
+    //         'c.tpno',
+    //         'c.address',
+    //         'a.sampleNo as sampleNO',
+    //         'b.months',
+    //         'b.days',
+    //         'd.code'
+    //     )
+    //     ->where('a.Lab_lid', '=', $labLid)
+    //     ->where('a.date', '=', $date)
+    //     ->groupBy('c.uid');
+
+    //     if ($direction == 'back') {
+           
+    //         $query->where('a.sampleNO', '<', $sampleNO)
+    //             ->orderBy('a.sampleNO', 'DESC')
+    //             ->limit(1);
+    //     } else if ($direction == 'front') {
+           
+    //         $query->where('a.sampleNO', '>', $sampleNO)
+    //             ->orderBy('a.sampleNO', 'ASC')
+    //             ->limit(1);
+    //     }
+
+    //     $result = $query->first();
+
+    //     if ($result) {
+    //         return Response::json([
+    //             'status' => 'success',
+    //             'data' => $result
+    //         ]);
+    //     } else {
+    //         return Response::json([
+    //             'status' => 'not_found',
+    //             'message' => 'No more records found in this direction.'
+    //         ]);
+    //     }
+    // }
+
+   public function getPatientDetailsBySample()
     {
         $sampleNO = Input::get('sampleNO');
         $direction = Input::get('direction'); 
         $labLid = $_SESSION['lid'];
         $date = Input::get('patientDate');
+        
+       
+        $lpsQuery = DB::table('lps as a')
+            ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
+            ->leftJoin('refference as r', 'a.refference_idref', '=', 'r.idref')
+            ->join('patient as p', 'a.patient_pid', '=', 'p.pid')
+            ->where('a.date', $date)
+            ->where('a.Lab_lid', $labLid)
+            ->select(
+                'a.lpsid',
+                'a.patient_pid',
+                'a.date',
+                'a.sampleNo',
+                'a.type',
+                'a.urgent_sample',
+                'a.Testgroup_tgid',
+                'b.name',
+                'a.refby',
+                'r.name as ref_name',
+                'a.specialnote',
+                'r.code',
+                'a.status'
+            );
 
-       $query = DB::table('lps as a')
-        ->join('patient as b', 'a.patient_pid', '=', 'b.pid')
-        ->join('user as c', 'b.user_uid', '=', 'c.uid')
-        ->leftJoin('refference as d', 'd.idref', '=', 'a.refference_idref')
-        ->select(
-            'a.sampleNo', 
-            'a.refby',
-            'b.initials',
-            'c.fname',
-            'c.lname',
-            'b.age',
-            'c.tpno',
-            'c.address',
-            'a.sampleNo as sampleNO',
-            'b.months',
-            'b.days',
-            'd.code'
-        )
-        ->where('a.Lab_lid', '=', $labLid)
-        ->where('a.date', '=', $date)
-        ->groupBy('c.uid');
-
+        
         if ($direction == 'back') {
-           
-            $query->where('a.sampleNO', '<', $sampleNO)
-                ->orderBy('a.sampleNO', 'DESC')
-                ->limit(1);
+            $lpsQuery->where('a.sampleNo', '<', $sampleNO)
+                    ->orderBy('a.sampleNo', 'DESC')
+                    ->limit(1);
         } else if ($direction == 'front') {
-           
-            $query->where('a.sampleNO', '>', $sampleNO)
-                ->orderBy('a.sampleNO', 'ASC')
-                ->limit(1);
-        }
-
-        $result = $query->first();
-
-        if ($result) {
-            return Response::json([
-                'status' => 'success',
-                'data' => $result
-            ]);
+            $lpsQuery->where('a.sampleNo', '>', $sampleNO)
+                    ->orderBy('a.sampleNo', 'ASC')
+                    ->limit(1);
         } else {
-            return Response::json([
-                'status' => 'not_found',
-                'message' => 'No more records found in this direction.'
-            ]);
+            
+            $lpsQuery->where('a.sampleNo', 'like', $sampleNO.'%');
         }
+
+        $lpsRecords = $lpsQuery->get();
+
+        if (empty($lpsRecords)) {
+            return Response::json(['success' => false, 'message' => 'Sample not found']);
+        }
+        
+        
+        $firstLps = $lpsRecords[0];
+        $patientId = $firstLps->patient_pid;
+        
+        $patientData = DB::table('patient as p')
+            ->join('user as u', 'p.user_uid', '=', 'u.uid')
+            ->where('p.pid', $patientId)
+            ->select('u.fname', 'u.lname', 'u.nic', 'u.address', 'u.gender_idgender', 'u.tpno', 'p.age', 'p.months', 'p.days', 'p.initials', 'p.dob')
+            ->first();
+
+        $invoiceData = DB::table('invoice as i')
+            ->join('lps as a', 'i.lps_lpsid', '=', 'a.lpsid')
+            ->leftJoin('Discount as d', 'i.Discount_did', '=', 'd.did')
+            ->where('a.sampleNo', 'like', $sampleNO . '%')
+            ->where('a.date', $date)
+            ->where('a.Lab_lid', $_SESSION['lid'])
+            ->select(
+                'i.iid', 
+                'i.total', 
+                'i.paid', 
+                'i.gtotal',
+                'i.discount',
+                'i.status', 
+                'i.paymentmethod',
+                'i.multiple_delivery_methods',
+                'd.value',
+                'd.did',
+                'a.sampleNo',
+                'i.date'
+            )
+            ->first();
+        
+       
+        $filteredLpsIds = array();
+        foreach ($lpsRecords as $rec) {
+            if ($rec->patient_pid == $patientId) {
+                $filteredLpsIds[] = $rec->lpsid;
+            }
+        }
+        
+        if (empty($filteredLpsIds)) {
+            return Response::json(['success' => false, 'message' => 'No test data found for this patient']);
+        }
+        
+        $testDataRaw = DB::table('lps as a')
+            ->join('Testgroup as b', 'a.Testgroup_tgid', '=', 'b.tgid')
+            ->select(
+                'a.lpsid',
+                'a.type',
+                'a.urgent_sample',
+                'a.Testgroup_tgid as tgid',
+                'b.name as group',
+                'b.price',
+                'b.testingtime as time'
+            )
+            ->whereIn('a.lpsid', $filteredLpsIds)
+            ->get();
+        
+        $testData = [];
+        foreach ($testDataRaw as $test) {
+            $testData[] = [
+                'lpsid'    => $test->lpsid,
+                'tgid'     => $test->tgid,
+                'group'    => $test->group,
+                'price'    => floatval($test->price),
+                'time'     => $test->time,
+                'f_time'   => 0,
+                'priority' => $test->urgent_sample,
+                'type'     => $test->type,
+            ];
+        }
+        
+        return Response::json([
+            'success' => true,
+            'data' => [
+                'patient' => $patientData,
+                'tests'   => $testData,
+                'invoice' => $invoiceData,
+                'lpsRecords' => $lpsRecords
+            ]
+        ]);
     }
     
 

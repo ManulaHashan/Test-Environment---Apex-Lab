@@ -879,7 +879,13 @@ Add New Patient
                 alert(response.message || 'Patient saved successfully!');
                 var sampleData = response.datainv.split('###');
                 view_selected_patient(sampleData[0], sampleData[1]);
-                printInvoice();
+               
+                 if ($('#print_bill').is(':checked')) {
+                        printInvoice();
+                        
+                    }else {
+                        resetPage();
+                    }
 
 
             },
@@ -2083,14 +2089,73 @@ Add New Patient
     //*************************************************************************************************
     // Back Front buttons process
 
-   function loadPatient(direction) {
+//    function loadPatient(direction) {
+//     var currentSampleNo = $('#sampleNo').val();
+//     var lab_lid = $('#lab_lid').val();
+//     var date = $('#patientDate').val();
+
+//     //  var refcode = $('#refcode').val();
+//     //     var refName  = $('#refDropdown').val();
+//     //     var ref = $('#ref').val();
+//     $.ajax({
+//         url: '/getPatientDetailsBySample',
+//         method: 'GET',
+//         data: {
+//             sampleNO: currentSampleNo,
+//             direction: direction,
+//             lab_lid: lab_lid,
+//             patientDate: date
+//         },
+//         success: function(response) {
+//             if (response.status === 'success') {
+//                 var data = response.data;
+//                 $('#refDropdown').val(data.refby);
+//                 $('#refcode').val(data.code);
+//                 $('#initial').val(data.initials);
+//                 $('#fname').val(data.fname);
+//                 $('#lname').val(data.lname);
+//                 $('#years').val(data.age);
+//                 $('#months').val(data.months);
+//                 $('#days').val(data.days);
+//                 $('#Ser_tpno').val(data.tpno);
+//                 $('#address').val(data.address);
+//                 $('#sampleNo').val(data.sampleNO); 
+
+//                 let femaleInitials = ['Mrs', 'Miss'];
+//                 let maleInitials = ['Mr', 'Dr', 'Hons'];
+
+//                 if (femaleInitials.includes(data.initials)) {
+//                     $('#female').prop('checked', true);
+//                 } else if (maleInitials.includes(data.initials)) {
+//                     $('#male').prop('checked', true);
+//                 } else {
+//                     $('input[name="gender"]').prop('checked', false);
+//                 }
+//             } else {
+//                 alert(response.message);
+//             }
+//         },
+//         error: function() {
+//             alert('Error occurred while loading data.');
+//         }
+//     });
+//    }
+
+//     // Button click bindings
+//     $('#btnBack').on('click', function() {
+//         loadPatient('back');
+//     });
+
+//     $('#btnFront').on('click', function() {
+//         loadPatient('front');
+//     });
+
+
+function loadPatient(direction) {
     var currentSampleNo = $('#sampleNo').val();
     var lab_lid = $('#lab_lid').val();
     var date = $('#patientDate').val();
 
-    //  var refcode = $('#refcode').val();
-    //     var refName  = $('#refDropdown').val();
-    //     var ref = $('#ref').val();
     $.ajax({
         url: '/getPatientDetailsBySample',
         method: 'GET',
@@ -2101,48 +2166,154 @@ Add New Patient
             patientDate: date
         },
         success: function(response) {
-            if (response.status === 'success') {
-                var data = response.data;
-                $('#refDropdown').val(data.refby);
-                $('#refcode').val(data.code);
-                $('#initial').val(data.initials);
-                $('#fname').val(data.fname);
-                $('#lname').val(data.lname);
-                $('#years').val(data.age);
-                $('#months').val(data.months);
-                $('#days').val(data.days);
-                $('#Ser_tpno').val(data.tpno);
-                $('#address').val(data.address);
-                $('#sampleNo').val(data.sampleNO); 
+            if (response.success) {
+                const patient = response.data.patient;
+                const tests = response.data.tests;
+                const invoice = response.data.invoice;
+                const lpsRecords = response.data.lpsRecords;
+                const firstRecord = lpsRecords[0] || {};
 
-                let femaleInitials = ['Mrs', 'Miss'];
-                let maleInitials = ['Mr', 'Dr', 'Hons'];
+                // Populate patient information
+                $('#initial').val(patient.initials || '');
+                $('#fname').val(patient.fname || '');
+                $('#lname').val(patient.lname || '');
+                $('#years').val(patient.age || '');
+                $('#months').val(patient.months || '');
+                $('#days').val(patient.days || '');
+                $('#dob').val(patient.dob || '');
+                $('#nic').val(patient.nic || '');
+                $('#address').val(patient.address || '');
+                $('#Ser_tpno').val(patient.tpno || '');
+                $('#sampleNo').val(firstRecord.sampleNo || currentSampleNo || '');
 
-                if (femaleInitials.includes(data.initials)) {
+                // Set gender based on initials
+                const femaleInitials = ['Mrs', 'Miss'];
+                const maleInitials = ['Mr', 'Dr', 'Hons'];
+                $('input[name="gender"]').prop('checked', false);
+                if (femaleInitials.includes(patient.initials)) {
                     $('#female').prop('checked', true);
-                } else if (maleInitials.includes(data.initials)) {
+                } else if (maleInitials.includes(patient.initials)) {
                     $('#male').prop('checked', true);
-                } else {
-                    $('input[name="gender"]').prop('checked', false);
                 }
+
+                // Populate reference information
+                $('#refDropdown').val(firstRecord.refby || '');
+                $('#refcode').val(firstRecord.code || '');
+                $('#inv_remark').val(firstRecord.specialnote || '');
+
+                // Populate invoice information
+                if (invoice) {
+                    $('#invoiceId').val(invoice.iid || '');
+                    $('#total_amount').text(invoice.total ? invoice.total.toFixed(2) : '0.00');
+                    $('#discount').val(invoice.discount || 0);
+                    $('#grand_total').text(invoice.gtotal ? invoice.gtotal.toFixed(2) : '0.00');
+                    $('#paid').val(invoice.paid || 0);
+                    $('#due').text((invoice.gtotal - invoice.paid).toFixed(2));
+                    
+                    // Set payment method
+                    $('input[name="payment_method"]').prop('checked', false);
+                    if (invoice.paymentmethod) {
+                        let paymeth = "";
+                        if (invoice.paymentmethod == 'cash') paymeth = "1";
+                        else if (invoice.paymentmethod == 'card') paymeth = "2";
+                        else if (invoice.paymentmethod == 'voucher') paymeth = "6";
+                        else if (invoice.paymentmethod == 'split') paymeth = "5";
+                        else if (invoice.paymentmethod == 'credit') paymeth = "credit";
+                        else if (invoice.paymentmethod == 'cheque') paymeth = "3";
+                        
+                        $(`input[name="payment_method"][value="${paymeth}"]`).prop('checked', true);
+                    }
+                    
+                    // Set delivery methods
+                    if (invoice.multiple_delivery_methods) {
+                        try {
+                            const deliveryMethods = invoice.multiple_delivery_methods
+                                .split(',')
+                                .map(method => method.trim().toLowerCase().replace(' ', '_'));
+                            
+                            $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
+                            deliveryMethods.forEach(method => {
+                                $(`#${method}`).prop('checked', true);
+                            });
+                        } catch (e) {
+                            console.error("Error parsing delivery methods:", e);
+                            $('#hard_copy').prop('checked', true);
+                        }
+                    }
+                }
+
+                // Populate test data in the table
+                $('#Branch_record_tbl').empty();
+                tests.forEach(test => {
+                    let rowStyle = '';
+                    let urgentDisplay = '';
+                    let isChecked = true;
+
+                    // Check if test is urgent or barcoded
+                    const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
+                    const barcodedCheck = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.status == 'barcorded');
+
+                    if (barcodedCheck) {
+                        rowStyle = 'style="background-color: pink;"';
+                        isChecked = false;
+                    }
+                    if (matchingLps) {
+                        urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
+                    }
+
+                    const newRow = `
+                        <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
+                            <td align="left">${test.tgid}</td>
+                            <td align="left">${test.group}</td>
+                            <td align="right" class="price-column">${test.price.toFixed(2)}</td>
+                            <td align="left">${test.time}</td>
+                            <td align="right">${test.f_time}</td>
+                            <td align="left">
+                                <input type="checkbox" class="barcode-checkbox" ${isChecked ? 'checked' : ''}>
+                            </td>
+                            <td align="center">${urgentDisplay}</td>  
+                            <td align="center">${test.type}</td>  
+                        </tr>`;
+
+                    $('#Branch_record_tbl').append(newRow);
+                });
+
+                // Disable/enable fields based on sample existence
+                if (currentSampleNo) {
+                    $("#savebtn").attr("disabled", true);
+                    $("#print_invoicebtn").attr("disabled", false);
+                    $("#fname, #lname, #initial, #years, #months, #days, #dob, #nic, #address, #refcode, #testname")
+                        .attr("readonly", true);
+                    $("#male, #female, #refDropdown, #packageDropdown")
+                        .attr("disabled", true);
+                } else {
+                    $("#savebtn").attr("disabled", false);
+                    $("#fname, #lname, #initial, #years, #months, #days, #dob, #nic, #address, #refcode, #testname")
+                        .attr("readonly", false);
+                    $("#male, #female, #refDropdown, #packageDropdown")
+                        .attr("disabled", false);
+                }
+
             } else {
-                alert(response.message);
+                alert(response.message || 'No data found.');
             }
         },
-        error: function() {
-            alert('Error occurred while loading data.');
+        error: function(xhr) {
+            console.error('Error:', xhr);
+            alert('Error occurred while loading data: ' + 
+                 (xhr.responseJSON?.message || 'Please try again later.'));
         }
     });
 }
 
-    // Button click bindings
-    $('#btnBack').on('click', function() {
-        loadPatient('back');
-    });
 
-    $('#btnFront').on('click', function() {
-        loadPatient('front');
-    });
+$('#btnBack').on('click', function() {
+    loadPatient('back');
+});
+
+$('#btnFront').on('click', function() {
+    loadPatient('front');
+});
 
 
     //*************************************************************************************************
@@ -3430,7 +3601,7 @@ function closepatientConfirmModal() {
 
                                         <td width="25%">
                                             
-                                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1" style=""><br/>Print Bill
+                                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1" checked style=""><br/>Print Bill
                                         </td>
 
                                         <td width="25%">
