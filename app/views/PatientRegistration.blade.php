@@ -32,67 +32,67 @@ Add New Patient
             view_selected_patient(sampleNo, date);
 
               // Barcode Privilage checking
-        $.ajax({
-            url: '/barcode-feature-checking',
-            type: 'GET',
-            success: function (response) {
-                console.log('AJAX response received:', response);
+            $.ajax({
+                url: '/barcode-feature-checking',
+                type: 'GET',
+                success: function (response) {
+                    console.log('AJAX response received:', response);
 
-                if (response.hasFeature) {
-                    $('#print_barcode').show();
-                    $('#group_barcode').show();
-                    $('#test_wise_bcode').show();
-                    $('#remove_barcode').show();
-                    $('#rep_chkboxlbl').show();
-                    $('#rep_chkbox').show();
-                   
+                    if (response.hasFeature) {
+                        $('#print_barcode').show();
+                        $('#group_barcode').show();
+                        $('#test_wise_bcode').show();
+                        $('#remove_barcode').show();
+                        $('#rep_chkboxlbl').show();
+                        $('#rep_chkbox').show();
+                    
 
-                    // Log display after showing
-                    console.log('Buttons shown based on feature present');
-                    ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode','rep_chkbox','rep_chkboxlbl'].forEach(id => {
-                        console.log(id + ':', $('#' + id).css('display'));
-                    });
-                } else {
-                    console.log('Feature not present; buttons remain hidden');
+                        // Log display after showing
+                        console.log('Buttons shown based on feature present');
+                        ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode','rep_chkbox','rep_chkboxlbl'].forEach(id => {
+                            console.log(id + ':', $('#' + id).css('display'));
+                        });
+                    } else {
+                        console.log('Feature not present; buttons remain hidden');
+                    }
+                },
+                error: function (xhr) {
+                    console.error('AJAX error:', xhr.status, xhr.statusText);
+                    if (xhr.status === 401) {
+                        alert('Session expired. Please log in again.');
+                    }
                 }
-            },
-            error: function (xhr) {
-                console.error('AJAX error:', xhr.status, xhr.statusText);
-                if (xhr.status === 401) {
-                    alert('Session expired. Please log in again.');
-                }
-            }
-        });
+            });
 
         //  reportnig method Privilage checking
              $.ajax({
-            url: '/reportnig-feature-checking',
-            type: 'GET',
-            success: function (response) {
-                console.log('AJAX response received:', response);
+                url: '/reportnig-feature-checking',
+                type: 'GET',
+                success: function (response) {
+                    console.log('AJAX response received:', response);
 
-                if (response.hasFeature) {
-                    $('#smstd').show();
-                    $('#emailtd').show();
-                    $('#whatsapptd').show();
+                    if (response.hasFeature) {
+                        $('#smstd').show();
+                        $('#emailtd').show();
+                        $('#whatsapptd').show();
 
 
-                    // Log display after showing
-                    console.log('Buttons shown based on feature present');
-                    ['sms', 'email', 'whatsapp'].forEach(id => {
-                        console.log(id + ':', $('#' + id).css('display'));
-                    });
-                } else {
-                    console.log('Feature not present; buttons remain hidden');
+                        // Log display after showing
+                        console.log('Buttons shown based on feature present');
+                        ['sms', 'email', 'whatsapp'].forEach(id => {
+                            console.log(id + ':', $('#' + id).css('display'));
+                        });
+                    } else {
+                        console.log('Feature not present; buttons remain hidden');
+                    }
+                },
+                error: function (xhr) {
+                    console.error('AJAX error:', xhr.status, xhr.statusText);
+                    if (xhr.status === 401) {
+                        alert('Session expired. Please log in again.');
+                    }
                 }
-            },
-            error: function (xhr) {
-                console.error('AJAX error:', xhr.status, xhr.statusText);
-                if (xhr.status === 401) {
-                    alert('Session expired. Please log in again.');
-                }
-            }
-        });
+            });
               //  patientData privilage checking
                $.ajax({
                 url: '/patientDetailsEditing-feature-checking',

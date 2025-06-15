@@ -136,40 +136,10 @@ foreach ($result_get_invoiceData as $invoice){
  
     
     <script>
-    function confirmPrint() {
-        // Print button click event
-        window.print();
 
-        // After printing, send save request
-        var sno = "{{ $sno }}";
-        var date = "{{ $date }}";
-
-        // Optional: You can use jQuery.ajax if you load jQuery
-        fetch("/savePatientFromPreview", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: "sno=" + encodeURIComponent(sno) + "&date=" + encodeURIComponent(date)
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message || "Saved successfully!");
-            window.close();
-        })
-        .catch(error => {
-            console.error("Save error:", error);
-            alert("Save failed!");
-        });
-    }
-
-    function cancelPrint() {
-        window.close(); // Just close this preview
-    }
 </script>
 
-<button onclick="confirmPrint()">🖨️ Print</button>
-<button onclick="cancelPrint()">❌ Cancel</button>
+
 
 </head>
 <body>
