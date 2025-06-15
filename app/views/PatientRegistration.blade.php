@@ -880,12 +880,23 @@ Add New Patient
                 var sampleData = response.datainv.split('###');
                 view_selected_patient(sampleData[0], sampleData[1]);
                
-                 if ($('#print_bill').is(':checked')) {
-                        printInvoice();
+                    if ($('#print_bill').is(':checked')) {
+                         if($('#two_copies').is(':checked')){
                         
-                    }else {
+                            for (let i = 0; i < 2; i++) {
+                                printInvoice();
+                            }
+
+                        }else{
+                          printInvoice();
+
+                        }
+                    }
+                    else {
                         resetPage();
                     }
+
+                   
 
 
             },
@@ -2167,132 +2178,14 @@ function loadPatient(direction) {
         },
         success: function(response) {
             if (response.success) {
+                
                 const patient = response.data.patient;
                 const tests = response.data.tests;
                 const invoice = response.data.invoice;
-                const lpsRecords = response.data.lpsRecords;
-                const firstRecord = lpsRecords[0] || {};
-
-                // Populate patient information
-                $('#initial').val(patient.initials || '');
-                $('#fname').val(patient.fname || '');
-                $('#lname').val(patient.lname || '');
-                $('#years').val(patient.age || '');
-                $('#months').val(patient.months || '');
-                $('#days').val(patient.days || '');
-                $('#dob').val(patient.dob || '');
-                $('#nic').val(patient.nic || '');
-                $('#address').val(patient.address || '');
-                $('#Ser_tpno').val(patient.tpno || '');
+                 const lpsRecords = response.data.lpsRecords;
+                 const firstRecord = lpsRecords[0] || {};
                 $('#sampleNo').val(firstRecord.sampleNo || currentSampleNo || '');
-
-                // Set gender based on initials
-                const femaleInitials = ['Mrs', 'Miss'];
-                const maleInitials = ['Mr', 'Dr', 'Hons'];
-                $('input[name="gender"]').prop('checked', false);
-                if (femaleInitials.includes(patient.initials)) {
-                    $('#female').prop('checked', true);
-                } else if (maleInitials.includes(patient.initials)) {
-                    $('#male').prop('checked', true);
-                }
-
-                // Populate reference information
-                $('#refDropdown').val(firstRecord.refby || '');
-                $('#refcode').val(firstRecord.code || '');
-                $('#inv_remark').val(firstRecord.specialnote || '');
-
-                // Populate invoice information
-                if (invoice) {
-                    $('#invoiceId').val(invoice.iid || '');
-                    $('#total_amount').text(invoice.total ? invoice.total.toFixed(2) : '0.00');
-                    $('#discount').val(invoice.discount || 0);
-                    $('#grand_total').text(invoice.gtotal ? invoice.gtotal.toFixed(2) : '0.00');
-                    $('#paid').val(invoice.paid || 0);
-                    $('#due').text((invoice.gtotal - invoice.paid).toFixed(2));
-                    
-                    // Set payment method
-                    $('input[name="payment_method"]').prop('checked', false);
-                    if (invoice.paymentmethod) {
-                        let paymeth = "";
-                        if (invoice.paymentmethod == 'cash') paymeth = "1";
-                        else if (invoice.paymentmethod == 'card') paymeth = "2";
-                        else if (invoice.paymentmethod == 'voucher') paymeth = "6";
-                        else if (invoice.paymentmethod == 'split') paymeth = "5";
-                        else if (invoice.paymentmethod == 'credit') paymeth = "credit";
-                        else if (invoice.paymentmethod == 'cheque') paymeth = "3";
-                        
-                        $(`input[name="payment_method"][value="${paymeth}"]`).prop('checked', true);
-                    }
-                    
-                    // Set delivery methods
-                    if (invoice.multiple_delivery_methods) {
-                        try {
-                            const deliveryMethods = invoice.multiple_delivery_methods
-                                .split(',')
-                                .map(method => method.trim().toLowerCase().replace(' ', '_'));
-                            
-                            $('#hard_copy, #sms, #email, #whatsapp').prop('checked', false);
-                            deliveryMethods.forEach(method => {
-                                $(`#${method}`).prop('checked', true);
-                            });
-                        } catch (e) {
-                            console.error("Error parsing delivery methods:", e);
-                            $('#hard_copy').prop('checked', true);
-                        }
-                    }
-                }
-
-                // Populate test data in the table
-                $('#Branch_record_tbl').empty();
-                tests.forEach(test => {
-                    let rowStyle = '';
-                    let urgentDisplay = '';
-                    let isChecked = true;
-
-                    // Check if test is urgent or barcoded
-                    const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
-                    const barcodedCheck = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.status == 'barcorded');
-
-                    if (barcodedCheck) {
-                        rowStyle = 'style="background-color: pink;"';
-                        isChecked = false;
-                    }
-                    if (matchingLps) {
-                        urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
-                    }
-
-                    const newRow = `
-                        <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
-                            <td align="left">${test.tgid}</td>
-                            <td align="left">${test.group}</td>
-                            <td align="right" class="price-column">${test.price.toFixed(2)}</td>
-                            <td align="left">${test.time}</td>
-                            <td align="right">${test.f_time}</td>
-                            <td align="left">
-                                <input type="checkbox" class="barcode-checkbox" ${isChecked ? 'checked' : ''}>
-                            </td>
-                            <td align="center">${urgentDisplay}</td>  
-                            <td align="center">${test.type}</td>  
-                        </tr>`;
-
-                    $('#Branch_record_tbl').append(newRow);
-                });
-
-                // Disable/enable fields based on sample existence
-                if (currentSampleNo) {
-                    $("#savebtn").attr("disabled", true);
-                    $("#print_invoicebtn").attr("disabled", false);
-                    $("#fname, #lname, #initial, #years, #months, #days, #dob, #nic, #address, #refcode, #testname")
-                        .attr("readonly", true);
-                    $("#male, #female, #refDropdown, #packageDropdown")
-                        .attr("disabled", true);
-                } else {
-                    $("#savebtn").attr("disabled", false);
-                    $("#fname, #lname, #initial, #years, #months, #days, #dob, #nic, #address, #refcode, #testname")
-                        .attr("readonly", false);
-                    $("#male, #female, #refDropdown, #packageDropdown")
-                        .attr("disabled", false);
-                }
+                view_selected_patient(firstRecord.sampleNo, date);
 
             } else {
                 alert(response.message || 'No data found.');
@@ -2531,7 +2424,7 @@ function patientConfirmModal() {
     // Show the modal
     document.getElementById('patientConfirmModal').style.display = 'block';
 
-    // Collect patient details
+    // Collect patient details (unchanged)
     const initial = document.getElementById('initial').value;
     const fname = document.getElementById('fname').value;
     const lname = document.getElementById('lname').value;
@@ -2547,7 +2440,7 @@ function patientConfirmModal() {
     const refCode = document.getElementById('refcode').value;
 
     // Fill patient detail section
-    const detailHTML = `
+    document.getElementById('patientDetailsPreview').innerHTML = `
         <strong>Name:</strong> ${fullName}<br>
         <strong>Age:</strong> ${years} Years, ${months} Months, ${days} Days<br>
         <strong>DOB:</strong> ${dob}<br>
@@ -2556,34 +2449,40 @@ function patientConfirmModal() {
         <strong>Address:</strong> ${address}<br>
         <strong>Referred By:</strong> ${refCode} - ${refName}<br>
     `;
-    document.getElementById('patientDetailsPreview').innerHTML = detailHTML;
 
-    // Delay to ensure table is fully loaded
-    setTimeout(() => {
-        const testTableBody = document.getElementById('Branch_record_tbl');
-        const confirmTableBody = document.getElementById('test_para_record_tbl');
-        confirmTableBody.innerHTML = ''; // clear old data
+    // Get the confirmation table body
+    const confirmTableBody = document.getElementById('test_confirm_table');
+    confirmTableBody.innerHTML = ''; // Clear existing content
 
-        const rows = testTableBody.querySelectorAll('tr');
-        console.log("Loaded rows:", rows.length); // Debug log
+    // Process each row in the source table
+    $('#Branch_record_tbl tr').each(function(index) {
+        // Skip header row if it exists
+        if ($(this).find('th').length > 0) return;
 
-        rows.forEach(row => {
-            const cols = row.querySelectorAll('td');
-            if (cols.length >= 3) {
-                const testId = cols[0].innerText.trim();
-                const testName = cols[1].innerText.trim();
-                const price = cols[2].innerText.trim();
+        const tgid = $(this).find('td:nth-child(1)').text().trim();
+        const group = $(this).find('td:nth-child(2)').text().trim();
+        const price = $(this).find('td:nth-child(3)').text().trim();
+        // const time = $(this).find('td:nth-child(4)').text().trim();
+        // const f_time = $(this).find('td:nth-child(5)').text().trim();
+        // const bar_code = $(this).find('td:nth-child(6) input[type="checkbox"]').is(':checked') ? 'Yes' : 'No';
+        // const priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'High' : 'Normal';
+        // const testType = $(this).find('td:nth-child(8)').text().trim();
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${testId}</td>
-                    <td>${testName}</td>
-                    <td>${price}</td>
-                `;
-                confirmTableBody.appendChild(tr);
-            }
-        });
-    }, 100); // Wait 100ms to allow dynamic row population
+        // Create new row for confirmation table
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${tgid}</td>
+            <td>${group}</td>
+            <td>${price}</td>
+
+        `;
+        confirmTableBody.appendChild(newRow);
+    });
+
+    // If no rows were added, show a message
+    if (confirmTableBody.rows.length === 0) {
+        confirmTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No tests selected</td></tr>';
+    }
 }
 
 
@@ -3884,7 +3783,7 @@ function closepatientConfirmModal() {
                             <td width="20%" class="fieldText">Price</td>
                             </tr>
                         </thead>
-                        <tbody id="test_para_record_tbl">
+                        <tbody id="test_confirm_table">
                             <!-- Test rows will be populated here -->
                         </tbody>
                         </table>

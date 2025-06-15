@@ -881,63 +881,7 @@ class PatientRegistrationController extends Controller
     }
 
 
-   
-   
-    // public function getPatientDetailsBySample()
-    // {
-    //     $sampleNO = Input::get('sampleNO');
-    //     $direction = Input::get('direction'); 
-    //     $labLid = $_SESSION['lid'];
-    //     $date = Input::get('patientDate');
 
-    //    $query = DB::table('lps as a')
-    //     ->join('patient as b', 'a.patient_pid', '=', 'b.pid')
-    //     ->join('user as c', 'b.user_uid', '=', 'c.uid')
-    //     ->leftJoin('refference as d', 'd.idref', '=', 'a.refference_idref')
-    //     ->select(
-    //         'a.sampleNo', 
-    //         'a.refby',
-    //         'b.initials',
-    //         'c.fname',
-    //         'c.lname',
-    //         'b.age',
-    //         'c.tpno',
-    //         'c.address',
-    //         'a.sampleNo as sampleNO',
-    //         'b.months',
-    //         'b.days',
-    //         'd.code'
-    //     )
-    //     ->where('a.Lab_lid', '=', $labLid)
-    //     ->where('a.date', '=', $date)
-    //     ->groupBy('c.uid');
-
-    //     if ($direction == 'back') {
-           
-    //         $query->where('a.sampleNO', '<', $sampleNO)
-    //             ->orderBy('a.sampleNO', 'DESC')
-    //             ->limit(1);
-    //     } else if ($direction == 'front') {
-           
-    //         $query->where('a.sampleNO', '>', $sampleNO)
-    //             ->orderBy('a.sampleNO', 'ASC')
-    //             ->limit(1);
-    //     }
-
-    //     $result = $query->first();
-
-    //     if ($result) {
-    //         return Response::json([
-    //             'status' => 'success',
-    //             'data' => $result
-    //         ]);
-    //     } else {
-    //         return Response::json([
-    //             'status' => 'not_found',
-    //             'message' => 'No more records found in this direction.'
-    //         ]);
-    //     }
-    // }
 
    public function getPatientDetailsBySample()
     {
@@ -972,10 +916,13 @@ class PatientRegistrationController extends Controller
         
         if ($direction == 'back') {
             $lpsQuery->where('a.sampleNo', '<', $sampleNO)
+                    ->groupBy( 'a.patient_pid')
                     ->orderBy('a.sampleNo', 'DESC')
                     ->limit(1);
         } else if ($direction == 'front') {
-            $lpsQuery->where('a.sampleNo', '>', $sampleNO)
+            $sampleNOADD = $sampleNO + 1;
+            $lpsQuery->where('a.sampleNo', '=', $sampleNOADD)
+                    ->groupBy('a.patient_pid')
                     ->orderBy('a.sampleNo', 'ASC')
                     ->limit(1);
         } else {
