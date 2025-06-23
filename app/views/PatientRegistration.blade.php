@@ -737,7 +737,9 @@ Add New Patient
         var refName  = $('#refDropdown').val();
         var ref = $('#ref').val();
         var testname = $('#testname').val();
-        var pkgname = $('#pkgname').val();
+        var pkgname = $('#packageDropdown').val(); // Change this line to get the value from packageDropdown
+        var packageIdOnly = pkgname ? pkgname.split(":")[0] : null;
+        
         var fast_time = $('#fast_time').val();
 
         var total_amount = $('#total_amount').text().trim() || '0.00';
@@ -821,7 +823,6 @@ Add New Patient
             return;
         }
 
-
         var token = $('input[name="_token"]').val();
 
         var postData = {
@@ -847,6 +848,7 @@ Add New Patient
             refName: refName,
             testname: testname,
             pkgname: pkgname,
+            packageIdOnly: packageIdOnly,
             fast_time: fast_time,
             test_data: testData,
             total_amount: total_amount,
@@ -862,6 +864,7 @@ Add New Patient
             inv_remark: inv_remark,
             delivery_methods: deliveryMethodsString
         };
+       
 
         console.log("Data to be sent:", postData);
 
@@ -933,13 +936,14 @@ Add New Patient
             success: function (response) {
                 if (response.success) {
                     const patientData = response.data.patient;
+                    const packageData = response.data.package;
                     const testData = response.data.tests;
                     const invoiceData = response.data.invoice;
                     const invoicePayments = response.data.invoicePayments;
                     const lpsRecords = response.data.lpsRecords;
                     const firstRecord = lpsRecords[0] || {};
 
-
+console.log("Package Data:", packageData);
 
                     // Populate patient fields
                     $('#initial').val(patientData.initials || ''); // Use empty string if null
@@ -947,6 +951,8 @@ Add New Patient
                     $('#lname').val(patientData.lname || '');
                     $('#dob').val(patientData.dob || '');
                     $('#nic').val(patientData.nic || '');
+                    $('#packageDropdown').val(packageData.name || '');
+                    // $('#packageDropdown').val(packageData[0]?.name || ''); 
                     $('#address').val(patientData.address || '');
                     $('input[name="gender"][value="' + patientData.gender_idgender + '"]').prop('checked', true);
                     $('#years').val(patientData.age || '');
@@ -2238,6 +2244,7 @@ $('#btnFront').on('click', function() {
                 days: $('#days').val(),
                 tpno: $('#Ser_tpno').val(),
                 address: $('#address').val(),
+                nic: $('#nic').val(),
                 gender: $('input[name="gender"]:checked').val()
             },
             success: function (response) {
@@ -2423,77 +2430,102 @@ $('#btnFront').on('click', function() {
 
 
 
-function patientConfirmModal() {
-    // Show the modal
-    document.getElementById('patientConfirmModal').style.display = 'block';
+    function patientConfirmModal() {
+        // Show the modal
+        document.getElementById('patientConfirmModal').style.display = 'block';
 
-    // Collect patient details (unchanged)
-    const initial = document.getElementById('initial').value;
-    const fname = document.getElementById('fname').value;
-    const lname = document.getElementById('lname').value;
-    const fullName = `${initial} ${fname} ${lname}`;
-    const years = document.getElementById('years').value;
-    const months = document.getElementById('months').value;
-    const days = document.getElementById('days').value;
-    const dob = document.getElementById('dob').value;
-    const gender = document.getElementById('male').checked ? "Male" : document.getElementById('female').checked ? "Female" : "";
-    const nic = document.getElementById('nic').value;
-    const address = document.getElementById('address').value;
-    const refName = document.getElementById('refDropdown').value;
-    const refCode = document.getElementById('refcode').value;
+        // Collect patient details (unchanged)
+        const initial = document.getElementById('initial').value;
+        const fname = document.getElementById('fname').value;
+        const lname = document.getElementById('lname').value;
+        const fullName = `${initial} ${fname} ${lname}`;
+        const years = document.getElementById('years').value;
+        const months = document.getElementById('months').value;
+        const days = document.getElementById('days').value;
+        const dob = document.getElementById('dob').value;
+        const gender = document.getElementById('male').checked ? "Male" : document.getElementById('female').checked ? "Female" : "";
+        const nic = document.getElementById('nic').value;
+        const address = document.getElementById('address').value;
+        const refName = document.getElementById('refDropdown').value;
+        const refCode = document.getElementById('refcode').value;
 
-    // Fill patient detail section
-    document.getElementById('patientDetailsPreview').innerHTML = `
-        <strong>Name:</strong> ${fullName}<br>
-        <strong>Age:</strong> ${years} Years, ${months} Months, ${days} Days<br>
-        <strong>DOB:</strong> ${dob}<br>
-        <strong>Gender:</strong> ${gender}<br>
-        <strong>NIC:</strong> ${nic}<br>
-        <strong>Address:</strong> ${address}<br>
-        <strong>Referred By:</strong> ${refCode} - ${refName}<br>
-    `;
-
-    // Get the confirmation table body
-    const confirmTableBody = document.getElementById('test_confirm_table');
-    confirmTableBody.innerHTML = ''; // Clear existing content
-
-    // Process each row in the source table
-    $('#Branch_record_tbl tr').each(function(index) {
-        // Skip header row if it exists
-        if ($(this).find('th').length > 0) return;
-
-        const tgid = $(this).find('td:nth-child(1)').text().trim();
-        const group = $(this).find('td:nth-child(2)').text().trim();
-        const price = $(this).find('td:nth-child(3)').text().trim();
-        // const time = $(this).find('td:nth-child(4)').text().trim();
-        // const f_time = $(this).find('td:nth-child(5)').text().trim();
-        // const bar_code = $(this).find('td:nth-child(6) input[type="checkbox"]').is(':checked') ? 'Yes' : 'No';
-        // const priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'High' : 'Normal';
-        // const testType = $(this).find('td:nth-child(8)').text().trim();
-
-        // Create new row for confirmation table
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td>${tgid}</td>
-            <td>${group}</td>
-            <td>${price}</td>
-
+        // Fill patient detail section
+        document.getElementById('patientDetailsPreview').innerHTML = `
+            <strong>Name:</strong> ${fullName}<br>
+            <strong>Age:</strong> ${years} Years, ${months} Months, ${days} Days<br>
+            <strong>DOB:</strong> ${dob}<br>
+            <strong>Gender:</strong> ${gender}<br>
+            <strong>NIC:</strong> ${nic}<br>
+            <strong>Address:</strong> ${address}<br>
+            <strong>Referred By:</strong> ${refCode} - ${refName}<br>
         `;
-        confirmTableBody.appendChild(newRow);
-    });
 
-    // If no rows were added, show a message
-    if (confirmTableBody.rows.length === 0) {
-        confirmTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No tests selected</td></tr>';
+        // Get the confirmation table body
+        const confirmTableBody = document.getElementById('test_confirm_table');
+        confirmTableBody.innerHTML = ''; // Clear existing content
+
+        // Process each row in the source table
+        $('#Branch_record_tbl tr').each(function(index) {
+            // Skip header row if it exists
+            if ($(this).find('th').length > 0) return;
+
+            const tgid = $(this).find('td:nth-child(1)').text().trim();
+            const group = $(this).find('td:nth-child(2)').text().trim();
+            const price = $(this).find('td:nth-child(3)').text().trim();
+            // const time = $(this).find('td:nth-child(4)').text().trim();
+            // const f_time = $(this).find('td:nth-child(5)').text().trim();
+            // const bar_code = $(this).find('td:nth-child(6) input[type="checkbox"]').is(':checked') ? 'Yes' : 'No';
+            // const priority = $(this).find('td:nth-child(7)').text().trim() === '***' ? 'High' : 'Normal';
+            // const testType = $(this).find('td:nth-child(8)').text().trim();
+
+            // Create new row for confirmation table
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${tgid}</td>
+                <td>${group}</td>
+                <td>${price}</td>
+
+            `;
+            confirmTableBody.appendChild(newRow);
+        });
+
+        // If no rows were added, show a message
+        if (confirmTableBody.rows.length === 0) {
+            confirmTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No tests selected</td></tr>';
+        }
     }
-}
 
 
-function closepatientConfirmModal() {
-    document.getElementById('patientConfirmModal').style.display = 'none';
-}
+    function closepatientConfirmModal() {
+        document.getElementById('patientConfirmModal').style.display = 'none';
+    }
 
 
+    function preventInvalidInput(input, maxValue) {
+        input.addEventListener('input', function () {
+            let value = input.value;
+
+            // Remove non-digit characters
+            value = value.replace(/[^\d]/g, '');
+
+            // Convert to number and cap max value
+            let numberValue = parseInt(value || "0", 10);
+
+            if (numberValue > maxValue) numberValue = maxValue;
+
+            input.value = numberValue;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const yearInput = document.getElementById('years');
+        const monthInput = document.getElementById('months');
+        const dayInput = document.getElementById('days');
+
+        preventInvalidInput(yearInput, 120);
+        preventInvalidInput(monthInput, 11);
+        preventInvalidInput(dayInput, 31);
+    });
 
 
 
@@ -2613,7 +2645,7 @@ function closepatientConfirmModal() {
         position: absolute;
         z-index: 1000;
         width: 300px;
-        margin-top: 120px;
+        margin-top: 180px;
         margin-left: 185px;
 
 
@@ -3246,7 +3278,6 @@ function closepatientConfirmModal() {
 
                         <div style="display: flex; align-items: center; margin-top: 5px;">
                             <label class='form_label_sm'><b>Test Name</b></label>
-                            <!-- Using onchange event here to trigger the function when a valid value is selected -->
                             <input type="text" name="testname" class="input-text" id="testname" list="testlist" onchange="setDataToTable(this.value)" style="width: 100px"autocomplete="off">
                             <datalist id="testlist">
 

@@ -118,7 +118,7 @@ class PatientRegistrationController extends Controller
         $packageId = explode(':', Input::get('packageId', ''))[0];
         $labLid = $_SESSION['lid'];
 
-        $query = "SELECT c.name, a.tgid,c.price as testprice,c.testingtime
+        $query = "select c.name, a.tgid,c.price as testprice,c.testingtime
           FROM Testgroup_has_labpackages a
           JOIN labpackages b ON a.idlabpackages = b.idlabpackages
           JOIN Testgroup c ON a.tgid = c.tgid
@@ -219,6 +219,7 @@ class PatientRegistrationController extends Controller
     
     //     return Response::json($references);
     // }
+
     public function getRefCode()
     {
         $keyword = Input::get('keyword');
@@ -273,7 +274,8 @@ class PatientRegistrationController extends Controller
         $useruid = Input::get('userUID');
 
         $user = DB::table('user')->where('uid', $useruid)->first();
-         
+       $packageIdOnly = Input::get('packageIdOnly');
+
         $testData = Input::get('test_data');
         $refId = Input::get('ref'); 
         $refName = Input::get('refName'); 
@@ -337,11 +339,24 @@ class PatientRegistrationController extends Controller
             $paymentStatus = "Pending Due";
         }
 
+
+        if (!empty($testData) && is_array($testData) && count($testData) > 0) {
+            $firstSample = $testData[0]; // first record only
+
+            if (!empty($packageIdOnly) && !empty($firstSample['sampleNo'])) {
+                DB::table('invoice_has_labpackages')->insert([
+                    'pcid' => $packageIdOnly,
+                    'sno' => $firstSample['sampleNo'],
+                    'lab_lid' => $labLid
+                ]);
+            }
+        }
+
         // Inserting tests into lps and lps_has_test tables
         foreach ($testData as $index => $test) {
             // $fullSampleNo = $sampleNo . ($index < count($sampleSufArray) ? $sampleSufArray[$index] : '');
 
-
+            
             // Inserting lps tables
             $lpsId = DB::table('lps')->insertGetId([
                 'patient_pid' => $patientid,
@@ -362,6 +377,13 @@ class PatientRegistrationController extends Controller
                 'created_at' => $now,
                 'updated_at' => $now
             ]);
+
+                
+            
+
+
+
+            
 
              // Inserting invoice tables
              $cashier = DB::table('user')->where('uid', '=', $userUid)->first();
@@ -405,6 +427,9 @@ class PatientRegistrationController extends Controller
                 ]);
 
 
+          
+                //  $sampleNo = $test['sampleNo'];
+                    
 
                 // insert invoce_payments table
                 if ($paid > 0.0) {
@@ -497,7 +522,7 @@ class PatientRegistrationController extends Controller
                     'datainv' =>  $data_sampleNo . '###' . $date_sampleno
                 ]);
 
-
+        
 
 
         // return Response::json(['success' => true, 'message' => 'Patient details saved successfully.','datainv' => $getSampleNo."###".date('Y-m-d')]);
@@ -606,7 +631,27 @@ class PatientRegistrationController extends Controller
                  'd.did'
             )
             ->first();
-        
+
+
+
+            $packageData = DB::table('lps as a')
+                ->join('invoice_has_labpackages as c', 'a.sampleNo', '=', 'c.sno')
+                ->join('labpackages as b', 'b.idlabpackages', '=', 'c.pcid')
+                ->where('a.date', $date)
+                ->where('a.Lab_lid',  $_SESSION['lid'])
+                ->where('a.sampleNo', '=', $sampleNo)
+                ->select(
+                    'b.name',
+                    'a.date',
+                    'a.sampleNo',
+                    'b.idlabpackages'
+                    
+                )
+                ->first();
+
+            if (!$packageData) {
+                $packageData = (object) ['name' => '']; 
+            }
         
         // Collect all lps IDs that belong to this sampleNo, date, and patient
         $filteredLpsIds = array();
@@ -656,7 +701,8 @@ class PatientRegistrationController extends Controller
                 'tests'   => $testData,
                 'invoice' => $invoiceData,
                 'lpsRecords' => $lpsRecords,
-                'invoicePayments' => $invoicePayments
+                'invoicePayments' => $invoicePayments,
+                'package' => $packageData
                 
             ]
         ]);
@@ -1119,7 +1165,8 @@ class PatientRegistrationController extends Controller
                     'fname' => Input::get('fname'),
                     'lname' => Input::get('lname'),
                     'tpno' => Input::get('tpno'),
-                    'address' => Input::get('address')
+                    'address' => Input::get('address'),
+                    'nic' => Input::get('nic')
                 ]);
         }
 

@@ -172,9 +172,10 @@ foreach ($result_get_invoiceData as $invoice){
         </tr>
         <tr>
             <td style="text-align: left;font-size: 18px;">
-                Age: <?php echo $age; ?> Years
+                Age: <?php echo $age; ?> Years <?php echo $months; ?> Months <?php echo $days; ?> Days
                 <span style="margin-left: 20px;font-size: 18px;">Gender: <?php echo $gender_data; ?></span>
             </td>
+
 
           
         </tr>
