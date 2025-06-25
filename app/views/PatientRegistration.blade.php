@@ -17,21 +17,102 @@ Add New Patient
 <script>
 
     $(document).ready(function () {
-        window.scrollTo(0, 85);
-        
-        const today = new Date().toISOString().split('T')[0];
-        $('#ser_date').val(today);
-        $('#patientDate').val(today);
-        const params = new URLSearchParams(window.location.search);
+            window.scrollTo(0, 85);
+            
+            const today = new Date().toISOString().split('T')[0];
+            $('#ser_date').val(today);
+            $('#patientDate').val(today);
+            const params = new URLSearchParams(window.location.search);
 
-        const sampleNo = params.get('sampleNo');
-        const date = params.get('date');
+            const sampleNo = params.get('sampleNo');
+            const date = params.get('date');
 
-        if (sampleNo) {
-            document.getElementById('sampleNo').value = sampleNo;
-            view_selected_patient(sampleNo, date);
+            if (sampleNo) {
+                document.getElementById('sampleNo').value = sampleNo;
+                view_selected_patient(sampleNo, date);
 
-              // Barcode Privilage checking
+                // Barcode Privilage checking
+                $.ajax({
+                    url: '/barcode-feature-checking',
+                    type: 'GET',
+                    success: function (response) {
+                        console.log('AJAX response received:', response);
+
+                        if (response.hasFeature) {
+                            $('#print_barcode').show();
+                            $('#group_barcode').show();
+                            $('#test_wise_bcode').show();
+                            $('#remove_barcode').show();
+                            $('#rep_chkboxlbl').show();
+                            $('#rep_chkbox').show();
+                        
+
+                            // Log display after showing
+                            console.log('Buttons shown based on feature present');
+                            ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode','rep_chkbox','rep_chkboxlbl'].forEach(id => {
+                                console.log(id + ':', $('#' + id).css('display'));
+                            });
+                        } else {
+                            console.log('Feature not present; buttons remain hidden');
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('AJAX error:', xhr.status, xhr.statusText);
+                        if (xhr.status === 401) {
+                            alert('Session expired. Please log in again.');
+                        }
+                    }
+                });
+
+            //  reportnig method Privilage checking
+            
+
+                    
+
+                //  patientData privilage checking
+                $.ajax({
+                    url: '/patientDetailsEditing-feature-checking',
+                    type: 'GET',
+                    success: function (response) {
+                        console.log('AJAX response received:', response);
+
+                        if (response.hasPdetailsUpdateFeature) {
+                            $('.updatebtntd').show(); 
+                            console.log('Buttons and checkbox shown based on feature present');
+                        } else {
+                            $('.updatebtntd').hide(); 
+                            console.log('Feature not present; buttons and checkbox remain hidden');
+                        }
+
+                        
+                        console.log('updatebtntd:', $('.updatebtntd').css('display'));
+                    },
+                    error: function (xhr) {
+                        console.error('AJAX error:', xhr.status, xhr.statusText);
+                        if (xhr.status === 401) {
+                            alert('Session expired. Please log in again.');
+                        }
+                    }
+                });
+            } else {
+                loadcurrentSampleNo();
+                
+            }
+
+            if (date) {
+                document.getElementById('selected_date').value = date;
+            }
+
+            load_test();
+
+            // AJAX call to check barcode feature
+        // Check if all buttons are initially hidden
+            console.log('Initial display states:');
+            ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode'].forEach(id => {
+                console.log(id + ':', $('#' + id).css('display'));
+            });
+
+            // Barcode Privilage checking
             $.ajax({
                 url: '/barcode-feature-checking',
                 type: 'GET',
@@ -64,26 +145,29 @@ Add New Patient
                 }
             });
 
-        //  reportnig method Privilage checking
-             $.ajax({
-                url: '/reportnig-feature-checking',
+       
+
+
+
+
+
+
+            $('#smstd').hide();
+            $('#emailtd').hide();
+            $('#whatsapptd').hide();
+
+            $.ajax({
+                url: '/reporting-feature-checking',
                 type: 'GET',
                 success: function (response) {
                     console.log('AJAX response received:', response);
-
                     if (response.hasFeature) {
                         $('#smstd').show();
-                        $('#emailtd').show();
-                        $('#whatsapptd').show();
-
-
                         // Log display after showing
                         console.log('Buttons shown based on feature present');
                         ['sms', 'email', 'whatsapp'].forEach(id => {
                             console.log(id + ':', $('#' + id).css('display'));
                         });
-                    } else {
-                        console.log('Feature not present; buttons remain hidden');
                     }
                 },
                 error: function (xhr) {
@@ -93,23 +177,23 @@ Add New Patient
                     }
                 }
             });
-              //  patientData privilage checking
-               $.ajax({
-                url: '/patientDetailsEditing-feature-checking',
+
+
+            
+
+            $.ajax({
+                url: '/email-feature-checking',
                 type: 'GET',
                 success: function (response) {
                     console.log('AJAX response received:', response);
-
-                    if (response.hasPdetailsUpdateFeature) {
-                        $('.updatebtntd').show(); 
-                        console.log('Buttons and checkbox shown based on feature present');
-                    } else {
-                        $('.updatebtntd').hide(); 
-                        console.log('Feature not present; buttons and checkbox remain hidden');
+                    if (response.hasEmailFeature) {
+                        $('#emailtd').show();
+                        // Log display after showing
+                        console.log('Buttons shown based on feature present');
+                        ['sms', 'email', 'whatsapp'].forEach(id => {
+                            console.log(id + ':', $('#' + id).css('display'));
+                        });
                     }
-
-                    
-                    console.log('updatebtntd:', $('.updatebtntd').css('display'));
                 },
                 error: function (xhr) {
                     console.error('AJAX error:', xhr.status, xhr.statusText);
@@ -118,86 +202,33 @@ Add New Patient
                     }
                 }
             });
-        } else {
-            loadcurrentSampleNo();
-            
-        }
 
-        if (date) {
-            document.getElementById('selected_date').value = date;
-        }
 
-        load_test();
 
-        // AJAX call to check barcode feature
-    // Check if all buttons are initially hidden
-        console.log('Initial display states:');
-        ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode'].forEach(id => {
-            console.log(id + ':', $('#' + id).css('display'));
-        });
-
-        // Barcode Privilage checking
-        $.ajax({
-            url: '/barcode-feature-checking',
-            type: 'GET',
-            success: function (response) {
-                console.log('AJAX response received:', response);
-
-                if (response.hasFeature) {
-                    $('#print_barcode').show();
-                    $('#group_barcode').show();
-                    $('#test_wise_bcode').show();
-                    $('#remove_barcode').show();
-                    $('#rep_chkboxlbl').show();
-                    $('#rep_chkbox').show();
-                   
-
-                    // Log display after showing
-                    console.log('Buttons shown based on feature present');
-                    ['print_barcode', 'group_barcode', 'test_wise_bcode', 'remove_barcode','rep_chkbox','rep_chkboxlbl'].forEach(id => {
-                        console.log(id + ':', $('#' + id).css('display'));
-                    });
-                } else {
-                    console.log('Feature not present; buttons remain hidden');
+            $.ajax({
+                url: '/whatsapp-feature-checking',
+                type: 'GET',
+                success: function (response) {
+                    console.log('AJAX response received:', response);
+                    if (response.hasWhatsappFeature) {
+                        $('#whatsapptd').show();
+                        // Log display after showing
+                        console.log('Buttons shown based on feature present');
+                        ['sms', 'email', 'whatsapp'].forEach(id => {
+                            console.log(id + ':', $('#' + id).css('display'));
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    console.error('AJAX error:', xhr.status, xhr.statusText);
+                    if (xhr.status === 401) {
+                        alert('Session expired. Please log in again.');
+                    }
                 }
-            },
-            error: function (xhr) {
-                console.error('AJAX error:', xhr.status, xhr.statusText);
-                if (xhr.status === 401) {
-                    alert('Session expired. Please log in again.');
-                }
-            }
-        });
-
-        //  reportnig method Privilage checking
-             $.ajax({
-            url: '/reportnig-feature-checking',
-            type: 'GET',
-            success: function (response) {
-                console.log('AJAX response received:', response);
-
-                if (response.hasFeature) {
-                    $('#smstd').show();
-                    $('#emailtd').show();
-                    $('#whatsapptd').show();
+            });
 
 
-                    // Log display after showing
-                    console.log('Buttons shown based on feature present');
-                    ['sms', 'email', 'whatsapp'].forEach(id => {
-                        console.log(id + ':', $('#' + id).css('display'));
-                    });
-                } else {
-                    console.log('Feature not present; buttons remain hidden');
-                }
-            },
-            error: function (xhr) {
-                console.error('AJAX error:', xhr.status, xhr.statusText);
-                if (xhr.status === 401) {
-                    alert('Session expired. Please log in again.');
-                }
-            }
-        });
+
 
 
         //  patientData privilage checking
@@ -236,6 +267,19 @@ Add New Patient
             $('#update_payment').prop('disabled', !hasValue);
             console.log('Invoice field check:', hasValue ? 'has value' : 'empty');
         }
+
+
+            $('#Ser_tpno').on('input', function() {
+            var Usertpno = $(this).val().trim();
+            
+            // Auto-search only when exactly 10 digits are entered
+            if (Usertpno.length === 10) {
+                performSearch(Usertpno, $('#any_filter').is(':checked'));
+                lastSearchedTpno = Usertpno;
+            } else if (Usertpno.length < 10) {
+                $('#tpno_suggestions').hide();
+            }
+        });
     });
 
 
@@ -943,7 +987,7 @@ Add New Patient
                     const lpsRecords = response.data.lpsRecords;
                     const firstRecord = lpsRecords[0] || {};
 
-console.log("Package Data:", packageData);
+            // console.log("Package Data:", packageData);
 
                     // Populate patient fields
                     $('#initial').val(patientData.initials || ''); // Use empty string if null
@@ -1409,49 +1453,63 @@ console.log("Package Data:", packageData);
         }
     });
 
-    function searchUserRecords()
-    {
-        var Usertpno = $('#Ser_tpno').val();
-        var anyFilter = $('#any_filter').is(':checked') ? 1 : 0;
+  
 
-        if ((anyFilter && Usertpno.length < 3) || (!anyFilter && Usertpno.length < 10)) {
+    var lastSearchedTpno = '';
+
+    function searchUserRecords() {
+        var Usertpno = $('#Ser_tpno').val().trim();
+        var anyFilter = $('#any_filter').is(':checked');
+        
+        // Don't search if we just searched this same number
+        if (Usertpno === lastSearchedTpno) return;
+        
+        // Search conditions:
+        // 1. If exactly 10 digits (regardless of anyFilter status)
+        // 2. OR if anyFilter is checked AND length >= 3 AND Enter was pressed
+        if (Usertpno.length === 10 || (anyFilter && Usertpno.length >= 3 && event && event.keyCode === 13)) {
+            performSearch(Usertpno, anyFilter);
+            lastSearchedTpno = Usertpno;
+        } else {
             $('#tpno_suggestions').hide();
-            return;
+        }
+    }
+
+
+        function performSearch(Usertpno, anyFilter) {
+            $.ajax({
+                type: "GET",
+                url: "/getAllUsers",
+                data: {
+                    Usertpno: Usertpno,
+                    any_filter: anyFilter ? 1 : 0
+                },
+                success: function(data) {
+                    var suggestionsHtml = '';
+                    if (data.length > 0) {
+                        $.each(data, function(index, user) {
+                            suggestionsHtml += '<div class="suggestion-item" onclick="selectTP(\'' + user.tpno + '\', \'' + user.uid + '\')">' +
+                                    user.tpno + ' - ' + user.fname + ' ' + user.lname + '</div>';
+                        });
+                        $('#tpno_suggestions').html(suggestionsHtml).show();
+                    } else {
+                        $('#tpno_suggestions').hide();
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.statusText);
+                }
+            });
         }
 
-        $.ajax({
-            type: "GET",
-            url: "/getAllUsers",
-            data: {
-                Usertpno: Usertpno,
-                any_filter: anyFilter
-            },
-            success: function (data) {
-                var suggestionsHtml = '';
-                if (data.length > 0) {
 
-                    $.each(data, function (index, user) {
-                        suggestionsHtml += '<div class="suggestion-item" onclick="selectTP(\'' + user.tpno + '\', \'' + user.uid + '\')">' +
-                                user.tpno + ' - ' + user.fname + ' ' + user.lname + '</div>';
-                    });
-
-                    $('#tpno_suggestions').html(suggestionsHtml).show();
-                } else {
-                    $('#tpno_suggestions').hide();
-                }
-            },
-            error: function (xhr) {
-                console.error('Error:', xhr.statusText);
-            }
-        });
-    }
 
     function handleKeyPress(event) {
-    
-    if (event.keyCode === 13 || event.which === 13) {
-        searchUserRecords();
-        return false; 
-    }
+        if (event.keyCode === 13 || event.which === 13) {
+            event.preventDefault(); // Prevent form submission
+            searchUserRecords();
+            return false;
+        }
     }
 
     function selectTP(tpno, userID)
@@ -1517,38 +1575,7 @@ console.log("Package Data:", packageData);
         });
     }
 
-    // function searchRefferenceCode()
-    // {
-    //     var refCode = $('#refcode').val();
-
-    //     if (refCode.length < 1) {
-    //         $('#refcode_suggestions').hide();
-    //         return;
-    //     }
-
-    //     $.ajax({
-    //         type: "GET",
-    //         url: "/getRefCode",
-    //         data: {
-    //             keyword: refCode
-    //         },
-    //         success: function (data) {
-    //             var suggestionsHtml = '';
-    //             if (data.length > 0) {
-    //                 $.each(data, function (index, ref) {
-    //                     suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\')">' +
-    //                             ref.code + ' - ' + ref.name + '</div>';
-    //                 });
-    //                 $('#refcode_suggestions').html(suggestionsHtml).show();
-    //             } else {
-    //                 $('#refcode_suggestions').hide();
-    //             }
-    //         },
-    //         error: function (xhr) {
-    //             console.error('Error:', xhr.statusText);
-    //         }
-    //     });
-    // }
+    
 
     function searchRefferenceCode() {
         var refCode = $('#refcode').val();
@@ -1724,17 +1751,19 @@ console.log("Package Data:", packageData);
     }
 
 
-        //sample number edit true false
-    document.addEventListener("DOMContentLoaded", function () {
-        var checkbox = document.getElementById('edit');
-        var sampleInput = document.getElementById('sampleNo');
+    //sample number edit true false
+    
+    document.addEventListener("DOMContentLoaded", function () 
+    {
+    var checkbox = document.getElementById('edit');
+    var sampleInput = document.getElementById('sampleNo');
 
         checkbox.addEventListener('change', function () {
             sampleInput.disabled = !checkbox.checked;
         });
     });
 
-        //When Payment method split and voucher payment feild disable function
+    //When Payment method split and voucher payment feild disable function
 
     function togglePaidField() {
         const paidField = document.getElementById('paid');
@@ -2174,7 +2203,7 @@ console.log("Package Data:", packageData);
 function loadPatient(direction) {
     var currentSampleNo = $('#sampleNo').val();
     var lab_lid = $('#lab_lid').val();
-    var date = $('#patientDate').val();
+    var date = $('#ser_date').val();
 
     $.ajax({
         url: '/getPatientDetailsBySample',
@@ -2183,7 +2212,7 @@ function loadPatient(direction) {
             sampleNO: currentSampleNo,
             direction: direction,
             lab_lid: lab_lid,
-            patientDate: date
+            searachDate: date
         },
         success: function(response) {
             if (response.success) {
@@ -2416,8 +2445,8 @@ $('#btnFront').on('click', function() {
             success: function(response) {
                 if (response.success) {
                     alert("Barcode status updated to 'pending' successfully!");
-                    // Optionally, update the UI (e.g., change status column text)
-                    // selectedRow.find('td.status-column').text('pending'); // Adjust if you have a status column
+                  
+                    // selectedRow.find('td.status-column').text('pending'); 
                 } else {
                     alert("Failed to update status: " + response.message);
                 }

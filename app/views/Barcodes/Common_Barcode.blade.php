@@ -256,7 +256,16 @@ if ($rep_barcode == "1") {
                 </tr>
             </table>
             <script>
-                JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno) ?>", {
+                // JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno) ?>", {
+                //     format: "CODE128",
+                //     displayValue: false,
+                //     lineColor: "#000",
+                //     width: 3,
+                //     height: 60,
+                //     margin: 0,
+                // });
+
+                JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno . $specialChar . $repeatBarcode) ?>", {
                     format: "CODE128",
                     displayValue: false,
                     lineColor: "#000",
@@ -264,7 +273,7 @@ if ($rep_barcode == "1") {
                     height: 60,
                     margin: 0,
                 });
-            </script>
+           </script>
             <?php
             // Update lps table status to 'barcorded'
            DB::table('lps')
@@ -369,6 +378,7 @@ foreach ($groupedTests as $scid => $tgids) {
                     </div>
                 </td>
             </tr>
+            
             <script>
                 JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($barcodeCodeGEN) ?>", {
                     format: "CODE128",
@@ -379,6 +389,9 @@ foreach ($groupedTests as $scid => $tgids) {
                     margin: 0,
                     
                 });
+
+            
+
             </script>
             <?php
         } else {
@@ -425,6 +438,7 @@ foreach ($groupedTests as $scid => $tgids) {
                 </div>
             </td>
         </tr>
+
         <script>
             JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($barcodeCodeGEN) ?>", {
                 format: "CODE128",
@@ -434,7 +448,9 @@ foreach ($groupedTests as $scid => $tgids) {
                 height: 60,
                 margin: 0,
             });
-        </script>
+             
+           
+                    </script>
         <?php
     }
 }

@@ -303,7 +303,9 @@ Route::get('/getRefName', 'PatientRegistrationController@getRefName');
 Route::get('getTestParametersByTGID', 'PatientRegistrationController@getTestParametersByTGID');
 Route::post('remove-barcode', 'PatientRegistrationController@removeBarcode');
 Route::get('/barcode-feature-checking', 'PatientRegistrationController@barcodeFeatureChecking');
-Route::get('/reportnig-feature-checking', 'PatientRegistrationController@reportingFeatureChecking');
+Route::get('/reporting-feature-checking', 'PatientRegistrationController@reportingFeatureChecking');
+Route::get('/email-feature-checking', 'PatientRegistrationController@emailFeatureChecking');
+Route::get('/whatsapp-feature-checking', 'PatientRegistrationController@whatsappFeatureChecking');
 Route::get('/patientDetailsEditing-feature-checking', 'PatientRegistrationController@patientDetailsEditingFeatureChecking');
 
 

@@ -949,7 +949,7 @@ class PatientRegistrationController extends Controller
         $sampleNO = Input::get('sampleNO');
         $direction = Input::get('direction'); 
         $labLid = $_SESSION['lid'];
-        $date = Input::get('patientDate');
+        $date = Input::get('searachDate');
         
        
         $lpsQuery = DB::table('lps as a')
@@ -1280,12 +1280,80 @@ class PatientRegistrationController extends Controller
 
         $reportFeature = DB::table('Lab_features')
             ->where('Lab_lid', '=', $labLid)
-            ->where('features_idfeatures', '=', 18)
+            ->where('features_idfeatures', '=', 9)
             ->exists();
 
         return Response::json(['hasFeature' => $reportFeature]);
     }
 
+
+
+     public function emailFeatureChecking()
+    {
+        if (!isset($_SESSION['lid'])) {
+            return Response::json(['error' => 'Session expired.'], 401);
+        }
+
+        $labLid = $_SESSION['lid']; 
+
+        $emailFeature = DB::table('Lab_features')
+            ->where('Lab_lid', '=', $labLid)
+            ->where('features_idfeatures', '=', 8)
+            ->exists();
+
+        return Response::json(['hasEmailFeature' => $emailFeature]);
+    }
+
+
+
+
+
+     public function whatsappFeatureChecking()
+    {
+        if (!isset($_SESSION['lid'])) {
+            return Response::json(['error' => 'Session expired.'], 401);
+        }
+
+        $labLid = $_SESSION['lid']; 
+
+        $whatsappFeature = DB::table('Lab_features')
+            ->where('Lab_lid', '=', $labLid)
+            ->where('features_idfeatures', '=', 21)
+            ->exists();
+
+        return Response::json(['hasWhatsappFeature' => $whatsappFeature]);
+    }
+
+    
+//    public function reportingFeatureChecking()
+//     {
+//         if (!isset($_SESSION['lid'])) {
+//             return Response::json(['error' => 'Session expired.'], 401);
+//         }
+
+//         $labLid = $_SESSION['lid']; 
+
+//         $hasEmail = DB::table('Lab_features')
+//             ->where('Lab_lid', $labLid)
+//             ->where('features_idfeatures', 8)
+//             ->exists();
+
+//         $hasSMS = DB::table('Lab_features')
+//             ->where('Lab_lid', $labLid)
+//             ->where('features_idfeatures', 9)
+//             ->exists();
+
+//         $hasWhatsapp = DB::table('Lab_features')
+//             ->where('Lab_lid', $labLid)
+//             ->where('features_idfeatures', 21)
+//             ->exists();
+
+//         return Response::json([
+//             'hasEmail' => $hasEmail,
+//             'hasSMS' => $hasSMS,
+//             'hasWhatsapp' => $hasWhatsapp
+//         ]);
+//     }
    
 
     public function patientDetailsEditingFeatureChecking()
