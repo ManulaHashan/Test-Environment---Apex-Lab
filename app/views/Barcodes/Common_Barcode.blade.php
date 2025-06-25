@@ -3,6 +3,7 @@
 <head>
     <title>Barcode Print</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    
     <style>
         @media print {
             body {
@@ -117,16 +118,6 @@ $duplicateBarsetRow = DB::table('addpatientconfigs')
     ->select('duplicate_barset')
     ->first();
 
-// if ($duplicateBarsetRow && !empty($tgids)) {
-//     foreach ($tgids as $tgid) {
-//         if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
-//             $specialChar = $matches[1];
-//             echo $specialChar;
-            
-//             break;
-//         }
-//     }
-// }
 ?>
 
 
@@ -179,7 +170,7 @@ foreach ($sample_containerName as $sample_containerName) {
 }
 
 if ($rep_barcode == "1") {
-   $repeatBarcode = " - R";
+   $repeatBarcode = "-R";
 }else{
    $repeatBarcode = "";
 }
@@ -189,99 +180,112 @@ if ($rep_barcode == "1") {
 <?php if ($isGroup == "false"): ?>
     <!-- Single Barcode -->
 
-    <?php 
+ <?php
+if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
+    $specialChar = $matches[1];
 
+    // echo "Special Char: " . $specialChar;
+    // echo "<br>".$rep_barcode;
+    $barcodeValue = "{$sno}-{$specialChar}{$repeatBarcode}";
+    ?>
 
-        if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
-            $specialChar = $matches[1];?>
+    <table>
+        <tr class="barcode-row">
+            <td>
+                <div class="barcode-label">
+                    <div class="barcode-top">
+                        <div class="barcode-left"><?= htmlspecialchars($barcodeValue) ?></div>
+                        <div class="barcode-right"><?= $container_Name ?></div>
+                    </div>
+                    <canvas id="barcodeCanvas_single"></canvas>
+                    <div class="hr-wrapper">
+                        <hr class="solid">
+                        <div class="hr-arrow">▶</div>
+                    </div>
 
-            <table>
-                <tr class="barcode-row">
-                    <td>
-                        <div class="barcode-label">
-                            <div class="barcode-top">
-                                <div class="barcode-left"><?= htmlspecialchars($sno) . " - " . $specialChar . "" .$repeatBarcode ?></div>
-                                <div class="barcode-right"><?= $container_Name ?></div>
-                            </div>
-                            <canvas id="barcodeCanvas_single"></canvas>
-                            <div class="hr-wrapper">
-                                <hr class="solid">
-                                <div class="hr-arrow">▶</div>
-                            </div>
-
-                            <div class="barcode-info">
-                                <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
-                                <div><?= htmlspecialchars($testGroupName) ?></div>
-                                <div class="barcode-footer">
-                                     <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
-                                    <span><?= htmlspecialchars($arival_time) ?></span>
-                                    <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
-                                </div>
-                            </div>
+                    <div class="barcode-info">
+                        <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
+                        <div><?= htmlspecialchars($testGroupName) ?></div>
+                        <div class="barcode-footer">
+                            <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
+                            <span><?= htmlspecialchars($arival_time) ?></span>
+                            <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
                         </div>
-                    </td>
-                </tr>
-            </table><?php 
-            DB::table('lps')
-                ->where('sampleNo','like', $sno . '%')
-                ->where('date', $date)
-                ->where('Testgroup_tgid', $tgid)
-                ->update(['status' => 'barcorded']);  
-        }
-     else { ?>
-            <table>
-                <tr class="barcode-row">
-                    <td>
-                        <div class="barcode-label">
-                            <div class="barcode-top">
-                                <div class="barcode-left"><?= htmlspecialchars($sno) . "" .$repeatBarcode ?></div>
-                                <div class="barcode-right"><?= $container_Name ?></div>
-                            </div>
-                            <canvas id="barcodeCanvas_single"></canvas>
-                            <div class="hr-wrapper">
-                                <hr class="solid">
-                                <div class="hr-arrow">▶</div>
-                            </div>
-                            <div class="barcode-info">
-                                <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
-                                <div><?= htmlspecialchars($testGroupName) ?></div>
-                                <div class="barcode-footer">
-                                     <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
-                                    <span><?= htmlspecialchars($arival_time) ?></span>
-                                    <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-            <script>
-                // JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno) ?>", {
-                //     format: "CODE128",
-                //     displayValue: false,
-                //     lineColor: "#000",
-                //     width: 3,
-                //     height: 60,
-                //     margin: 0,
-                // });
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 
-                JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno . $specialChar . $repeatBarcode) ?>", {
-                    format: "CODE128",
-                    displayValue: false,
-                    lineColor: "#000",
-                    width: 3,
-                    height: 60,
-                    margin: 0,
-                });
-           </script>
-            <?php
-            // Update lps table status to 'barcorded'
-           DB::table('lps')
-                ->where('sampleNo','like', $sno . '%')
-                ->where('date', $date)
-                ->where('Testgroup_tgid', $tgid)
-                ->update(['status' => 'barcorded']);  
-        } ?>
+    <script>
+        JsBarcode("#barcodeCanvas_single", "<?= addslashes($barcodeValue) ?>", {
+            format: "CODE128",
+            displayValue: false,
+            lineColor: "#000",
+            width: 3,
+            height: 60,
+            margin: 0,
+        });
+    </script>
+
+    <?php
+    DB::table('lps')
+        ->where('sampleNo', 'like', $sno . '%')
+        ->where('date', $date)
+        ->where('Testgroup_tgid', $tgid)
+        ->update(['status' => 'barcorded']);
+} else {
+    $barcodeValue = "{$sno}{$repeatBarcode}";
+    ?>
+
+    <table>
+        <tr class="barcode-row">
+            <td>
+                <div class="barcode-label">
+                    <div class="barcode-top">
+                        <div class="barcode-left"><?= htmlspecialchars($barcodeValue) ?></div>
+                        <div class="barcode-right"><?= $container_Name ?></div>
+                    </div>
+                    <canvas id="barcodeCanvas_single"></canvas>
+                    <div class="hr-wrapper">
+                        <hr class="solid">
+                        <div class="hr-arrow">▶</div>
+                    </div>
+
+                    <div class="barcode-info">
+                        <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
+                        <div><?= htmlspecialchars($testGroupName) ?></div>
+                        <div class="barcode-footer">
+                            <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
+                            <span><?= htmlspecialchars($arival_time) ?></span>
+                            <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        JsBarcode("#barcodeCanvas_single", "<?= addslashes($barcodeValue) ?>", {
+            format: "CODE128",
+            displayValue: false,
+            lineColor: "#000",
+            width: 3,
+            height: 60,
+            margin: 0,
+        });
+    </script>
+
+    <?php
+    DB::table('lps')
+        ->where('sampleNo', 'like', $sno . '%')
+        ->where('date', $date)
+        ->where('Testgroup_tgid', $tgid)
+        ->update(['status' => 'barcorded']);
+}
+?>
+
 
 
 
@@ -351,13 +355,13 @@ foreach ($groupedTests as $scid => $tgids) {
             // special barcode
             $barcodeID = "barcodeCanvas_" . $scid . "_special_" . $tgid;
             $barcodeCode = $sno . '-' . $duplicateMap[$tgid] .'-' . $sample_container->sample;
-            $barcodeCodeGEN = $sno;            
+            $barcodeCodeGEN =  "{$sno}-{$duplicateMap[$tgid]}{$repeatBarcode}";            
             ?>
             <tr class="barcode-row">
                 <td>
                     <div class="barcode-label">
                         <div class="barcode-top">
-                            <div class="barcode-left"><?= htmlspecialchars($sno) ." - " . $duplicateMap[$tgid] . "" .$repeatBarcode   ?></div>
+                            <div class="barcode-left"><?= htmlspecialchars($sno) ."-" . $duplicateMap[$tgid] . "" .$repeatBarcode   ?></div>
                             <div class="barcode-right"><?=$sample_container->sample ?></div>
                         </div>
                         <canvas id="<?= htmlspecialchars($barcodeID) ?>"></canvas>
@@ -378,7 +382,6 @@ foreach ($groupedTests as $scid => $tgids) {
                     </div>
                 </td>
             </tr>
-            
             <script>
                 JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($barcodeCodeGEN) ?>", {
                     format: "CODE128",
@@ -389,9 +392,6 @@ foreach ($groupedTests as $scid => $tgids) {
                     margin: 0,
                     
                 });
-
-            
-
             </script>
             <?php
         } else {
@@ -411,7 +411,8 @@ foreach ($groupedTests as $scid => $tgids) {
         $testsList = implode(', ', $normalTests);
         $barcodeID = "barcodeCanvas_" . $scid . "_normal";
         $barcodeCode = $sno . '-' . $sample_container->sample;
-        $barcodeCodeGEN = $sno;
+        $barcodeCodeGEN = "{$sno}{$repeatBarcode}";
+        
         ?>
         <tr class="barcode-row">
             <td>
@@ -438,7 +439,6 @@ foreach ($groupedTests as $scid => $tgids) {
                 </div>
             </td>
         </tr>
-
         <script>
             JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($barcodeCodeGEN) ?>", {
                 format: "CODE128",
@@ -448,9 +448,7 @@ foreach ($groupedTests as $scid => $tgids) {
                 height: 60,
                 margin: 0,
             });
-             
-           
-                    </script>
+        </script>
         <?php
     }
 }

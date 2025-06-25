@@ -1939,7 +1939,9 @@ Add New Patient
             }
 
             tgid = selectedRow.find('td').eq(0).text();
-            testGroupName = selectedRow.find('td').eq(1).text();
+            // testGroupName = selectedRow.find('td').eq(1).text();
+            testGroupName = selectedRow.find('td').eq(1).text().replace(/&/g, 'and');
+
         } 
 
         
