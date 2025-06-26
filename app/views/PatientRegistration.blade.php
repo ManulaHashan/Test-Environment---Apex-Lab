@@ -780,6 +780,7 @@ Add New Patient
         var refcode = $('#refcode').val();
         var refName  = $('#refDropdown').val();
         var ref = $('#ref').val();
+
         var testname = $('#testname').val();
         var pkgname = $('#packageDropdown').val(); // Change this line to get the value from packageDropdown
         var packageIdOnly = pkgname ? pkgname.split(":")[0] : null;
@@ -990,7 +991,7 @@ Add New Patient
             // console.log("Package Data:", packageData);
 
                     // Populate patient fields
-                    $('#initial').val(patientData.initials || ''); // Use empty string if null
+                    $('#initial').val(patientData.initials || ''); 
                     $('#fname').val(patientData.fname || '');
                     $('#lname').val(patientData.lname || '');
                     $('#dob').val(patientData.dob || '');
@@ -1105,11 +1106,11 @@ Add New Patient
                         let urgentDisplay = '';
                         let isChecked = true;
 
-                        // Check if the test's lpsid is marked as urgent in lpsRecords
+         
                         const matchingLps = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.urgent_sample == 1);
                         const barcodedcheck = lpsRecords.find(lps => lps.lpsid == test.lpsid && lps.status == 'barcorded');
 
-                        // Set row style to pink if either condition is met
+                      
                         if (barcodedcheck) {
                             rowStyle = 'style="background-color: pink;"';
                             isChecked = false;
@@ -2106,6 +2107,7 @@ Add New Patient
                     var data = response.data;
                     $('#refDropdown').val(data.refby);
                     $('#refcode').val(data.code);
+                    $('#ref').val(data.code);
                     $('#initial').val(data.initials);
                     $('#fname').val(data.fname);
                     $('#lname').val(data.lname);
@@ -2426,29 +2428,32 @@ $('#btnFront').on('click', function() {
             return;
         }
 
-        // Assuming sampleNo and date are in specific columns of the selected row
+        // Assuming sampleNo and date are retrieved from inputs
         var date = $('#patientDate').val();
         var sno = $('#sampleNo').val();
 
-        if (!sno || !date) {
-            alert("Sample number or date is missing!");
+        // 👉 Get the value in 1st column (index 0) of the selected row
+        var tgid = selectedRow.find('td').eq(0).text().trim();
+
+        if (!sno || !date || !tgid) {
+            alert("Sample number, date, or TGID is missing!");
             return;
         }
 
-        // AJAX request to update status
+        // AJAX request to backend
         $.ajax({
-            url: '/remove-barcode', // Route to handle the update
+            url: '/remove-barcode',
             type: 'POST',
             data: {
                 sampleNo: sno,
-                date: date
-            
+                date: date,
+                tgid: tgid
             },
             success: function(response) {
                 if (response.success) {
                     alert("Barcode status updated to 'pending' successfully!");
-                  
-                    // selectedRow.find('td.status-column').text('pending'); 
+                    // Optionally update the row's status visually
+                    // selectedRow.find('td.status-column').text('pending');
                 } else {
                     alert("Failed to update status: " + response.message);
                 }

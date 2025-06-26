@@ -280,7 +280,7 @@ class PatientRegistrationController extends Controller
         $refId = Input::get('ref'); 
         $refName = Input::get('refName'); 
 
-
+        
         $reference = DB::table('refference')->where('idref', $refId)->first();
         $refName = $reference ? $reference->name : null;
         $inv_remark = Input::get('inv_remark');
@@ -518,7 +518,8 @@ class PatientRegistrationController extends Controller
                 
                 return Response::json([
                     'success' => true,
-                    'message' => 'Patient details saved successfully.',
+                    // 'message' => 'Patient details saved successfully'.$refId."-".$refName,
+                    'message' => 'Patient details saved successfully',
                     'datainv' =>  $data_sampleNo . '###' . $date_sampleno
                 ]);
 
