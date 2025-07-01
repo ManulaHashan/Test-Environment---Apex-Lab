@@ -180,16 +180,16 @@ Patient History View
         <div style="display: flex; align-items: center; gap: 15px; margin-top: 5px; flex-wrap: wrap;">
             <input type="hidden" id="invoiceId" value="">
             <label style="font-size: 16px; font-weight: bold;">Name:</label>
-            <label id="patirnt_name" style="font-size: 16px; font-style: timesnewramon;"></label>
+            <label id="patirnt_name" style="font-size: 16px; font-family: Times New Roman, Times, serif;"></label>
 
             <label style="font-size: 16px; font-weight: bold; margin-left: 20px;">PID:</label>
-            <label id="patirnt_pid" style="font-size: 16px;font-style: timesnewramon;"></label>
+            <label id="patirnt_pid" style="font-size: 16px;font-family: Times New Roman, Times, serif;"></label>
 
             <label style="font-size: 16px; font-weight: bold; margin-left: 20px;">Contact NO:</label>
-            <label id="patirnt_contact" style="font-size: 16px;"></label>
+            <label id="patirnt_contact" style="font-size: 16px;font-family: Times New Roman, Times, serif;"></label>
 
             <label style="font-size: 16px; font-weight: bold; margin-left: 20px;">Total Visits:</label>
-            <label id="tot_visit" style="font-size: 16px;"></label>
+            <label id="tot_visit" style="font-size: 16px;font-family: Times New Roman, Times, serif;"></label>
 
         </div>
         
