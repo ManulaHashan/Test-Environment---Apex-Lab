@@ -1957,7 +1957,7 @@ Add New Patient
             win.close();
              
              if (isGroup == true) {
-            // Apply pink color to all rows
+            
             $('#Branch_record_tbl tr').each(function () {
                 $(this).css('background-color', 'pink');
                 $(this).find('.barcode-checkbox').prop('checked', false);
