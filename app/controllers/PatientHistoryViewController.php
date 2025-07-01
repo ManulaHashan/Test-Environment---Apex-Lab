@@ -98,6 +98,7 @@ class PatientHistoryViewController extends Controller
             ->select(
                 'invoice.iid',
                 'lps.date',
+                'lps.sampleNo',
                 'lps.arivaltime',
                 'user.fname',
                 'user.mname',
@@ -122,6 +123,7 @@ class PatientHistoryViewController extends Controller
             foreach ($records as $row) {
                 $fullName = htmlspecialchars($row->fname . ' ' . $row->mname);
                 $output .= '<tr class="phistr" style="cursor:pointer;">';
+                $output .= '<td align="center">' . htmlspecialchars($row->sampleNo) . '</td>';
                 $output .= '<td align="center">' . htmlspecialchars($row->date) . '</td>';
                 $output .= '<td align="center">' . htmlspecialchars($row->arivaltime) . '</td>';
                 $output .= '<td align="left">' . $fullName . '</td>';

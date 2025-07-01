@@ -55,7 +55,7 @@ Patient History View
  $(document).ready(function () {
     // Handle row double click
     $('#patient_history_rec_tbl').on('dblclick', 'tr', function () {
-        var invoiceId = $(this).find('td').eq(6).text().trim(); // Get invoice ID from 7th column
+        var invoiceId = $(this).find('td').eq(7).text().trim(); // Get invoice ID from 7th column
 
         if (invoiceId) {
             var url = "/invoicePayments?iid=" + invoiceId;
