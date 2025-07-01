@@ -355,6 +355,7 @@ Route::get('/PatientHistoryView', function () {
     return View::make('PatientHistoryView');
 });
 
+Route::get('getAllPatientHistoryRecords', 'PatientHistoryViewController@getAllPatientHistoryRecords');
 
 
 

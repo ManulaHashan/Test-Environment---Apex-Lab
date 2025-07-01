@@ -1748,6 +1748,16 @@ Add New Patient
         window.location.href = '/viewinvoices';
     }
 
+    function goToViewPatientHistory() {
+        var invoiceId = $('#invoiceId').val();
+        if (invoiceId) {
+            sessionStorage.setItem('invoiceId', invoiceId);
+            window.location.href = '/PatientHistoryView';
+        } else {
+            alert("No invoice ID selected.");
+        }
+    }
+
 
     //sample number edit true false
     
@@ -3680,7 +3690,7 @@ Add New Patient
                                     </td>
                                     <td>
                                       
-
+                                        <input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" id="View_patient_history" value="View Patient History" onclick="goToViewPatientHistory()">
 
                                     </td>
                                     

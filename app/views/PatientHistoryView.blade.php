@@ -16,6 +16,43 @@ Patient History View
 <script>
 
 
+ $(function () {
+        var invoiceId = sessionStorage.getItem('invoiceId');
+        if (invoiceId) {
+            $('#invoiceId').val(invoiceId); 
+            loadRecordToPhistoryTable();    
+        }
+    });
+
+
+    
+    function loadRecordToPhistoryTable() {
+        var iid = $('#invoiceId').val(); // Get the value from the input field
+
+        if (!iid) {
+            alert("Invoice ID not set!");
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "getAllPatientHistoryRecords",
+            data: { iid: iid }, // Now dynamically sending it
+            success: function(tbl_records) {
+                $('#patient_history_rec_tbl').html(tbl_records);
+            },
+            error: function(xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
+                console.error('Error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+            }
+        });
+    }
+
 
 
     //*************************************************************************************************
@@ -90,6 +127,7 @@ Patient History View
                 <div style="flex: 0 0 70%; padding-right: 20px;">
                 </div>
                 
+                <input type="hidden" id="invoiceId" value="">
 
                 <div style="display: flex; align-items: center; margin-top: 5px;">
                     <label style="font-size: 16px; margin-left: 5px;"><b>Name: </b></label>
