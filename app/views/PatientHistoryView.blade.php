@@ -26,32 +26,68 @@ Patient History View
 
 
     
+    // function loadRecordToPhistoryTable() {
+    //     var iid = $('#invoiceId').val(); // Get the value from the input field
+
+    //     if (!iid) {
+    //         alert("Invoice ID not set!");
+    //         return;
+    //     }
+
+    //     $.ajax({
+    //         type: "GET",
+    //         url: "getAllPatientHistoryRecords",
+    //         data: { iid: iid }, // Now dynamically sending it
+    //         success: function(tbl_records) {
+    //             $('#patient_history_rec_tbl').html(tbl_records);
+    //         },
+    //         error: function(xhr, status, error) {
+    //             alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
+    //             console.error('Error details:', {
+    //                 status: xhr.status,
+    //                 statusText: xhr.statusText,
+    //                 responseText: xhr.responseText,
+    //                 error: error
+    //             });
+    //         }
+    //     });
+    // }
+
     function loadRecordToPhistoryTable() {
-        var iid = $('#invoiceId').val(); // Get the value from the input field
+    var iid = $('#invoiceId').val();
 
-        if (!iid) {
-            alert("Invoice ID not set!");
-            return;
-        }
-
-        $.ajax({
-            type: "GET",
-            url: "getAllPatientHistoryRecords",
-            data: { iid: iid }, // Now dynamically sending it
-            success: function(tbl_records) {
-                $('#patient_history_rec_tbl').html(tbl_records);
-            },
-            error: function(xhr, status, error) {
-                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
-                console.error('Error details:', {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText,
-                    error: error
-                });
-            }
-        });
+    if (!iid) {
+        alert("Invoice ID not set!");
+        return;
     }
+
+    $.ajax({
+        type: "GET",
+        url: "getAllPatientHistoryRecords",
+        data: { iid: iid },
+        dataType: "json",
+        success: function(response) {
+            $('#patient_history_rec_tbl').html(response.html);
+
+            let fname = response.patient.fname || "";
+            let mname = response.patient.mname || "";
+            $('#patirnt_name').text(fname + ' ' + mname);
+            $('#patirnt_pid').text(response.patient.pid || "");
+            $('#patirnt_contact').text(response.patient.tpno || "");
+            $('#tot_visit').text(response.total || 0);
+        },
+        error: function(xhr, status, error) {
+            alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
+            console.error('Error details:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                error: error
+            });
+        }
+    });
+}
+
 
 
 
@@ -123,24 +159,21 @@ Patient History View
     <div class="card" style="height: 550px; margin-top: 50px; background-color:rgb(222, 222, 223);">
         <div class="card-body" style="display: flex; max-width: 1350px; margin: auto; padding: 20px;">
             <!-- Main Content Area (70%) -->
-            <div style="flex: 0 0 100%; padding-right: 20px;">
-                <div style="flex: 0 0 70%; padding-right: 20px;">
-                </div>
-                
-                <input type="hidden" id="invoiceId" value="">
+        <div style="display: flex; align-items: center; gap: 15px; margin-top: 5px; flex-wrap: wrap;">
+ <input type="hidden" id="invoiceId" value="">
+            <label style="font-size: 16px; font-weight: bold;">Name:</label>
+            <label id="patirnt_name" style="font-size: 16px;"></label>
 
-                <div style="display: flex; align-items: center; margin-top: 5px;">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>Name: </b></label>
-                    <input type="text" name="first_name" class="input-text" id="patirnt_name" style="width: 90px">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>PID</b></label>
-                    <input type="text" name="last_name" class="input-text" id="patirnt_pid" style="width: 90px">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>Contact NO </b></label>
-                    <input type="text" name="contact" class="input-text" id="patirnt_contact" style="width: 90px">
-                    <label style="font-size: 16px; margin-left: 5px;"><b>Total Visits</b></label>
-                    <input type="text" name="contact" class="input-text" id="tot_visit" style="width: 90px">
- 
-                </div>
-            </div>
+            <label style="font-size: 16px; font-weight: bold; margin-left: 20px;">PID:</label>
+            <label id="patirnt_pid" style="font-size: 16px;"></label>
+
+            <label style="font-size: 16px; font-weight: bold; margin-left: 20px;">Contact NO:</label>
+            <label id="patirnt_contact" style="font-size: 16px;"></label>
+
+            <label style="font-size: 16px; font-weight: bold; margin-left: 20px;">Total Visits:</label>
+            <label id="tot_visit" style="font-size: 16px;"></label>
+
+        </div>
         
         </div>
 
