@@ -29,7 +29,7 @@ class PatientRegistrationController extends Controller
             $format = date('ymd');
 
 
-            $sampleResult = DB::select("SELECT MAX(CONVERT(SUBSTRING(sampleNo, 7), UNSIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = ? AND DATE(date) = ?", [$_SESSION['lid'], $date]);
+            $sampleResult = DB::select("select MAX(CONVERT(SUBSTRING(sampleNo, 7), UNSIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = ? AND DATE(date) = ?", [$_SESSION['lid'], $date]);
 
 
             if (!empty($sampleResult)) {
@@ -59,6 +59,9 @@ class PatientRegistrationController extends Controller
 
         return $sampleNo;
     }
+
+    
+
 
     
 
@@ -240,7 +243,44 @@ class PatientRegistrationController extends Controller
     //*************************************
 
 
-    public function savePatientDetails()
+    public function loadSampleNumberUniqe($labBranchId)
+    {
+        $date = date('Y-m-d');
+        $sampleNo = '';
+        $format = '';
+
+        if ($labBranchId == '%') {
+            $format = date('ymd');
+
+            $sampleResult = DB::select("select MAX(CONVERT(SUBSTRING(sampleNo, 7), UNSIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = ? AND DATE(date) = ?", [$_SESSION['lid'], $date]);
+
+            if (!empty($sampleResult)) {
+                $currentNo = $sampleResult[0]->max_sample_no;
+                $nextNo = $currentNo ? $currentNo + 1 : 1;
+                $sampleNo = $format . str_pad($nextNo, 2, '0', STR_PAD_LEFT);
+            } else {
+                $sampleNo = $format . "01";
+            }
+        } else {
+            $branchCode = DB::select("select code FROM labbranches WHERE bid = ? AND Lab_lid = ?", [$labBranchId, $_SESSION['lid']]);
+            $format = !empty($branchCode) ? $branchCode[0]->code : '';
+
+            $sampleResult = DB::select("select MAX(CONVERT(SUBSTRING(sampleNo, LENGTH(?) + 1), UNSIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = ? AND DATE(date) = ? AND sampleNo LIKE ?", [$format, $_SESSION['lid'], $date, $format . '%']);
+
+            if (!empty($sampleResult)) {
+                $currentNo = $sampleResult[0]->max_sample_no;
+                $nextNo = $currentNo ? $currentNo + 1 : 1;
+                $sampleNo = $format . str_pad($nextNo, 2, '0', STR_PAD_LEFT);
+            } else {
+                $sampleNo = $format . "01";
+            }
+        }
+
+        return $sampleNo;
+    }
+
+
+      public function savePatientDetails()
     {
         $userUid = $_SESSION['uid'];
         $years = Input::get('years');
@@ -341,7 +381,7 @@ class PatientRegistrationController extends Controller
 
 
         if (!empty($testData) && is_array($testData) && count($testData) > 0) {
-            $firstSample = $testData[0]; // first record only
+            $firstSample = $testData[0]; 
 
             if (!empty($packageIdOnly) && !empty($firstSample['sampleNo'])) {
                 DB::table('invoice_has_labpackages')->insert([
@@ -354,15 +394,26 @@ class PatientRegistrationController extends Controller
 
         // Inserting tests into lps and lps_has_test tables
         foreach ($testData as $index => $test) {
+
+            $sampleNoFromFront = $test['sampleNo'];
+    
+    
+            $existingSample = DB::table('lps')
+            ->where('Lab_lid', $labLid)
+            ->where('sampleNo', $sampleNoFromFront)
+            ->first();
             // $fullSampleNo = $sampleNo . ($index < count($sampleSufArray) ? $sampleSufArray[$index] : '');
 
-            
+             if ($existingSample) {
+                $labBranchId = Input::get('labbranch');
+                $sampleNoFromFront = $this->loadSampleNumberUniqe($labBranchId);
+            }
             // Inserting lps tables
-            $lpsId = DB::table('lps')->insertGetId([
+          $lpsId = DB::table('lps')->insertGetId([
                 'patient_pid' => $patientid,
                 'Lab_lid' => $labLid,
                 'date' => $now,
-                'sampleNo' => $test['sampleNo'],
+                'sampleNo' => $sampleNoFromFront, 
                 'arivaltime' => $now,
                 'refby' => $refName, 
                 'refference_idref' => $refId,
@@ -372,7 +423,7 @@ class PatientRegistrationController extends Controller
                 'price' => $test['price'],
                 'Testgroup_tgid' => $test['tgid'],
                 'urgent_sample' => $test['priority'],
-                'specialnote' =>Input::get('inv_remark'),
+                'specialnote' => Input::get('inv_remark'),
                 'status' => 'pending',
                 'created_at' => $now,
                 'updated_at' => $now
@@ -528,6 +579,303 @@ class PatientRegistrationController extends Controller
 
         // return Response::json(['success' => true, 'message' => 'Patient details saved successfully.','datainv' => $getSampleNo."###".date('Y-m-d')]);
     }
+
+
+
+    // public function savePatientDetails()
+    // {
+    //     $userUid = $_SESSION['uid'];
+    //     $years = Input::get('years');
+    //     $months = Input::get('months');
+    //     $days = Input::get('days');
+    //     $initial = Input::get('initial');
+    //     $dob = Input::get('dob');
+
+    //     $fname = Input::get('fname');
+    //     $lname = Input::get('lname');
+    //     $tpno = Input::get('tpno');
+    //     $address = Input::get('address');
+    //     $gender = Input::get('gender');
+    //     $nic = Input::get('nic');
+    //     // $refName = Input::get('refName');
+
+    //     $discount = Input::get('discount'); 
+    //     $discountId = Input::get('discountId'); 
+    //     $cashAmount = Input::get('split_cash_amount');
+    //     $cardAmount = Input::get('split_card_amount');
+    //     $voucherAmount = Input::get('vaucher_amount');
+        
+
+    //     $labLid = $_SESSION['lid'];
+    //     $now = date('Y-m-d H:i:s');
+    //     $currentTimestamp = Carbon::now();
+    //     $sampleSufArray = ["", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+    //     //*#*#*#*##**#$sampleNo = $this->loadSampleNumber();*#*#*#*##**#
+
+        
+    //     $useruid = Input::get('userUID');
+
+    //     $user = DB::table('user')->where('uid', $useruid)->first();
+    //    $packageIdOnly = Input::get('packageIdOnly');
+
+    //     $testData = Input::get('test_data');
+    //     $refId = Input::get('ref'); 
+    //     $refName = Input::get('refName'); 
+
+        
+    //     $reference = DB::table('refference')->where('idref', $refId)->first();
+    //     $refName = $reference ? $reference->name : null;
+    //     $inv_remark = Input::get('inv_remark');
+
+    //     // *#*#*#*##**# Patient and User Insertion Logic *#*#*#*##**#
+    //     if ($user) {
+    //         $patientid = DB::table('patient')->insertGetId([
+    //             'user_uid' => $user->uid,
+    //             'age' => $years,
+    //             'months' => $months,
+    //             'days' => $days,
+    //             'initials' => $initial,
+    //             'dob' => $dob,
+    //             'created_at' => $currentTimestamp,
+    //             'updated_at' => $currentTimestamp
+    //         ]);
+    //     } else {
+    //         $userid = DB::table('user')->insertGetId([
+    //             'fname' => $fname,
+    //             'lname' => $lname,
+    //             'tpno' => $tpno,
+    //             'address' => $address,
+    //             'gender_idgender' => $gender,
+    //             'usertype_idusertype' => '2',
+    //             'nic' => $nic,
+    //             'created_at' => $currentTimestamp,
+    //             'updated_at' => $currentTimestamp
+    //         ]);
+
+    //         $patientid = DB::table('patient')->insertGetId([
+    //             'user_uid' => $userid,
+    //             'age' => $years,
+    //             'months' => $months,
+    //             'days' => $days,
+    //             'initials' => $initial,
+    //             'dob' => $dob,
+    //             'created_at' => $currentTimestamp,
+    //             'updated_at' => $currentTimestamp
+    //         ]);
+    //     }
+
+    //     // Inserting into the invoice table
+    //     $totalAmount = Input::get('total_amount');
+    //     $grandTotal = Input::get('grand_total');
+    //     $paid = Input::get('paid');
+    //     $paymentMethod = Input::get('payment_method');
+    //     $invoiceRemark = Input::get('inv_remark');
+    //     $source = Input::get('source'); 
+
+
+    //     if ($paid == 0.0) {
+    //         $paymentStatus = "Not Paid";
+    //     } elseif ($paid >= $grandTotal) {
+    //         $paymentStatus = "Payment Done";
+    //     } else {
+    //         $paymentStatus = "Pending Due";
+    //     }
+
+
+    //     if (!empty($testData) && is_array($testData) && count($testData) > 0) {
+    //         $firstSample = $testData[0]; 
+
+    //         if (!empty($packageIdOnly) && !empty($firstSample['sampleNo'])) {
+    //             DB::table('invoice_has_labpackages')->insert([
+    //                 'pcid' => $packageIdOnly,
+    //                 'sno' => $firstSample['sampleNo'],
+    //                 'lab_lid' => $labLid
+    //             ]);
+    //         }
+    //     }
+
+    //     // Inserting tests into lps and lps_has_test tables
+    //     foreach ($testData as $index => $test) {
+    //         // $fullSampleNo = $sampleNo . ($index < count($sampleSufArray) ? $sampleSufArray[$index] : '');
+
+            
+    //         // Inserting lps tables
+    //         $lpsId = DB::table('lps')->insertGetId([
+    //             'patient_pid' => $patientid,
+    //             'Lab_lid' => $labLid,
+    //             'date' => $now,
+    //             'sampleNo' => $test['sampleNo'],
+    //             'arivaltime' => $now,
+    //             'refby' => $refName, 
+    //             'refference_idref' => $refId,
+    //             'type' => Input::get('type'),
+    //             'fastingtime' => Input::get('fast_time'),
+    //             'entered_uid' => '',
+    //             'price' => $test['price'],
+    //             'Testgroup_tgid' => $test['tgid'],
+    //             'urgent_sample' => $test['priority'],
+    //             'specialnote' =>Input::get('inv_remark'),
+    //             'status' => 'pending',
+    //             'created_at' => $now,
+    //             'updated_at' => $now
+    //         ]);
+
+                
+            
+
+
+
+            
+
+    //          // Inserting invoice tables
+    //          $cashier = DB::table('user')->where('uid', '=', $userUid)->first();
+
+    //          if ($cashier) {
+    //              $cashierName = $cashier->fname . ' ' . $cashier->lname;
+    //          }else{
+    //             $cashierName = '';
+    //          } 
+             
+
+    //         if ($index == '0') {
+    //             $paymentMethodRaw = Input::get('payment_method');
+    //             $paymentMethodMap  = [
+    //                 '1' => 'cash',
+    //                 '2' => 'card',
+    //                 'credit' => 'credit',
+    //                 '3' => 'cheque',
+    //                 '6' => 'voucher',
+    //                 '5' => 'split'
+    //             ];
+    //             $paymentMethod = isset($paymentMethodMap[$paymentMethodRaw]) ? $paymentMethodMap[$paymentMethodRaw] : 'cash';
+    //             $invoiceId = DB::table('invoice')->insertGetId([
+    //                 'lps_lpsid' => $lpsId,
+    //                 'date' => $now,
+    //                 'total' => $totalAmount,
+    //                 'gtotal' => $grandTotal,
+    //                 'paid' => $paid,
+    //                 'paiddate' => $now,
+    //                 'status' => $paymentStatus,
+    //                 'paymentmethod' => $paymentMethod,
+    //                 'cashier' => $cashierName,
+    //                 'cost' => 0,
+    //                 'discount' => Input::get('discount'), 
+    //                 'Discount_did' => Input::get('discountId'), 
+    //                 'multiple_delivery_methods' => Input::get('delivery_methods'),
+    //                 // 'remark' => $invoiceRemark,
+    //                 // 'source' => $source,
+    //                 // 'created_at' => $now,
+    //                 // 'updated_at' => $now
+    //             ]);
+
+
+          
+    //             //  $sampleNo = $test['sampleNo'];
+                    
+
+    //             // insert invoce_payments table
+    //             if ($paid > 0.0) {
+    //                 if ($paymentMethodRaw == '5') { // Split
+    //                     $cashAmount = Input::get('split_cash_amount');
+    //                     $cardAmount = Input::get('split_card_amount'); 
+                
+    //                     if ($cashAmount > 0) {
+    //                         DB::table('invoice_payments')->insert([
+    //                             'date' => $now,
+    //                             'amount' => $cashAmount,
+    //                             'user_uid' => $userUid,
+    //                             'paymethod' => 1, // Cash
+    //                             'invoice_iid' => $invoiceId,
+    //                         ]);
+    //                     }
+                
+    //                     if ($cardAmount > 0) {
+    //                         DB::table('invoice_payments')->insert([
+    //                             'date' => $now,
+    //                             'amount' => $cardAmount,
+    //                             'user_uid' => $userUid,
+    //                             'paymethod' => 2, // Card
+    //                             'invoice_iid' => $invoiceId,
+    //                         ]);
+    //                     }
+                
+    //                 } elseif ($paymentMethodRaw == '6') { // Voucher
+    //                     $voucherAmount = Input::get('vaucher_amount');
+                
+    //                     if ($voucherAmount > 0) {
+    //                         DB::table('invoice_payments')->insert([
+    //                             'date' => $now,
+    //                             'amount' => $voucherAmount,
+    //                             'user_uid' => $userUid,
+    //                             'paymethod' => 6, // Voucher
+    //                             'invoice_iid' => $invoiceId,
+    //                         ]);
+    //                     }
+                
+    //                 } else {
+                       
+    //                     DB::table('invoice_payments')->insert([
+    //                         'date' => $now,
+    //                         'amount' => $paid,
+    //                         'user_uid' => $userUid,
+    //                         'paymethod' => $paymentMethodRaw, 
+    //                         'invoice_iid' => $invoiceId,
+    //                     ]);
+    //                 }
+    //             }
+                
+                
+                
+    //         }
+
+    //         // $lpsId = DB::getPdo()->lastInsertId();
+    //         $testRecords = DB::table('Lab_has_test')
+    //             ->where('Lab_lid', $labLid)
+    //             ->where('Testgroup_tgid', $test['tgid'])
+    //             ->get();
+
+    //         $lpsHasTestData = [];
+    //         foreach ($testRecords as $testRecord) {
+
+    //             DB::table('lps_has_test')->insert([
+    //                 'lps_lpsid' => $lpsId,
+    //                 'test_tid' => $testRecord->test_tid,
+    //                 'state' => 'pending',
+    //                 'created_at' => $now,
+    //                 'updated_at' => $now
+    //             ]);
+    //         }
+           
+    //     }
+
+    //             $getSampleNo = DB::table('lps as a')
+    //                 ->join('invoice as b', 'a.lpsid', '=', 'b.lps_lpsid')
+    //                 ->where('a.Lab_lid', '=', $_SESSION['lid'])
+    //                 ->where('b.iid', '=', $invoiceId)
+    //                 ->select('a.date', 'a.sampleNo')
+    //                 ->first(); // get single record
+
+    //             $date_sampleno = $getSampleNo ? $getSampleNo->date : '';
+    //             $data_sampleNo = $getSampleNo ? $getSampleNo->sampleNo : '';
+                
+    //             return Response::json([
+    //                 'success' => true,
+    //                 // 'message' => 'Patient details saved successfully'.$refId."-".$refName,
+    //                 'message' => 'Patient details saved successfully',
+    //                 'datainv' =>  $data_sampleNo . '###' . $date_sampleno
+    //             ]);
+
+        
+
+
+    //     // return Response::json(['success' => true, 'message' => 'Patient details saved successfully.','datainv' => $getSampleNo."###".date('Y-m-d')]);
+    // }
+
+
+
+
+
+    
 
     public function checkSampleNo()
     {
@@ -1252,6 +1600,10 @@ class PatientRegistrationController extends Controller
             ], 500);
         }
     }
+
+   
+
+
 
 
     public function barcodeFeatureChecking()

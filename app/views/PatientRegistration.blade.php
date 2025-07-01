@@ -64,11 +64,6 @@ Add New Patient
                     }
                 });
 
-            //  reportnig method Privilage checking
-            
-
-                    
-
                 //  patientData privilage checking
                 $.ajax({
                     url: '/patientDetailsEditing-feature-checking',
@@ -759,7 +754,7 @@ Add New Patient
         var sampleNumberPrefix = $('#sampleNo').val();
 
         var user_uid_data = $('#user_Uid').val();
-
+        var labBranchDropdown = document.getElementById("labBranchDropdown");
         var sampleNo = $('#sampleNo').val();
         var labbranch = $('#labBranchDropdown').val();
         var type = $('#type').val();
@@ -873,6 +868,7 @@ Add New Patient
         var postData = {
             _token: token,
             userUID: user_uid_data,
+            //labBranchId: labBranchDropdown.value
             sampleNo: sampleNumberPrefix,
             labbranch: labbranch,
             type: type,
@@ -963,7 +959,7 @@ Add New Patient
 
 
 
-
+   
 
 
     //view selected invoice in viewinvoice page proces related function
@@ -1119,7 +1115,7 @@ Add New Patient
                         if (matchingLps) {
                             urgentDisplay = '<span style="color: red; font-weight: bold;">***</span>';
                         }
-
+                         
                         const newRow = `
                             <tr data-id="${test.tgid}" data-lpsid="${test.lpsid}" ${rowStyle}>
                                 <td align="left">${test.tgid}</td>
@@ -1135,6 +1131,7 @@ Add New Patient
                             </tr>`;
 
                         $('#Branch_record_tbl').append(newRow);
+                         
                     });
 
 
@@ -1956,10 +1953,23 @@ Add New Patient
 
 
         setTimeout(function () {
+
             win.close();
+             
+             if (isGroup == true) {
+            // Apply pink color to all rows
+            $('#Branch_record_tbl tr').each(function () {
+                $(this).css('background-color', 'pink');
+                $(this).find('.barcode-checkbox').prop('checked', false);
+            });
+            } else if (selectedRow && selectedRow.length > 0) {
+                selectedRow.css('background-color', 'pink');
+                selectedRow.find('.barcode-checkbox').prop('checked', false);
+            }
+
             // resetPage();
         }, 8000);
-
+        
     }
 
 
@@ -2142,113 +2152,113 @@ Add New Patient
     //*************************************************************************************************
     // Back Front buttons process
 
-//    function loadPatient(direction) {
-//     var currentSampleNo = $('#sampleNo').val();
-//     var lab_lid = $('#lab_lid').val();
-//     var date = $('#patientDate').val();
+    //    function loadPatient(direction) {
+    //     var currentSampleNo = $('#sampleNo').val();
+    //     var lab_lid = $('#lab_lid').val();
+    //     var date = $('#patientDate').val();
 
-//     //  var refcode = $('#refcode').val();
-//     //     var refName  = $('#refDropdown').val();
-//     //     var ref = $('#ref').val();
-//     $.ajax({
-//         url: '/getPatientDetailsBySample',
-//         method: 'GET',
-//         data: {
-//             sampleNO: currentSampleNo,
-//             direction: direction,
-//             lab_lid: lab_lid,
-//             patientDate: date
-//         },
-//         success: function(response) {
-//             if (response.status === 'success') {
-//                 var data = response.data;
-//                 $('#refDropdown').val(data.refby);
-//                 $('#refcode').val(data.code);
-//                 $('#initial').val(data.initials);
-//                 $('#fname').val(data.fname);
-//                 $('#lname').val(data.lname);
-//                 $('#years').val(data.age);
-//                 $('#months').val(data.months);
-//                 $('#days').val(data.days);
-//                 $('#Ser_tpno').val(data.tpno);
-//                 $('#address').val(data.address);
-//                 $('#sampleNo').val(data.sampleNO); 
+    //     //  var refcode = $('#refcode').val();
+    //     //     var refName  = $('#refDropdown').val();
+    //     //     var ref = $('#ref').val();
+    //     $.ajax({
+    //         url: '/getPatientDetailsBySample',
+    //         method: 'GET',
+    //         data: {
+    //             sampleNO: currentSampleNo,
+    //             direction: direction,
+    //             lab_lid: lab_lid,
+    //             patientDate: date
+    //         },
+    //         success: function(response) {
+    //             if (response.status === 'success') {
+    //                 var data = response.data;
+    //                 $('#refDropdown').val(data.refby);
+    //                 $('#refcode').val(data.code);
+    //                 $('#initial').val(data.initials);
+    //                 $('#fname').val(data.fname);
+    //                 $('#lname').val(data.lname);
+    //                 $('#years').val(data.age);
+    //                 $('#months').val(data.months);
+    //                 $('#days').val(data.days);
+    //                 $('#Ser_tpno').val(data.tpno);
+    //                 $('#address').val(data.address);
+    //                 $('#sampleNo').val(data.sampleNO); 
 
-//                 let femaleInitials = ['Mrs', 'Miss'];
-//                 let maleInitials = ['Mr', 'Dr', 'Hons'];
+    //                 let femaleInitials = ['Mrs', 'Miss'];
+    //                 let maleInitials = ['Mr', 'Dr', 'Hons'];
 
-//                 if (femaleInitials.includes(data.initials)) {
-//                     $('#female').prop('checked', true);
-//                 } else if (maleInitials.includes(data.initials)) {
-//                     $('#male').prop('checked', true);
-//                 } else {
-//                     $('input[name="gender"]').prop('checked', false);
-//                 }
-//             } else {
-//                 alert(response.message);
-//             }
-//         },
-//         error: function() {
-//             alert('Error occurred while loading data.');
-//         }
-//     });
-//    }
+    //                 if (femaleInitials.includes(data.initials)) {
+    //                     $('#female').prop('checked', true);
+    //                 } else if (maleInitials.includes(data.initials)) {
+    //                     $('#male').prop('checked', true);
+    //                 } else {
+    //                     $('input[name="gender"]').prop('checked', false);
+    //                 }
+    //             } else {
+    //                 alert(response.message);
+    //             }
+    //         },
+    //         error: function() {
+    //             alert('Error occurred while loading data.');
+    //         }
+    //     });
+    //    }
 
-//     // Button click bindings
-//     $('#btnBack').on('click', function() {
-//         loadPatient('back');
-//     });
+    //     // Button click bindings
+    //     $('#btnBack').on('click', function() {
+    //         loadPatient('back');
+    //     });
 
-//     $('#btnFront').on('click', function() {
-//         loadPatient('front');
-//     });
+    //     $('#btnFront').on('click', function() {
+    //         loadPatient('front');
+    //     });
 
 
-function loadPatient(direction) {
-    var currentSampleNo = $('#sampleNo').val();
-    var lab_lid = $('#lab_lid').val();
-    var date = $('#ser_date').val();
+    function loadPatient(direction) {
+        var currentSampleNo = $('#sampleNo').val();
+        var lab_lid = $('#lab_lid').val();
+        var date = $('#ser_date').val();
 
-    $.ajax({
-        url: '/getPatientDetailsBySample',
-        method: 'GET',
-        data: {
-            sampleNO: currentSampleNo,
-            direction: direction,
-            lab_lid: lab_lid,
-            searachDate: date
-        },
-        success: function(response) {
-            if (response.success) {
-                
-                const patient = response.data.patient;
-                const tests = response.data.tests;
-                const invoice = response.data.invoice;
-                 const lpsRecords = response.data.lpsRecords;
-                 const firstRecord = lpsRecords[0] || {};
-                $('#sampleNo').val(firstRecord.sampleNo || currentSampleNo || '');
-                view_selected_patient(firstRecord.sampleNo, date);
+        $.ajax({
+            url: '/getPatientDetailsBySample',
+            method: 'GET',
+            data: {
+                sampleNO: currentSampleNo,
+                direction: direction,
+                lab_lid: lab_lid,
+                searachDate: date
+            },
+            success: function(response) {
+                if (response.success) {
+                    
+                    const patient = response.data.patient;
+                    const tests = response.data.tests;
+                    const invoice = response.data.invoice;
+                    const lpsRecords = response.data.lpsRecords;
+                    const firstRecord = lpsRecords[0] || {};
+                    $('#sampleNo').val(firstRecord.sampleNo || currentSampleNo || '');
+                    view_selected_patient(firstRecord.sampleNo, date);
 
-            } else {
-                alert(response.message || 'No data found.');
+                } else {
+                    alert(response.message || 'No data found.');
+                }
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr);
+                alert('Error occurred while loading data: ' + 
+                    (xhr.responseJSON?.message || 'Please try again later.'));
             }
-        },
-        error: function(xhr) {
-            console.error('Error:', xhr);
-            alert('Error occurred while loading data: ' + 
-                 (xhr.responseJSON?.message || 'Please try again later.'));
-        }
+        });
+    }
+
+
+    $('#btnBack').on('click', function() {
+        loadPatient('back');
     });
-}
 
-
-$('#btnBack').on('click', function() {
-    loadPatient('back');
-});
-
-$('#btnFront').on('click', function() {
-    loadPatient('front');
-});
+    $('#btnFront').on('click', function() {
+        loadPatient('front');
+    });
 
 
     //*************************************************************************************************
@@ -2430,9 +2440,9 @@ $('#btnFront').on('click', function() {
 
         // Assuming sampleNo and date are retrieved from inputs
         var date = $('#patientDate').val();
-        var sno = $('#sampleNo').val();
+        var sno = $('#sampleNo').val(); 
 
-        // 👉 Get the value in 1st column (index 0) of the selected row
+       
         var tgid = selectedRow.find('td').eq(0).text().trim();
 
         if (!sno || !date || !tgid) {
@@ -2440,7 +2450,7 @@ $('#btnFront').on('click', function() {
             return;
         }
 
-        // AJAX request to backend
+    
         $.ajax({
             url: '/remove-barcode',
             type: 'POST',
@@ -2452,6 +2462,8 @@ $('#btnFront').on('click', function() {
             success: function(response) {
                 if (response.success) {
                     alert("Barcode status updated to 'pending' successfully!");
+                    selectedRow.css('background-color', '');
+                    selectedRow.find('.barcode-checkbox').prop('checked', true);
                     // Optionally update the row's status visually
                     // selectedRow.find('td.status-column').text('pending');
                 } else {
@@ -2463,6 +2475,11 @@ $('#btnFront').on('click', function() {
             }
         });
     }
+
+
+
+
+   
 
 
 

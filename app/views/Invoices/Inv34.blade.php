@@ -145,50 +145,71 @@ foreach ($result_get_invoiceData as $invoice){
 <body>
     <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: Arial, sans-serif; ">
         <tr>
-            <td colspan="2" style="text-align: center; font-weight: bold;font-size: 35px;"><?php echo $labname; ?></td>
+            <td colspan="2" style="text-align: left; font-weight: bold;font-size: 35px;"><?php echo $labname; ?></td>
         </tr>
         <tr>
-            <td colspan="2" style="text-align: center; "><?php echo $labaddress; ?><br>Tel: <?php echo $labtpno; ?><br>Web:www.synergy.com <br>Email: <?php echo $labemail; ?></td>
+            <td colspan="2" style="text-align: left; ">
+                <span style="font-style:italic; font-size: 20px; ">Provididing information for the diagnosis</span><br>
+                <?php echo $labaddress; ?>
+                <br>Tel: <?php echo $labtpno; ?>  &nbsp;&nbsp;&nbsp; Reg No - PHSLC/L/700
+                {{-- <br>Web:www.synergy.com  --}}
+                {{-- <br>Email: --}}
+                <?php //echo $labemail; ?>
+        </td>
         </tr>
         <tr>
-            <td colspan="2" style="text-align: center;">
+            <td colspan="2" style="text-align: left;">
                 <div style="font-weight: bold; font-size: 28px; margin-top: 20px;">PATIENT RECEIPT</div>
             </td>
         </tr>
 
-        <tr>
-            <td style="padding-top: 30px; font-size: 18px;">Date: <?php echo $inv_date; ?> Time: <?php echo $inv_time; ?></td>
-            <td style="text-align: right; font-weight: bold; padding-top: 5px; font-size: 18px;">
-                <span style="color: #000; ">Reference NO</span>
-                 <div style="font-size: 30px; margin-top: 5px;"><?php echo $sno; ?></div>
-            </td>
+ <tr>
+    <td colspan="2">
+        <div style="border: 2px solid #000; padding: 15px 20px; border-radius: 10px; width: 95%;">
+            <table width="100%" cellspacing="0" cellpadding="5" style="font-size: 18px;">
+                <tr>
+                    <!-- Left side: Patient Info -->
+                  <td style="vertical-align: top; width: 75%; font-size: 18px; line-height: 1.6;">
+                    <div>
+                        <span style="display: inline-block; width: 120px;">Date:</span>
+                        <strong><?php echo $inv_date; ?></strong>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <span style="display: inline-block; width: 80px;">Time:</span>
+                        <?php echo $inv_time; ?>
+                    </div>
+                    <div>
+                        <span style="display: inline-block; width: 120px;">Patient:</span>
+                        <?php echo $initials . ". " . $fname . " " . $lname; ?>
+                    </div>
+                    <div>
+                        <span style="display: inline-block; width: 120px;">Age:</span>
+                        <?php echo $age; ?> Years <?php echo $months; ?> Months <?php echo $days; ?> Days
+                        <span style="margin-left: 25px;">Gender: <?php echo $gender_data; ?></span>
+                    </div>
+                    <div>
+                        <span style="display: inline-block; width: 120px;">Referred By:</span>
+                        <?php echo $refby; ?>
+                    </div>
+                </td>
 
-           
-        </tr>
-        <tr>
-            
-            <td style="font-size: 18px;">Patient: <?php echo $initials.". ".$fname." ".$lname; ?></td>
-            
-        </tr>
-        <tr>
-            <td style="text-align: left;font-size: 18px;">
-                Age: <?php echo $age; ?> Years <?php echo $months; ?> Months <?php echo $days; ?> Days
-                <span style="margin-left: 20px;font-size: 18px;">Gender: <?php echo $gender_data; ?></span>
-            </td>
+
+                    <!-- Right side: Reference Number -->
+                    <td style="text-align: right; vertical-align: top; width: 25%;">
+                        <div style="font-weight: bold;"><span style="color: #000;">Sample NO</span></div>
+                        <div style="font-size: 30px; font-weight: bold; margin-top: 5px;"><?php echo $sno; ?></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </td>
+</tr>
 
 
-          
-        </tr>
-        <tr>
-           
-            <td style="font-size: 18px;" colspan="2">Referred By: <?php echo $refby; ?></td>
-        </tr>
         <tr>
         <td colspan="2" style="height: 20px;"></td>
         </tr>
         <tr>
-            <th style="text-align: left; padding: 5px;border-bottom: 2px solid #000;">Test Name</th>
-            <th style="text-align: right; padding: 5px; border-bottom: 2px solid #000;">Price</th>
+            <th style="text-align: left; padding: 5px;border-bottom: 2px solid #000;">Description</th>
+            <th style="text-align: right; padding: 5px; border-bottom: 2px solid #000;">Amount Rs.</th>
         </tr>
        
         
@@ -258,10 +279,10 @@ foreach ($result_get_invoiceData as $invoice){
                         Method: <span style="margin-left: 10px;"><?php echo $paymentmethod; ?></span>
                     </div>
                     <!-- Second Line: Cashier -->
-                    <div style="display: inline-block; text-align: center;">
+                    {{-- <div style="display: inline-block; text-align: center;">
                         <hr style="border: none; border-top: 1px dotted; width: 200px;">
                         <em>Cashier</em>
-                    </div>
+                    </div> --}}
                 </td>
                 <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; vertical-align: top;">
                     <!-- Empty cell to maintain the table structure -->
@@ -270,13 +291,30 @@ foreach ($result_get_invoiceData as $invoice){
 
 
 
-      
         <tr>
-            <td colspan="2" style="text-align: center; font-weight: bold;padding-top: 20px;">PLEASE COLLECT YOUR REPORTS WITHIN ONE MONTH</td>
+            <td colspan="2">
+                <hr style="border: none; border-top: 1px solid black; margin: 10px 0;">
+            </td>
         </tr>
         <tr>
-            <td colspan="2" style="text-align: left; font-size: 10px;">Software By Apex Software Solutions (PVT) LTD - www.apexsol.com</td>
+            <td colspan="2" style="text-align: center; font-weight: bold; padding-top: 10px;">
+                Now you can view your report through online. Refer "SMS" alert.<br>
+                Please be kind to submit this receipt after 5PM to collect reports.
+            </td>
         </tr>
+        <tr>
+            <td colspan="2">
+                <hr style="border: none; border-top: 1px solid black; margin: 10px 0;">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: left; font-size: 10px;">
+                Software By Apex Software Solutions (PVT) LTD -
+                <a href="http://www.appexsl.com" target="_blank">www.apexsol.com</a>
+            </td>
+        </tr>
+
+
     </table>
 </body>
 </html>
