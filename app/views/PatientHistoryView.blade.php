@@ -162,10 +162,10 @@ Patient History View
         <div style="display: flex; align-items: center; gap: 15px; margin-top: 5px; flex-wrap: wrap;">
  <input type="hidden" id="invoiceId" value="">
             <label style="font-size: 16px; font-weight: bold;">Name:</label>
-            <label id="patirnt_name" style="font-size: 16px;"></label>
+            <label id="patirnt_name" style="font-size: 16px; font-style: timesnewramon;"></label>
 
             <label style="font-size: 16px; font-weight: bold; margin-left: 20px;">PID:</label>
-            <label id="patirnt_pid" style="font-size: 16px;"></label>
+            <label id="patirnt_pid" style="font-size: 16px;font-style: timesnewramon;"></label>
 
             <label style="font-size: 16px; font-weight: bold; margin-left: 20px;">Contact NO:</label>
             <label id="patirnt_contact" style="font-size: 16px;"></label>
@@ -186,12 +186,13 @@ Patient History View
                                 <table border="1" style="border-color: #ffffff;" cellpadding="0" cellspacing="0" class="TableWithBorder" width="100%">
                                     <thead>
                                         <tr class="viewTHead">
-                                            <td width="12%" class="fieldText" align="center">Date</td>
-                                            <td width="18%" class="fieldText" align="center">Time</td>
+                                            <td width="8%" class="fieldText" align="center">Date</td>
+                                            <td width="8%" class="fieldText" align="center">Time</td>
                                             <td width="18%" class="fieldText" align="center">Patient Name</td>
                                             <td width="10%" class="fieldText" align="center">Invoice Status</td>
                                             <td width="8%" class="fieldText" align="center">Report Status </td>
-                                            <td width="10%" class="fieldText" align="center">Delivery Status</td>
+                                            <td width="18%" class="fieldText" align="center">Delivery Status</td>
+                                            <td width="8%" class="fieldText" align="center">Invoice ID</td>
                                         </tr>
                                     </thead>
                                     <tbody id="patient_history_rec_tbl">

@@ -96,6 +96,7 @@ class PatientHistoryViewController extends Controller
             ->join('patient', 'patient.pid', '=', 'lps.patient_pid')
             ->join('user', 'user.uid', '=', 'patient.user_uid')
             ->select(
+                'invoice.iid',
                 'lps.date',
                 'lps.arivaltime',
                 'user.fname',
@@ -123,10 +124,11 @@ class PatientHistoryViewController extends Controller
                 $output .= '<tr class="phistr" style="cursor:pointer;">';
                 $output .= '<td align="center">' . htmlspecialchars($row->date) . '</td>';
                 $output .= '<td align="center">' . htmlspecialchars($row->arivaltime) . '</td>';
-                $output .= '<td align="center">' . $fullName . '</td>';
-                $output .= '<td align="center">' . htmlspecialchars($row->invoice_status) . '</td>';
-                $output .= '<td align="center">' . htmlspecialchars($row->lps_status) . '</td>';
-                $output .= '<td align="center">' . htmlspecialchars($row->multiple_delivery_methods) . '</td>';
+                $output .= '<td align="left">' . $fullName . '</td>';
+                $output .= '<td align="left">' . htmlspecialchars($row->invoice_status) . '</td>';
+                $output .= '<td align="left">' . htmlspecialchars($row->lps_status) . '</td>';
+                $output .= '<td align="left">' . htmlspecialchars($row->multiple_delivery_methods) . '</td>';
+                $output .= '<td align="left">' . htmlspecialchars($row->iid) . '</td>';
                 $output .= '</tr>';
             }
         } else {
