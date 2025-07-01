@@ -52,44 +52,59 @@ Patient History View
     //         }
     //     });
     // }
+ $(document).ready(function () {
+    // Handle row double click
+    $('#patient_history_rec_tbl').on('dblclick', 'tr', function () {
+        var invoiceId = $(this).find('td').eq(6).text().trim(); // Get invoice ID from 7th column
 
-    function loadRecordToPhistoryTable() {
-    var iid = $('#invoiceId').val();
-
-    if (!iid) {
-        alert("Invoice ID not set!");
-        return;
-    }
-
-    $.ajax({
-        type: "GET",
-        url: "getAllPatientHistoryRecords",
-        data: { iid: iid },
-        dataType: "json",
-        success: function(response) {
-            $('#patient_history_rec_tbl').html(response.html);
-
-            let fname = response.patient.fname || "";
-            let mname = response.patient.mname || "";
-            $('#patirnt_name').text(fname + ' ' + mname);
-            $('#patirnt_pid').text(response.patient.pid || "");
-            $('#patirnt_contact').text(response.patient.tpno || "");
-            $('#tot_visit').text(response.total || 0);
-        },
-        error: function(xhr, status, error) {
-            alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
-            console.error('Error details:', {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                responseText: xhr.responseText,
-                error: error
-            });
+        if (invoiceId) {
+            var url = "/invoicePayments?iid=" + invoiceId;
+            window.open(url, '_blank'); // open in new tab
+        } else {
+            alert("Invoice ID not found in selected row.");
         }
     });
-}
+});
 
 
 
+    function loadRecordToPhistoryTable() {
+        var iid = $('#invoiceId').val();
+
+        if (!iid) {
+            alert("Invoice ID not set!");
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "getAllPatientHistoryRecords",
+            data: { iid: iid },
+            dataType: "json",
+            success: function(response) {
+                $('#patient_history_rec_tbl').html(response.html);
+
+                let fname = response.patient.fname || "";
+                let mname = response.patient.mname || "";
+                $('#patirnt_name').text(fname + ' ' + mname);
+                $('#patirnt_pid').text(response.patient.pid || "");
+                $('#patirnt_contact').text(response.patient.tpno || "");
+                $('#tot_visit').text(response.total || 0);
+            },
+            error: function(xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\n' + 'Details: ' + xhr.responseText);
+                console.error('Error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+            }
+        });
+    }
+
+
+ 
 
     //*************************************************************************************************
 
@@ -144,7 +159,10 @@ Patient History View
         font-size: 14px;
     }
 
-
+      .selected-row {
+        background-color: #f44336 !important; /* Red */
+        color: white;
+    }
     
 
 </style>
@@ -160,7 +178,7 @@ Patient History View
         <div class="card-body" style="display: flex; max-width: 1350px; margin: auto; padding: 20px;">
             <!-- Main Content Area (70%) -->
         <div style="display: flex; align-items: center; gap: 15px; margin-top: 5px; flex-wrap: wrap;">
- <input type="hidden" id="invoiceId" value="">
+            <input type="hidden" id="invoiceId" value="">
             <label style="font-size: 16px; font-weight: bold;">Name:</label>
             <label id="patirnt_name" style="font-size: 16px; font-style: timesnewramon;"></label>
 
@@ -186,6 +204,7 @@ Patient History View
                                 <table border="1" style="border-color: #ffffff;" cellpadding="0" cellspacing="0" class="TableWithBorder" width="100%">
                                     <thead>
                                         <tr class="viewTHead">
+                                            <td width="8%" class="fieldText" align="center">Sample NO</td>
                                             <td width="8%" class="fieldText" align="center">Date</td>
                                             <td width="8%" class="fieldText" align="center">Time</td>
                                             <td width="18%" class="fieldText" align="center">Patient Name</td>
