@@ -351,7 +351,9 @@ Route::get('/get-test-codes', 'PatientRegistrationController@getTestCodes');
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-
+Route::get('/PatientHistoryView', function () {
+    return View::make('PatientHistoryView');
+});
 
 
 
