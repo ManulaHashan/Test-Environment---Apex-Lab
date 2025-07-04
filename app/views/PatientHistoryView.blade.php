@@ -53,9 +53,16 @@ Patient History View
     //     });
     // }
  $(document).ready(function () {
+
+    $('#patient_history_rec_tbl').on('click', 'tr', function () {
+        $('#patient_history_rec_tbl tr').removeClass('selected-row'); // Remove all previous selections
+        $(this).addClass('selected-row'); // Add red to clicked row
+    });
+
     // Handle row double click
     $('#patient_history_rec_tbl').on('dblclick', 'tr', function () {
         var invoiceId = $(this).find('td').eq(7).text().trim(); // Get invoice ID from 7th column
+        
 
         if (invoiceId) {
             var url = "/invoicePayments?iid=" + invoiceId;
@@ -103,6 +110,20 @@ Patient History View
         });
     }
 
+
+    function viewSelectedInvoice() {
+        var selectedRow = $('#patient_history_rec_tbl tr.selected-row');
+
+        if (selectedRow.length === 0) {
+            alert("Please select a row to view the invoice.");
+            return;
+        }
+
+        var sampleNo = selectedRow.find('td:eq(0)').text().trim(); 
+        var date = selectedRow.find('td:eq(1)').text().trim();     
+
+        window.open("patientRegistration?sampleNo=" + sampleNo + "&date=" + date, "_self");
+    }
 
  
 
@@ -159,8 +180,8 @@ Patient History View
         font-size: 14px;
     }
 
-      .selected-row {
-        background-color: #f44336 !important; /* Red */
+    .selected-row {
+        background-color: red !important;
         color: white;
     }
     
@@ -228,7 +249,8 @@ Patient History View
        
         </div>
 
-
+<input type="button" style="color:rgb(10, 113, 158); width: 190px; height: 40px; margin: 0px;" class="btn" 
+id="View_selected_patient" value="View Selected Patient" onclick="viewSelectedInvoice()">
 {{-- ############################################################################################################# --}}
 
 
