@@ -1826,9 +1826,42 @@ Add New Patient
 
 
     //Print Invoice Section
+    // function printInvoice() {
+    //     var fname = $('#fname').val().trim();
+    //     // var lname = $('#lname').val().trim();
+    //     var years = $('#years').val().trim();
+    //     var months = $('#months').val().trim();
+    //     var days = $('#days').val().trim();
+    //     var testRows = $('#test_tbl tbody tr').length;
+
+    //     if (
+    //         fname === "" || 
+    //         (years === "" && months === "" && days === "") || 
+    //         testRows === 0
+    //         ) 
+    //         {
+    //             alert("Please fill all required fields and add at least one test before printing.");
+    //             return; 
+    //         }
+
+    //         var date = $('#patientDate').val();
+    //         var sno = $('#sampleNo').val();
+
+    //         var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
+
+    //         setTimeout(function () {
+    //             win.print();
+    //         }, 5000);
+
+    //         setTimeout(function () {
+    //             win.close();
+    //             resetPage();
+    //         }, 8000);
+    // }
+
+   
     function printInvoice() {
         var fname = $('#fname').val().trim();
-        // var lname = $('#lname').val().trim();
         var years = $('#years').val().trim();
         var months = $('#months').val().trim();
         var days = $('#days').val().trim();
@@ -1838,28 +1871,32 @@ Add New Patient
             fname === "" || 
             (years === "" && months === "" && days === "") || 
             testRows === 0
-            ) 
-            {
-                alert("Please fill all required fields and add at least one test before printing.");
-                return; 
-            }
+        ) {
+            alert("Please fill all required fields and add at least one test before printing.");
+            return; 
+        }
 
-            var date = $('#patientDate').val();
-            var sno = $('#sampleNo').val();
+        var date = $('#patientDate').val();
+        var sno = $('#sampleNo').val();
+        var isClaimBill = $('#claim_bill').is(':checked');
 
-            var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
+        // build correct URL based on checkbox
+        var url = isClaimBill 
+            ? "printinvoice/claim/" + sno + "&" + date 
+            : "printinvoice/" + sno + "&" + date;
 
-            setTimeout(function () {
-                win.print();
-            }, 5000);
+        var win = window.open(url, '_blank');
 
-            setTimeout(function () {
-                win.close();
-                resetPage();
-            }, 8000);
+        setTimeout(function () {
+            win.print();
+        }, 5000);
+
+        setTimeout(function () {
+            win.close();
+            resetPage();
+        }, 8000);
     }
 
-   
 
 
     // *-*-*-*-*-*-*-*-*-*-*most recent test buttons-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

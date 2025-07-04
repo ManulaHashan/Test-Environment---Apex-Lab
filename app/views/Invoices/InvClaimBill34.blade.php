@@ -159,7 +159,7 @@ foreach ($result_get_invoiceData as $invoice){
         </tr>
         <tr>
             <td colspan="2" style="text-align: left;">
-                <div style="font-weight: bold; font-size: 28px; margin-top: 20px;">PATIENT RECEIPT</div>
+                <div style="font-weight: bold; font-size: 28px; margin-top: 20px;">PATIENT RECEIPT Claim Bill</div>
             </td>
         </tr>
 

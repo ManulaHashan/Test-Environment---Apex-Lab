@@ -801,15 +801,36 @@ Route::get('/clear-cache', function() {
 
 
 //Print Invoice Route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Route::get('/printinvoice/{id}', function($id) {
+
+//     $arr = explode("&", $id);
+
+//     $lid = $_SESSION["lid"];
+    
+    
+//     return View::make('Invoices.Inv' . $lid)->with('sno', $arr[0])->with('date', $arr[1]);
+// });
+
+// Default invoice route
 Route::get('/printinvoice/{id}', function($id) {
-
     $arr = explode("&", $id);
-
     $lid = $_SESSION["lid"];
-    
-    
-    return View::make('Invoices.Inv' . $lid)->with('sno', $arr[0])->with('date', $arr[1]);
+    return View::make('Invoices.Inv' . $lid)
+        ->with('sno', $arr[0])
+        ->with('date', $arr[1]);
 });
+
+// Claim Bill invoice route
+Route::get('/printinvoice/claim/{id}', function($id) {
+    $arr = explode("&", $id);
+    $lid = $_SESSION["lid"];
+    return View::make('Invoices.InvClaimBill' . $lid)
+        ->with('sno', $arr[0])
+        ->with('date', $arr[1]);
+});
+
+
+
 
 //Print Barcode Route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/printBarcode/{id}', function($id) {
