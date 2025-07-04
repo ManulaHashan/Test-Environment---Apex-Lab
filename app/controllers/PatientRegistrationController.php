@@ -1197,8 +1197,7 @@ class PatientRegistrationController extends Controller
     public function getTestCodes()
     {
         try {
-            $labLid = 34; // or get dynamically
-
+            $labLid =  $_SESSION['lid']; 
             $testCodes = DB::table('Testgroup as t')
                 ->join('lps as l', 't.tgid', '=', 'l.Testgroup_tgid')
                 ->select('t.testCode', 't.tgid', 't.name as group', 't.price', 't.testingtime')

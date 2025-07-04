@@ -1884,11 +1884,11 @@ Add New Patient
                         if (index < testCodes.length) {
                             const test = testCodes[index];
 
-                            // Store all needed data in a data attribute on button
+                            
                             $(this).text(test.testCode);
                             $(this).prop('disabled', false);
 
-                            // Compose the string in the expected format: "tgid:group:price:time"
+                           
                             const valueString = `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`;
                             $(this).data('testinfo', valueString);
                         } else {
@@ -1898,7 +1898,7 @@ Add New Patient
                         }
                     });
 
-                    // Attach click handlers
+                    
                     $('#testCodeButtons button').off('click').on('click', function () {
                         const testInfo = $(this).data('testinfo');
                         if (testInfo) {
