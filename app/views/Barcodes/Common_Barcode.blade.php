@@ -32,13 +32,22 @@
             margin-bottom: 20px; 
         }
 
-        .barcode-label {
+        /* .barcode-label {
             width: 100%;
             background-color: #fff;
             transform: scale(0.9);
             transform-origin: top left;
             padding: 5px;
+        } */
+
+        .barcode-label {
+            width: 100%;
+            background-color: #fff;
+            /* transform: scale(0.9);  <-- MEKA AIN KARANNA */
+            /* transform-origin: top left; <-- MEKA AIN KARANNA */
+            padding: 5px 0;
         }
+
 
         .barcode-top {
             display: flex;
@@ -71,11 +80,21 @@
             
         }
 
-        canvas {
+        /* canvas {
             display: block;
             margin-left: auto;
             margin-right: 8px auto;
+        } */
+
+            canvas {
+            display: block;
+            margin: 0 auto; /* center canvas horizontally */
+            width: 360px !important;
+            height: 50px !important;
+           
         }
+
+
         .hr-wrapper {
             position: relative;
             margin-left: 10px;
@@ -92,12 +111,12 @@
 
         .hr-arrow {
             position: absolute;
-            top: -6px; /* adjust to vertically align with <hr> */
-            right: -13px;
-            font-size: 10px;
+            top: -6px; 
+            right: -8px;
+            font-size: 8px;
             color: #141414;
-            background-color: white; /* background to "cut" the line */
-            padding-left: 2px;
+            background-color: white;
+            padding-left: 0px;
            
         }
     </style>
@@ -222,9 +241,12 @@ if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches
             format: "CODE128",
             displayValue: false,
             lineColor: "#000",
-            width: 3,
-            height: 60,
+            width: 2.5,       
+            height: 50,      
             margin: 0,
+            marginLeft: 5,
+            marginRight: 5
+            fontSize: 14,
         });
     </script>
 
@@ -271,9 +293,12 @@ if (preg_match("/{$tgid}:(\w)/", $duplicateBarsetRow->duplicate_barset, $matches
             format: "CODE128",
             displayValue: false,
             lineColor: "#000",
-            width: 3,
-            height: 60,
+            width:  2.5,       
+            height: 50,      
             margin: 0,
+            marginLeft: 5,
+            marginRight: 5,
+            fontSize: 14,
         });
     </script>
 
@@ -387,9 +412,12 @@ foreach ($groupedTests as $scid => $tgids) {
                     format: "CODE128",
                     displayValue: false,
                     lineColor: "#000",
-                    width: 3,
-                    height: 60,
+                    width:  2.5,       
+                    height: 50,      
                     margin: 0,
+                    marginLeft: 5,
+                    marginRight: 5,
+                    fontSize: 14,
                     
                 });
             </script>
@@ -444,9 +472,12 @@ foreach ($groupedTests as $scid => $tgids) {
                 format: "CODE128",
                 displayValue: false,
                 lineColor: "#000",
-                width: 3,
-                height: 60,
+                width:  2.5,       
+                height: 50,      
                 margin: 0,
+                marginLeft: 5,
+                marginRight: 5,
+                fontSize: 14,
             });
         </script>
         <?php
