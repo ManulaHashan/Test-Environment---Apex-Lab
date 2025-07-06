@@ -199,7 +199,7 @@ foreach ($sample_tgName as $sample_TGName) {
 </table>
 
 <script>
-    JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno) ?>", {
+    JsBarcode("#barcodeCanvas_single", "<?= addslashes($sno . '-' . $TGName . $orderNo) ?>", {
         format: "CODE128",
         displayValue: false,
         lineColor: "#000",
