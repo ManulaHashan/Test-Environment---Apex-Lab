@@ -3,74 +3,79 @@
 // $date = date('Y-m-d', strtotime($date));
 // echo "This is bill of lab ".$_SESSION["lid"]. "and SampleNO : ". $sno . " Date : ".$date ;
 
-$result_get_lab_details = DB::select("select name,address,email,tpno from Lab where lid = '" . $_SESSION["lid"] . "'");
-foreach ($result_get_lab_details as $lab_details){
-    $labname = $lab_details->name;;
-    $labaddress = $lab_details->address; 
-    $labemail = $lab_details->email; 
-    $labtpno = $lab_details->tpno; 
-}
-
-$patient_pid = "";
-
-$result_get_patient_pid = DB::select("select patient_pid from lps where date = '" . $date . "' and sampleNo like '" . $sno . "%' group by patient_pid");
-foreach ($result_get_patient_pid as $lps_details){
-    $patient_pid = $lps_details->patient_pid;
-}
-
-
-
-
-
-
-$result_get_patient_details = DB::select("
-    SELECT u.fname, u.lname, u.gender_idgender, 
-           p.age, p.months, p.days, p.initials, l.refby
-    FROM patient AS p, user AS u, lps AS l
-    WHERE p.user_uid = u.uid 
-      AND p.pid = '".$patient_pid."'
-      group by p.pid 
-      
-");
-
-
-$fname = "";
-$lname = "";
-$gender_data = "";
-$age = ""; 
-$months = "";
-$days = "";
-$initials = "";
-$refby = "";
-
-    
-foreach ($result_get_patient_details as $patient_details) {
-        $fname = $patient_details->fname;
-        $lname = $patient_details->lname;
-    
-        if ($patient_details->gender_idgender == "1") {
-            $gender_data = "Male";
-        }else{
-            $gender_data = "Female";
+    $result_get_lab_details = DB::select("select name,address,email,tpno from Lab where lid = '" . $_SESSION["lid"] . "'");
+        foreach ($result_get_lab_details as $lab_details){
+            $labname = $lab_details->name;;
+            $labaddress = $lab_details->address; 
+            $labemail = $lab_details->email; 
+            $labtpno = $lab_details->tpno; 
         }
 
-        $age = $patient_details->age;
-        $months = $patient_details->months;
-        $days = $patient_details->days;
-        $initials = $patient_details->initials;
-        $refby = $patient_details->refby;
-    }
+    $patient_pid = "";
+
+    $result_get_patient_pid = DB::select("select patient_pid from lps where date = '" . $date . "' and sampleNo like '" . $sno . "%' group by patient_pid");
+        foreach ($result_get_patient_pid as $lps_details){
+            $patient_pid = $lps_details->patient_pid;
+        }
+
+
+
+
+
+
+    $result_get_patient_details = DB::select("
+        SELECT u.fname, u.lname, u.gender_idgender,u.tpno,u.address, 
+        p.age, p.months, p.days, p.initials, l.refby
+        FROM patient AS p, user AS u, lps AS l
+        WHERE p.user_uid = u.uid 
+        AND p.pid = '".$patient_pid."'
+        group by p.pid 
+        
+    ");
+
+
+    $fname = "";
+    $lname = "";
+    $gender_data = "";
+    $age = ""; 
+    $months = "";
+    $days = "";
+    $initials = "";
+    $refby = "";
+    $ptpno = "";
+    $paddress = "";
 
     
-$result_get_testgroup_details = DB::select("
-    SELECT b.name, b.price 
-    FROM lps AS a, Testgroup AS b 
-    WHERE a.Testgroup_tgid = b.tgid 
-      AND a.sampleNo LIKE '" . $sno . "%'
-      And a.date = '" . $date . "'
-      AND a.Lab_lid = " . $_SESSION['lid'] . "
-");
+    foreach ($result_get_patient_details as $patient_details) 
+    {
+            $fname = $patient_details->fname;
+            $lname = $patient_details->lname;
+            $ptpno  = $patient_details->tpno;
+            $paddress  = $patient_details->address;
+        
+            if ($patient_details->gender_idgender == "1") {
+                $gender_data = "Male";
+            }else{
+                $gender_data = "Female";
+            }
 
+            $age = $patient_details->age;
+            $months = $patient_details->months;
+            $days = $patient_details->days;
+            $initials = $patient_details->initials;
+            $refby = $patient_details->refby;
+        }
+
+    
+    $result_get_testgroup_details = DB::select("
+        SELECT b.name, b.price 
+        FROM lps AS a, Testgroup AS b 
+        WHERE a.Testgroup_tgid = b.tgid 
+        AND a.sampleNo LIKE '" . $sno . "%'
+        And a.date = '" . $date . "'
+        AND a.Lab_lid = " . $_SESSION['lid'] . "
+    ");
+        $count_testgroup_details = count($result_get_testgroup_details);
 
 $result_get_invoiceData = DB::select("
     SELECT i.iid, i.total, i.paid, i.gtotal, i.discount, i.status,i.cashier, 
@@ -145,17 +150,20 @@ foreach ($result_get_invoiceData as $invoice){
 <body>
     <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: Arial, sans-serif; ">
         <tr>
-            <td colspan="2" style="text-align: left; font-weight: bold;font-size: 35px;"><?php echo $labname; ?></td>
+            <td colspan="2" style="text-align: left; font-weight: bold;">
+                <span style="font-size: 35px;"><?php echo $labname; ?></span>
+                <span style="font-size: 18px;"><?php echo $labaddress; ?></span>
+            </td>
+
         </tr>
         <tr>
+       
+
             <td colspan="2" style="text-align: left; ">
-                <span style="font-style:italic; font-size: 20px; ">Provididing information for the diagnosis</span><br>
-                <?php echo $labaddress; ?>
-                <br>Tel: <?php echo $labtpno; ?>  &nbsp;&nbsp;&nbsp; Reg No - PHSLC/L/700
-                {{-- <br>Web:www.synergy.com  --}}
-                {{-- <br>Email: --}}
-                <?php //echo $labemail; ?>
-        </td>
+                <span style="font-size: 15px;">Reg.No. PHSRC/L/207 Tel.0710901310, 0342269463,Email:
+                <?php echo $labemail; ?></span><br>
+                <span style="font-size: 15px;">Open daily 7.00 am to 7.00 pm,Poyadays closed. Collect reports withing 2 months</span>
+            </td>
         </tr>
         <tr>
             <td colspan="2" style="text-align: left;">
@@ -186,6 +194,10 @@ foreach ($result_get_invoiceData as $invoice){
                         <span style="margin-left: 25px;">Gender: <?php echo $gender_data; ?></span>
                     </div>
                     <div>
+                        <span style="display: inline-block; width: 120px;">Address:</span>
+                        <?php echo $paddress; ?>
+                    </div>
+                    <div>
                         <span style="display: inline-block; width: 120px;">Referred By:</span>
                         <?php echo $refby; ?>
                     </div>
@@ -196,6 +208,11 @@ foreach ($result_get_invoiceData as $invoice){
                     <td style="text-align: right; vertical-align: top; width: 25%;">
                         <div style="font-weight: bold;"><span style="color: #000;">Sample NO</span></div>
                         <div style="font-size: 30px; font-weight: bold; margin-top: 5px;"><?php echo $sno; ?></div>
+                        <div style="font-size: 30px; font-weight: bold; margin-top: 5px;"></div><br>
+                        <div style="font-size: 15px;  margin-top: 5px;">
+                            <span style="display: inline-block; width: 120px;">T.P.No:</span>
+                            <?php echo $ptpno; ?>
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -208,7 +225,7 @@ foreach ($result_get_invoiceData as $invoice){
         <td colspan="2" style="height: 20px;"></td>
         </tr>
         <tr>
-            <th style="text-align: left; padding: 5px;border-bottom: 2px solid #000;">Description</th>
+            <th style="text-align: left; padding: 5px;border-bottom: 2px solid #000;">Test Name</th>
             <th style="text-align: right; padding: 5px; border-bottom: 2px solid #000;">Amount Rs.</th>
         </tr>
        
@@ -269,29 +286,30 @@ foreach ($result_get_invoiceData as $invoice){
 </tr>
 
     
-           <tr>
-                <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; vertical-align: top;">
-                    Issued by: <span style="margin-left: 10px;"><?php echo $cashier; ?></span>
-                </td>
-                <td style="border-top: 2px solid #000; text-align: center; padding-top: 20px;">
-                    <!-- First Line: Method -->
-                    <div style="margin-bottom: 10px; text-align: right;">
-                        Method: <span style="margin-left: 10px;"><?php echo $paymentmethod; ?></span>
-                    </div>
-                    <!-- Second Line: Cashier -->
-                    {{-- <div style="display: inline-block; text-align: center;">
-                        <hr style="border: none; border-top: 1px dotted; width: 200px;">
-                        <em>Cashier</em>
-                    </div> --}}
-                </td>
-                <td style="border-top: 2px solid #000; text-align: left; padding-top: 20px; vertical-align: top;">
-                    <!-- Empty cell to maintain the table structure -->
-                </td>
-        </tr>
+         <tr>
+    <td colspan="2" style="border-top: 2px solid #000; padding-top: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: bold;">
+            
+            <div style="width: 25%;">Issued by: <span style="margin-left: 5px;"><?php echo $cashier; ?></span></div>
+            
+            <div style="width: 20%;">Method: <span style="margin-left: 5px;"><?php echo $paymentmethod; ?></span></div>
+            
+            <div style="width: 20%;">Item Count: <span style="margin-left: 5px;"><?php echo $count_testgroup_details; ?></span></div>
+            
+            <div style="width: 30%; text-align: center;">
+                <hr style="border: none; border-top: 1px dotted #000; width: 150px; margin: 0 auto 2px;">
+                <em>Cashier</em>
+            </div>
+
+        </div>
+    </td>
+</tr>
 
 
+        
 
-        <tr>
+
+        {{-- <tr>
             <td colspan="2">
                 <hr style="border: none; border-top: 1px solid black; margin: 10px 0;">
             </td>
@@ -306,7 +324,7 @@ foreach ($result_get_invoiceData as $invoice){
             <td colspan="2">
                 <hr style="border: none; border-top: 1px solid black; margin: 10px 0;">
             </td>
-        </tr>
+        </tr> --}}
         <tr>
             <td colspan="2" style="text-align: left; font-size: 10px;">
                 Software By Apex Software Solutions (PVT) LTD -
