@@ -148,6 +148,7 @@ View Invices
         var selectedRow = $('#invdataTable tbody tr.selected');
         var sampleNo = selectedRow.find('td:eq(0)').text(); 
         var lpsId = selectedRow.data('lpsid'); 
+         var invoiceDate = selectedRow.data('date');
         
         if (!confirm("Are you sure you want to cancel invoice for Sample No: " + sampleNo + "?")) {
             return;
@@ -158,7 +159,8 @@ View Invices
             url: "cancelInvoice",
             data: {
                 sampleNo: sampleNo,
-                lpsId: lpsId
+                lpsId: lpsId,
+                invoiceDate: invoiceDate
             },
             success: function (response) {
                 alert(response.message);
@@ -402,7 +404,7 @@ View Invices
                 </table>
             </div>
         
-            <!-- Right Side: Additional Content -->
+            <!-- Right Side: Sample records -->
             <div style="flex: 0 0 20%; padding-left: 10px;">
                 <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="sampledataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
                     <tbody>
@@ -448,7 +450,7 @@ View Invices
                     <select name="labuser" style="width: 250px; height: 30px; margin-left: 15px;" class="input-text" id="labuser">
                         <option value="%">All</option>
                         <?php
-                        $query = "SELECT a.uid, a.fname, a.lname 
+                        $query = "select a.uid, a.fname, a.lname 
                             FROM user a
                             INNER JOIN labUser b ON a.uid = b.user_uid
                             INNER JOIN Lab_labUser c ON b.luid = c.labUser_luid
@@ -467,7 +469,7 @@ View Invices
                     </select>
                 </div>
             
-                {{-- justify-content: space-between; can add for more alignments --}}
+               
                 <div style="display: flex; width: 100%;"> 
                     <label style="font-size: 18px; margin-left: 15px; width:150px;">Total Bill Count:</label>
                     <label id="lblTotalBillCount" style="font-size: 18px; margin-left: 15px; width:150px;">0</label>
@@ -524,7 +526,7 @@ View Invices
                     <div style="display: flex; justify-content: space-around;">
                         <button onclick="cancelInvoice()" 
                                 style="background-color: red; color: white; padding: 8px 20px; 
-                                    border: none; border-radius: 5px; cursor: pointer;">Delete</button>
+                                    border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
                         <button onclick="closeModal()" 
                                 style="background-color: gray; color: white; padding: 8px 20px; 
                                     border: none; border-radius: 5px; cursor: pointer;">Close</button>

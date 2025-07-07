@@ -334,8 +334,8 @@ class PatientRegistrationController extends Controller
                 'days' => $days,
                 'initials' => $initial,
                 'dob' => $dob,
-                'created_at' => $currentTimestamp,
-                'updated_at' => $currentTimestamp
+                // 'created_at' => $currentTimestamp,
+                // 'updated_at' => $currentTimestamp
             ]);
         } else {
             $userid = DB::table('user')->insertGetId([
@@ -346,8 +346,8 @@ class PatientRegistrationController extends Controller
                 'gender_idgender' => $gender,
                 'usertype_idusertype' => '2',
                 'nic' => $nic,
-                'created_at' => $currentTimestamp,
-                'updated_at' => $currentTimestamp
+                // 'created_at' => $currentTimestamp,
+                // 'updated_at' => $currentTimestamp
             ]);
 
             $patientid = DB::table('patient')->insertGetId([
@@ -357,8 +357,8 @@ class PatientRegistrationController extends Controller
                 'days' => $days,
                 'initials' => $initial,
                 'dob' => $dob,
-                'created_at' => $currentTimestamp,
-                'updated_at' => $currentTimestamp
+                // 'created_at' => $currentTimestamp,
+                // 'updated_at' => $currentTimestamp
             ]);
         }
 
@@ -550,8 +550,8 @@ class PatientRegistrationController extends Controller
                     'lps_lpsid' => $lpsId,
                     'test_tid' => $testRecord->test_tid,
                     'state' => 'pending',
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    // 'created_at' => $now,
+                    // 'updated_at' => $now
                 ]);
             }
            

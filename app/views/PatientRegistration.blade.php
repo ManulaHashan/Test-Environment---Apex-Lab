@@ -1619,7 +1619,7 @@ Add New Patient
 
         $.ajax({
             type: "GET",
-            url: "/getRefName", // you need to handle this route in backend
+            url: "/getRefName", 
             data: {
                 keyword: keyword
             },
@@ -1640,6 +1640,68 @@ Add New Patient
             }
         });
     }
+
+    //     function searchRefferenceCode() {
+    //     var refCode = $('#refcode').val();
+
+    //     if (refCode.length < 1) {
+    //         $('#refcode_suggestions').hide();
+    //         return;
+    //     }
+
+    //         $.ajax({
+    //             type: "GET",
+    //             url: "/getRefCode",
+    //             data: { keyword: refCode },
+    //             success: function (data) {
+    //             var suggestionsHtml = '';
+    //             if (data.length > 0) {
+    //                 $.each(data, function (index, ref) {
+    //                     suggestionsHtml += '<option value="' + ref.code + '">' + ref.code + ' - ' + ref.name + '</option>';
+    //                 });
+    //                 $('#refcode_list').html(suggestionsHtml);
+    //             } else {
+    //                 $('#refcode_list').empty();
+    //             }
+    //         },
+    //         error: function (xhr) {
+    //             console.error('Error:', xhr.statusText);
+    //         }
+    //     });
+    // }
+
+    // function searchRefName() {
+    //     var keyword = $('#refDropdown').val();
+
+    //     if (keyword.length < 1) {
+    //         $('#refname_suggestions').hide();
+    //         return;
+    //     }
+
+    //     $.ajax({
+    //         type: "GET",
+    //         url: "/getRefName", // you need to handle this route in backend
+    //         data: {
+    //             keyword: keyword
+    //         },
+    //        success: function (data) {
+    //             var suggestionsHtml = '';
+    //             if (data.length > 0) {
+    //                 $.each(data, function (index, ref) {
+    //                     suggestionsHtml += '<option value="' + ref.name + '">' + ref.name + ' (' + ref.code + ')</option>';
+    //                 });
+    //                 $('#refname_list').html(suggestionsHtml);
+    //             } else {
+    //                 $('#refname_list').empty();
+    //             }
+    //         },
+    //         error: function (xhr) {
+    //             console.error('Error:', xhr.statusText);
+    //         }
+    //     });
+    // }
+
+    
 
 
     function selectRef(code, idref, name) {
@@ -3274,6 +3336,9 @@ $('#btnFront').on('click', function() {
                            <input type="text" name="refDropdown" id="refDropdown" class="input-text" style="width: 325px; height: 27px;" 
                                 placeholder="Referred By Name" oninput="searchRefName()" autocomplete="off">
                             <div id="refname_suggestions" class="autocomplete-suggestions2"></div>
+
+
+                        
 
 
                             

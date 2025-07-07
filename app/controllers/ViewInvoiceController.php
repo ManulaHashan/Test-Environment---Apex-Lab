@@ -162,12 +162,14 @@ class ViewInvoiceController extends Controller{
     {
         $sampleNo = Input::get('sampleNo'); 
         $lpsId = Input::get('lpsId');
+         $invoiceDate = Input::get('invoiceDate');
     
         try {
-            DB::transaction(function () use ($sampleNo, $lpsId) {
+            DB::transaction(function () use ($sampleNo, $lpsId,$invoiceDate) {
                 // Update the lps table
                 DB::table('lps')
                     ->where('sampleNo', 'like', $sampleNo . '%')
+                    ->where('date', '=', $invoiceDate )
                     ->update(['date' => '0000-00-00']);
     
                 // Retrieve invoice IDs
@@ -189,7 +191,7 @@ class ViewInvoiceController extends Controller{
             
             // Insert into canceled_invoices table after successful cancellation
             $lps_id = $lpsId;
-            $invoiceDate = date('Y-m-d'); // Replace with actual invoice date if available
+            $invoiceDate = date('Y-m-d');
             $today_date = date('Y-m-d');
             $today_time = date('H:i:s');
             $labId = $_SESSION['lid'];
