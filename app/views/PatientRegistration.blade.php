@@ -780,6 +780,7 @@ Add New Patient
         var refcode = $('#refcode').val();
         var refName  = $('#refDropdown').val();
         var ref = $('#ref').val();
+        // alert(ref);
 
         var testname = $('#testname').val();
         var pkgname = $('#packageDropdown').val(); // Change this line to get the value from packageDropdown
@@ -922,6 +923,7 @@ Add New Patient
                 console.log("Sending data to server...");
             },
             success: function (response) {
+               
 
                 console.log("Server Response:", response);
                 alert(response.message || 'Patient saved successfully!');
@@ -1171,7 +1173,7 @@ Add New Patient
                         $("#nic").attr("readonly", true);
                         $("#address").attr("readonly", true);
                         $("#refcode").attr("readonly", true);
-                        $("#refDropdown").attr("disabled", true);
+                        $("#refDropdown").attr("readonly", true);
                         $("#testname").attr("readonly", true);
                         $("#packageDropdown").attr("readonly", true);
 
@@ -1641,6 +1643,42 @@ Add New Patient
         });
     }
 
+
+ 
+    $(document).ready(function () {
+
+        $('#refcode').on('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); 
+
+                var refCode = $(this).val().trim();
+
+                if (refCode.length > 0) {
+                    $.ajax({
+                        type: "GET",
+                        url: "/getRefByCode", 
+                        data: { code: refCode },
+                        success: function (data) {
+                            if (data && data.name) {
+                                $('#refDropdown').val(data.name); 
+                                $('#ref').val(data.idref); 
+                                $('#refcode_suggestions').hide(); 
+                            } else {
+                                alert("No matching reference found for this code.");
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error("Error fetching reference name by code:", xhr.statusText);
+                        }
+                    });
+                }
+            }
+        });
+
+    });
+
+
+   
     //     function searchRefferenceCode() {
     //     var refCode = $('#refcode').val();
 
@@ -2198,7 +2236,7 @@ Add New Patient
                     var data = response.data;
                     $('#refDropdown').val(data.refby);
                     $('#refcode').val(data.code);
-                    $('#ref').val(data.code);
+                    $('#ref').val(data.idref);
                     $('#initial').val(data.initials);
                     $('#fname').val(data.fname);
                     $('#lname').val(data.lname);

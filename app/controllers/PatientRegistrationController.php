@@ -280,7 +280,7 @@ class PatientRegistrationController extends Controller
     }
 
 
-      public function savePatientDetails()
+    public function savePatientDetails()
     {
         $userUid = $_SESSION['uid'];
         $years = Input::get('years');
@@ -431,7 +431,42 @@ class PatientRegistrationController extends Controller
 
                 
             
-
+//            echo "INSERT INTO lps (
+//     patient_pid,
+//     Lab_lid,
+//     date,
+//     sampleNo,
+//     arivaltime,
+//     refby,
+//     refference_idref,
+//     type,
+//     fastingtime,
+//     entered_uid,
+//     price,
+//     Testgroup_tgid,
+//     urgent_sample,
+//     specialnote,
+//     status,
+//     created_at,
+//     updated_at
+// ) VALUES (
+//     '{{$patientid}}',
+//     '{{$labLid}}',
+//     '{{$now}}',
+//     '{{$sampleNoFromFront}}',
+//     '{{$now}}',
+//     '{{$refName}}',
+//     '{{$refId}}',
+//     '1', '0',
+//     '',
+//     '{{$test["price"]}}',
+//     '{{$test["tgid"]}}',
+//     '{{$test["priority"]}}',
+//     '',
+//     'pending',
+//     '{{$now}}',
+//     '{{$now}}'
+// )";
 
 
             
@@ -566,6 +601,7 @@ class PatientRegistrationController extends Controller
 
                 $date_sampleno = $getSampleNo ? $getSampleNo->date : '';
                 $data_sampleNo = $getSampleNo ? $getSampleNo->sampleNo : '';
+                
                 
                 return Response::json([
                     'success' => true,
@@ -1439,7 +1475,7 @@ class PatientRegistrationController extends Controller
             ->leftjoin('patient as b', 'a.patient_pid', '=', 'b.pid')
             ->leftjoin('user as c', 'b.user_uid', '=', 'c.uid')
             ->leftjoin('refference as d', 'a.refference_idref' ,'=', 'd.idref')
-            ->select('a.refby','d.code', 'b.initials', 'c.fname', 'c.lname', 'b.age', 'c.tpno', 'c.address', 'a.sampleNO', 'b.months', 'b.days')
+            ->select('a.refby','d.idref','d.code', 'b.initials', 'c.fname', 'c.lname', 'b.age', 'c.tpno', 'c.address', 'a.sampleNO', 'b.months', 'b.days')
             ->where('a.Lab_lid', '=', $labLid)
             ->where('a.date', '=', $date)
             ->orderBy('a.lpsid', 'DESC')
@@ -1539,6 +1575,20 @@ class PatientRegistrationController extends Controller
             ->get(['idref', 'name', 'code']);
 
         return Response::json($results);
+    }
+
+    public function getRefByCode()
+    {
+        $code = Input::get('code');
+        $labLid = $_SESSION['lid'];
+
+        $ref = DB::table('refference')
+            ->where('lid', '=', $labLid)
+            ->where('code', '=', $code)
+            ->select('idref', 'name')
+            ->first();
+
+        return Response::json($ref);
     }
 
 
