@@ -139,6 +139,22 @@ View Invices
         window.open("patientRegistration?sampleNo=" + sampleNo + "&date=" + $('#idate').val(), "_self");
     }
 
+    
+    function viewReports() {
+        var selectedRow = $('#invdataTable tbody tr.selected');
+        if (selectedRow.length === 0) {
+            alert("Please select a row to view.");
+            return;
+        }
+
+        var sampleNo = selectedRow.find('td:eq(0)').text(); 
+        var idate = $('#idate').val();
+
+        // Pass values as query parameters
+       window.open("viewptients?sampleNo=" + encodeURIComponent(sampleNo) + "&idate=" + encodeURIComponent(idate), "_self");
+    }
+
+
 
 
     //*************************************************************************************************
@@ -500,6 +516,7 @@ View Invices
             <div style="flex: 0 0 20%; padding-left: 10px;">
                 <div id="button-container">
                     <input type="button" style="flex: 0 0 80px;width: 175px; height: 50px;" class="btn" id="ser_btn" value="View Selected Invoice" onclick="viewSelectedInvoice()">
+                    <input type="button" style="flex: 0 0 80px;width: 175px; height: 50px;" class="btn" id="viewReports_btn" value="Reports" onclick="viewReports()">
                   </div>
                   <div id="button-container">
                     <input type="button" style="flex: 0 0 80px; width: 175px; height: 50px; color: red" class="btn" id="ser_btn" value="Cancel Invoice" onclick="selectToDelete()">

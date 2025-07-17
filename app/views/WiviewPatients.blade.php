@@ -15,6 +15,26 @@ View Patients
     window.onload = loadDate;
 
 
+    window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sampleNo = urlParams.get('sampleNo');
+        const idate = urlParams.get('idate');
+
+        if (sampleNo) {
+            document.getElementById('sNo').value = sampleNo;
+        }
+        if (idate) {
+            document.getElementById('pdate').value = idate;
+            document.getElementById('pdatex').value = idate;
+        }
+
+        if (sampleNo || idate) {
+            validate(); // auto-trigger search if values exist
+        }
+    };
+
+
+
 
     function loadDate() {
 
