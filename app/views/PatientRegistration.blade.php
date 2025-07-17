@@ -922,33 +922,49 @@ Add New Patient
                 $("#loaderOverlay").show(); 
                 console.log("Sending data to server...");
             },
-            success: function (response) {
-               
+           success: function (response) {
 
                 console.log("Server Response:", response);
                 alert(response.message || 'Patient saved successfully!');
+
                 var sampleData = response.datainv.split('###');
-                view_selected_patient(sampleData[0], sampleData[1]);
-               
-                    if ($('#print_bill').is(':checked')) {
-                         if($('#two_copies').is(':checked')){
-                        
-                            for (let i = 0; i < 2; i++) {
-                                printInvoice();
-                            }
+                var sno = sampleData[0];
+                var date = sampleData[1];
+                
+                var isPrintBill = $('#print_bill').is(':checked');
+                var isTwoCopies = $('#two_copies').is(':checked');
+                var isTokenPrint = $('#print_token').is(':checked');
 
-                        }else{
-                          printInvoice();
+                view_selected_patient(sno, date);
 
+                if (isPrintBill) {
+                    if (isTwoCopies) {
+                        for (let i = 0; i < 2; i++) {
+                            printInvoice();
                         }
+                    } else {
+                        printInvoice();
                     }
-                    else {
+
+                } else if (isTokenPrint) {
+                    // Only print token when invoice is not printed and token checkbox is checked
+                    var tokenUrl = "printtoken/" + sno + "&" + date;
+                    var tokenWin = window.open(tokenUrl, '_blank');
+
+                    setTimeout(function () {
+                        tokenWin.print();
+                    }, 2000);
+
+                    setTimeout(function () {
+                        tokenWin.close();
+                    }, 5000);
+
+                    setTimeout(function () {
                         resetPage();
-                    }
-
-                   
-
-
+                    }, 6000);
+                } else {
+                    resetPage();
+                }
             },
             error: function (xhr) {
                 console.error('Error:', xhr);
@@ -1979,6 +1995,7 @@ Add New Patient
         var date = $('#patientDate').val();
         var sno = $('#sampleNo').val();
         var isClaimBill = $('#claim_bill').is(':checked');
+        var isTokenPrint = $('#print_token').is(':checked');
 
         // build correct URL based on checkbox
         var url = isClaimBill 
@@ -1995,9 +2012,18 @@ Add New Patient
             win.close();
             resetPage();
         }, 8000);
-    }
 
 
+        // Final cleanup
+        setTimeout(function () {
+            resetPage();
+        }, 6000);
+        }
+
+
+    // Print Token Function
+
+  
 
     // *-*-*-*-*-*-*-*-*-*-*most recent test buttons-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
     $(document).ready(function () {
@@ -2644,7 +2670,56 @@ $('#btnFront').on('click', function() {
     }
 
 
+    function handlePrintOption(clicked) {
+        // Get all checkboxes in this group
+        const checkboxes = document.querySelectorAll('input[name="print_option"]');
+        
+        checkboxes.forEach(cb => {
+            if (cb !== clicked) {
+                cb.checked = false; // uncheck other one
+            }
+        });
 
+        // Ensure one is always selected (if none, re-check the clicked one)
+        if (![...checkboxes].some(cb => cb.checked)) {
+            clicked.checked = true;
+        }
+    }
+
+    // function handleQRScanAndClear(inputElem) {
+    //     const scannedData = inputElem.value.trim();
+    //     handleQRScan(scannedData);
+    //     inputElem.value = ''; 
+    // }
+
+    // function handleQRScan(scannedData) {
+      
+    //     const parts = scannedData.split('|');
+
+    //     if (parts.length === 2) {
+    //         const sno = parts[0];
+    //         const date = parts[1];
+
+           
+    //         document.getElementById('ser_sampleno').value = sno;
+    //         document.getElementById('ser_date').value = date;
+
+           
+    //         view_search_patient();
+    //     } else {
+    //         alert("Invalid QR code format");
+    //     }
+    // }
+
+    
+    // document.addEventListener('click', function () {
+    //     document.getElementById('qr_input').focus();
+    // });
+
+  
+    // window.onload = function () {
+    //     document.getElementById('qr_input').focus();
+    // };
 
 </script>
 
@@ -3240,6 +3315,8 @@ $('#btnFront').on('click', function() {
 
                                             <input type="date" name="ser_date" class="input-text" id="ser_date" style="">
 
+                                            {{-- token scanner --}}
+                                        <input type="text" id="qr_input" autofocus style="opacity: 0; position: absolute;" oninput="handleQRScanAndClear(this)">
 
 
                                         </td>
@@ -3643,22 +3720,27 @@ $('#btnFront').on('click', function() {
                                     <table style="margin-top: 10px; font-size: 10pt;" cellspacing="0" width="100%">
                                     
                                     <tr style="margin-top:10px;">
-                                        <td width="25%">
+                                        <td width="20%">
                                             
                                         <input type="checkbox" name="package_invoice" id="package_invoice" value="package_invoice" style=""><br/>Package Invoice
                                         </td>
 
-                                        <td width="25%">
-                                            
-                                        <input type="checkbox" name="print_bill" id="print_bill" class="ref_chkbox" value="1" checked style=""><br/>Print Bill
-                                        </td>
+                 <td width="20%">
+    <input type="checkbox" name="print_option" id="print_bill" class="ref_chkbox" value="bill" checked onclick="handlePrintOption(this)">
+    <br/>Print Bill
+</td>
 
-                                        <td width="25%">
+<td width="20%">
+    <input type="checkbox" name="print_option" id="print_token" class="ref_chkbox" value="token" onclick="handlePrintOption(this)">
+    <br/>Print Token
+</td>
+
+                                        <td width="20%">
                                             
                                         <input type="checkbox" name="claim_bill" id="claim_bill" class="ref_chkbox" value="1" style=""><br/>Claim Bill
                                         </td>
 
-                                        <td width="25%">
+                                        <td width="20%">
                                             
                                         <input type="checkbox" name="two_copies" id="two_copies" class="ref_chkbox" value="1" style=""><br/>2 Copies
                                         </td>
