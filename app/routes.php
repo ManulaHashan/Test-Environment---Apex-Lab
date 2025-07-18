@@ -832,13 +832,15 @@ Route::get('/printinvoice/claim/{id}', function($id) {
 });
 
 //Token print route
+
 Route::get('/printtoken/{id}', function($id) {
-    $arr = explode("&", $id);
+    $arr = explode(",", $id); 
     $lid = $_SESSION["lid"];
     return View::make('Tokens.tokenLab' . $lid)
         ->with('sno', $arr[0])
         ->with('date', $arr[1]);
 });
+
 
 
 //Print Barcode Route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

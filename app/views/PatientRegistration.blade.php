@@ -922,50 +922,74 @@ Add New Patient
                 $("#loaderOverlay").show(); 
                 console.log("Sending data to server...");
             },
-           success: function (response) {
+        //    success: function (response) {
 
-                console.log("Server Response:", response);
-                alert(response.message || 'Patient saved successfully!');
+        //         console.log("Server Response:", response);
+        //         alert(response.message || 'Patient saved successfully!');
 
-                var sampleData = response.datainv.split('###');
-                var sno = sampleData[0];
-                var date = sampleData[1];
+        //         var sampleData = response.datainv.split('###');
+        //         var sno = sampleData[0];
+        //         var date = sampleData[1];
                 
-                var isPrintBill = $('#print_bill').is(':checked');
-                var isTwoCopies = $('#two_copies').is(':checked');
-                var isTokenPrint = $('#print_token').is(':checked');
+        //         var isPrintBill = $('#print_bill').is(':checked');
+        //         var isTwoCopies = $('#two_copies').is(':checked');
+        //         var isTokenPrint = $('#print_token').is(':checked');
 
-                view_selected_patient(sno, date);
+        //         view_selected_patient(sno, date);
 
-                if (isPrintBill) {
-                    if (isTwoCopies) {
-                        for (let i = 0; i < 2; i++) {
-                            printInvoice();
+        //         if (isPrintBill) {
+        //             if (isTwoCopies) {
+        //                 for (let i = 0; i < 2; i++) {
+        //                     printInvoice();
+        //                 }
+        //             } else {
+        //                 printInvoice();
+        //             }
+
+        //         } else if (isTokenPrint) {
+        //             // Only print token when invoice is not printed and token checkbox is checked
+        //             var tokenUrl = "printtoken/" + sno + "&" + date;
+        //             var tokenWin = window.open(tokenUrl, '_blank');
+
+        //             setTimeout(function () {
+        //                 tokenWin.print();
+        //             }, 2000);
+
+        //             setTimeout(function () {
+        //                 tokenWin.close();
+        //             }, 5000);
+
+        //             setTimeout(function () {
+        //                 resetPage();
+        //             }, 6000);
+        //         } else {
+        //             resetPage();
+        //         }
+        //     }
+                success: function (response) {
+                    var sampleData = response.datainv.split('###');
+                    var sno = sampleData[0];
+                    var date = sampleData[1];
+                    $('#sampleNo').val(sno);
+                    $('#patientDate').val(date);
+
+                    var isPrintBill = $('#print_bill').is(':checked');
+                    var isTwoCopies = $('#two_copies').is(':checked');
+
+                    view_selected_patient(sno, date);
+
+                    if (isPrintBill) {
+                        if (isTwoCopies) {
+                            for (let i = 0; i < 2; i++) {
+                                printInvoice(sno, date);
+                            }
+                        } else {
+                            printInvoice(sno, date);
                         }
                     } else {
-                        printInvoice();
-                    }
-
-                } else if (isTokenPrint) {
-                    // Only print token when invoice is not printed and token checkbox is checked
-                    var tokenUrl = "printtoken/" + sno + "&" + date;
-                    var tokenWin = window.open(tokenUrl, '_blank');
-
-                    setTimeout(function () {
-                        tokenWin.print();
-                    }, 2000);
-
-                    setTimeout(function () {
-                        tokenWin.close();
-                    }, 5000);
-
-                    setTimeout(function () {
                         resetPage();
-                    }, 6000);
-                } else {
-                    resetPage();
-                }
-            },
+                    }
+                },
             error: function (xhr) {
                 console.error('Error:', xhr);
                 var errorMsg = xhr.responseJSON ?
@@ -1976,6 +2000,51 @@ Add New Patient
     // }
 
    
+    // function printInvoice() {
+    //     var fname = $('#fname').val().trim();
+    //     var years = $('#years').val().trim();
+    //     var months = $('#months').val().trim();
+    //     var days = $('#days').val().trim();
+    //     var testRows = $('#test_tbl tbody tr').length;
+
+    //     if (
+    //         fname === "" || 
+    //         (years === "" && months === "" && days === "") || 
+    //         testRows === 0
+    //     ) {
+    //         alert("Please fill all required fields and add at least one test before printing.");
+    //         return; 
+    //     }
+
+    //     var date = $('#patientDate').val();
+    //     var sno = $('#sampleNo').val();
+    //     var isClaimBill = $('#claim_bill').is(':checked');
+    //     var isTokenPrint = $('#print_token').is(':checked');
+
+    //     // build correct URL based on checkbox
+    //     var url = isClaimBill 
+    //         ? "printinvoice/claim/" + sno + "&" + date 
+    //         : "printinvoice/" + sno + "&" + date;
+
+    //     var win = window.open(url, '_blank');
+
+    //     setTimeout(function () {
+    //         win.print();
+    //     }, 5000);
+
+    //     setTimeout(function () {
+    //         win.close();
+    //         resetPage();
+    //     }, 8000);
+
+
+    //     // Final cleanup
+    //     setTimeout(function () {
+    //         resetPage();
+    //     }, 6000);
+    //     }
+
+
     function printInvoice() {
         var fname = $('#fname').val().trim();
         var years = $('#years').val().trim();
@@ -1992,15 +2061,26 @@ Add New Patient
             return; 
         }
 
-        var date = $('#patientDate').val();
-        var sno = $('#sampleNo').val();
+        var date = $('#patientDate').val()?.trim();
+        var sno = $('#sampleNo').val()?.trim();
+
+        if (!sno || !date) {
+            alert("Sample number or date is missing.");
+            return;
+        }
+
         var isClaimBill = $('#claim_bill').is(':checked');
         var isTokenPrint = $('#print_token').is(':checked');
 
-        // build correct URL based on checkbox
-        var url = isClaimBill 
-            ? "printinvoice/claim/" + sno + "&" + date 
-            : "printinvoice/" + sno + "&" + date;
+        var url = "";
+
+        if (isTokenPrint) {
+            url = "printtoken/" + encodeURIComponent(sno + "," + date);
+        } else if (isClaimBill) {
+            url = "printinvoice/claim/" + encodeURIComponent(sno + "&" + date);
+        } else {
+            url = "printinvoice/" + encodeURIComponent(sno + "&" + date);
+        }
 
         var win = window.open(url, '_blank');
 
@@ -2012,13 +2092,10 @@ Add New Patient
             win.close();
             resetPage();
         }, 8000);
+    }
 
+    
 
-        // Final cleanup
-        setTimeout(function () {
-            resetPage();
-        }, 6000);
-        }
 
 
     // Print Token Function
@@ -2670,21 +2747,7 @@ $('#btnFront').on('click', function() {
     }
 
 
-    function handlePrintOption(clicked) {
-        // Get all checkboxes in this group
-        const checkboxes = document.querySelectorAll('input[name="print_option"]');
-        
-        checkboxes.forEach(cb => {
-            if (cb !== clicked) {
-                cb.checked = false; // uncheck other one
-            }
-        });
-
-        // Ensure one is always selected (if none, re-check the clicked one)
-        if (![...checkboxes].some(cb => cb.checked)) {
-            clicked.checked = true;
-        }
-    }
+    
 
     // function handleQRScanAndClear(inputElem) {
     //     const scannedData = inputElem.value.trim();
@@ -3725,15 +3788,15 @@ $('#btnFront').on('click', function() {
                                         <input type="checkbox" name="package_invoice" id="package_invoice" value="package_invoice" style=""><br/>Package Invoice
                                         </td>
 
-                 <td width="20%">
-    <input type="checkbox" name="print_option" id="print_bill" class="ref_chkbox" value="bill" checked onclick="handlePrintOption(this)">
-    <br/>Print Bill
-</td>
+                                        <td width="20%">
+                                            <input type="checkbox" name="print_option" id="print_bill" class="ref_chkbox" value="bill" checked >
+                                            <br/>Print Bill
+                                        </td>
 
-<td width="20%">
-    <input type="checkbox" name="print_option" id="print_token" class="ref_chkbox" value="token" onclick="handlePrintOption(this)">
-    <br/>Print Token
-</td>
+                                        <td width="20%">
+                                            <input type="checkbox" name="print_option" id="print_token" class="ref_chkbox" value="token" >
+                                            <br/>Print Token
+                                        </td>
 
                                         <td width="20%">
                                             
