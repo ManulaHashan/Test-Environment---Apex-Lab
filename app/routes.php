@@ -329,6 +329,11 @@ Route::get('/viewinvoices', function() {
 Route::get('getSampleTestData', 'ViewInvoiceController@getSampleTestData');
 Route::post('cancelInvoice', 'ViewInvoiceController@cancelInvoice');
 Route::get('getCashierInvoiceSummary', 'ViewInvoiceController@getCashierBalanceData');
+Route::post('getInvoiceArray', array('uses' => 'ViewInvoiceController@getInvoiceArray'));
+
+
+
+
 
 
 

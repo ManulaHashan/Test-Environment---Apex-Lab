@@ -151,9 +151,9 @@ function savePayment() {
             }
         },
         error: function(xhr) {
-            console.log('Error:', xhr); // Log the full error response for debugging
+            console.log('Error:', xhr); 
             var errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'An unexpected error occurred.';
-            alert(errorMsg); // Display the error message to the user
+            alert(errorMsg); 
         }
     });
 }

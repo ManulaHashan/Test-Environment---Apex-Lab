@@ -270,7 +270,96 @@ View Invices
     //*************************************************************************************************
 
 
+//  function viewTokenInvoicePayments() {
+//         var tokenSno = $('#tokenSno').val();  
+//         var tokenDate = $('#tokenDate').val();
 
+
+//        var invoiceId = $('#invoiceId').val();
+//         var due = $('#due').val();
+
+
+//         window.open("invoicePayments?iid=" + invoiceId + "&due=" + $('#due').val(), "_blank");
+
+
+//     }
+
+// function viewTokenInvoicePayments() {
+//     var tokenSno = $('#tokenSno').val();  
+//     var tokenDate = $('#tokenDate').val();
+
+//     if (!tokenSno || !tokenDate) {
+//         alert("Enter Sample No and Date!");
+//         return;
+//     }
+
+//     $.ajax({
+//         url: 'getInvoiceArray',
+//         type: 'POST',
+//         data: {
+//             sampleNo: tokenSno,
+//             date: tokenDate
+//         },
+//         success: function(response) {
+//             var invoiceId = response[0]; // iid
+//             var due = response[1];       // due
+
+//             if (invoiceId === '0') {
+//                 alert("Invoice data hoyanna ba!");
+//                 return;
+//             }
+
+//             // New window open with params
+//             window.open("invoicePayments?iid=" + invoiceId + "&due=" + due, "_blank");
+//         },
+//         error: function() {
+//             alert("Server error ");
+//         }
+//     });
+// }
+
+function viewTokenInvoicePayments() {
+    var tokenSno = $('#tokenSno').val();
+    var tokenDate = $('#tokenDate').val();
+
+    if (!tokenSno || !tokenDate) {
+        alert("Sample No and Date notfound!");
+        return;
+    }
+
+    $.ajax({
+        url: 'getInvoiceArray',
+        type: 'POST',
+        data: {
+            sampleNo: tokenSno,
+            date: tokenDate
+        },
+        success: function(response) {
+            var invoiceId = response[0];
+            var due = response[1];
+
+           
+            $('#inv_id').val(invoiceId);
+            $('#due').val(due);
+
+            if (invoiceId === '0') {
+                alert("Can't find Invoice data!");
+                return;
+            }
+
+           
+            window.open("invoicePayments?iid=" + invoiceId + "&due=" + due, "_blank");
+
+                $('#inv_id').val('');
+                $('#due').val('');
+                $('#tokenSno').val('');
+                $('#tokenDate').val('');
+        },
+        error: function() {
+            alert("Server error !");
+        }
+    });
+}
 
 
 </script>
@@ -507,6 +596,25 @@ View Invices
                     <label style="font-size: 18px; margin-right: 15px; width:160px;">Cashier Balance Rs:</label>
                     <label id="lblCashierBalance" style="font-size: 18px; margin-left: 15px; width:150px;">00,000.00</label>
                 </div>
+                 <div style="margin-top: 30px; display: flex; width: 100%;">
+                    <label style="font-size: 18px; margin-left:15px; width:150px;">Token Sample No</label>
+                    <input type="text" name="tokenSno" class="input-text" id="tokenSno" style="width: 90px">
+                
+                    <label style="font-size: 18px; width:150px;">Tokaen Date:</label>
+                    <input type="date" name="tokenDate" class="input-text" id="tokenDate" style="width: 90px">
+                     <input type="button" style=" width: 175px; height: 30px;" class="btn" id="tokenSer_btn"
+                        value="Token Search"
+                        onclick="viewTokenInvoicePayments()">
+                
+                </div>
+
+                <div hidden>
+                    <label style="font-size: 18px; margin-left:15px; width:150px;" >InvId</label>
+                    <input type="text" name="inv_id" class="input-text" id="inv_id" style="width: 90px">
+                    <label style="font-size: 18px; margin-left:15px; width:150px;">Due</label>
+                    <input type="text" name="due" class="input-text" id="due" style="width: 90px">
+                </div>
+                    
                 
             </div>
             

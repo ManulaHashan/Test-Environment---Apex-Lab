@@ -257,6 +257,32 @@ class ViewInvoiceController extends Controller{
     
 
 
+  public function getInvoiceArray()
+{
+    $sampleNo = Input::get('sampleNo');
+    $date = Input::get('date');
+
+    if (!$sampleNo || !$date) {
+        return Response::json(['0', '0']);
+    }
+
+    $result = DB::select("
+        select a.iid, IFNULL(a.gtotal - a.paid, 0) AS due 
+        FROM invoice a, lps b 
+        WHERE a.lps_lpsid = b.lpsid 
+        AND b.date = ? 
+        AND b.sampleNo = ?
+        LIMIT 1
+    ", [$date, $sampleNo]);
+
+    if (count($result) > 0) {
+        return Response::json([$result[0]->iid, $result[0]->due]);
+    } else {
+        return Response::json(['0', '0']);
+    }
+}
+
+
 
 
 }
