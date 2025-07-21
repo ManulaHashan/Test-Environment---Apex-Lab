@@ -259,6 +259,7 @@ class ViewInvoiceController extends Controller{
 
   public function getInvoiceArray()
 {
+     $labId = $_SESSION['lid'];
     $sampleNo = Input::get('sampleNo');
     $date = Input::get('date');
 
@@ -270,6 +271,7 @@ class ViewInvoiceController extends Controller{
         select a.iid, IFNULL(a.gtotal - a.paid, 0) AS due 
         FROM invoice a, lps b 
         WHERE a.lps_lpsid = b.lpsid 
+        and b.Lab_lid = $labId
         AND b.date = ? 
         AND b.sampleNo = ?
         LIMIT 1

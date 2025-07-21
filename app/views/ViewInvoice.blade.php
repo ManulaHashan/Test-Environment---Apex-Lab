@@ -270,53 +270,7 @@ View Invices
     //*************************************************************************************************
 
 
-//  function viewTokenInvoicePayments() {
-//         var tokenSno = $('#tokenSno').val();  
-//         var tokenDate = $('#tokenDate').val();
 
-
-//        var invoiceId = $('#invoiceId').val();
-//         var due = $('#due').val();
-
-
-//         window.open("invoicePayments?iid=" + invoiceId + "&due=" + $('#due').val(), "_blank");
-
-
-//     }
-
-// function viewTokenInvoicePayments() {
-//     var tokenSno = $('#tokenSno').val();  
-//     var tokenDate = $('#tokenDate').val();
-
-//     if (!tokenSno || !tokenDate) {
-//         alert("Enter Sample No and Date!");
-//         return;
-//     }
-
-//     $.ajax({
-//         url: 'getInvoiceArray',
-//         type: 'POST',
-//         data: {
-//             sampleNo: tokenSno,
-//             date: tokenDate
-//         },
-//         success: function(response) {
-//             var invoiceId = response[0]; // iid
-//             var due = response[1];       // due
-
-//             if (invoiceId === '0') {
-//                 alert("Invoice data hoyanna ba!");
-//                 return;
-//             }
-
-//             // New window open with params
-//             window.open("invoicePayments?iid=" + invoiceId + "&due=" + due, "_blank");
-//         },
-//         error: function() {
-//             alert("Server error ");
-//         }
-//     });
-// }
 
 function viewTokenInvoicePayments() {
     var tokenSno = $('#tokenSno').val();
