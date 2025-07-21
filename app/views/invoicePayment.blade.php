@@ -194,6 +194,51 @@ function setupTenderAmountListener() {
         });
 }
     //*************************************************************************************************
+
+        // Function to get query params from URL
+    function getQueryParam(param) {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Set values when page loads
+    window.onload = function () {
+        var sampleNo = getQueryParam('sampleNo');
+        var date = getQueryParam('date');
+
+        if (sampleNo) {
+            document.getElementById('sampleNo').value = sampleNo;
+        }
+        if (date) {
+            document.getElementById('patientDate').value = date;
+        }
+    };
+
+    //*************************************************************************************************
+
+        //Print Invoice 
+    function printInvoice(){
+        
+        var date = $('#patientDate').val();
+        var sno = $('#sampleNo').val();
+        // var inv_balance = $('#due').val();
+    
+        
+        var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
+                        
+        setTimeout(function () {
+            win.print();
+        }, 5000);
+                        
+
+        setTimeout(function () {
+            win.close();
+            resetPage();
+        }, 8000);
+                    
+        
+    }
+
     //*************************************************************************************************
     //*************************************************************************************************
     //*************************************************************************************************
@@ -273,6 +318,10 @@ function setupTenderAmountListener() {
                 <label for="inv_days" style="font-size: 14px; min-width: 90px;"><b>Days:</b></label>
                 <label id="inv_days" style="font-size: 18px;width: 90px;"></label>
               </div>
+              <div>
+                <input type="text" id="sampleNo" placeholder="Sample No">
+                <input type="date" id="patientDate" placeholder="Date">
+              </div>
         <div class="pageTableScope" style="display: flex; height: 350px; margin-top: 10px; width: 100%;">
           
             <!-- Left Side: Table -->
@@ -324,7 +373,7 @@ function setupTenderAmountListener() {
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:green" class="btn" id="ser_btn" value="Save" onclick="savePayment()">
-                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:rgb(23, 43, 179)" class="btn" id="ser_btn" value="Print Bill">
+                    <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:rgb(23, 43, 179)" class="btn" id="ser_btn" value="Print Bill" onclick=" printInvoice()">
                    
                 </div>
               

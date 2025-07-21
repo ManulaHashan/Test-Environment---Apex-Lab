@@ -302,7 +302,9 @@ function viewTokenInvoicePayments() {
             }
 
            
-            window.open("invoicePayments?iid=" + invoiceId + "&due=" + due, "_blank");
+            // window.open("invoicePayments?iid=" + invoiceId + "&due=" + due, "_blank");
+            window.open("invoicePayments?iid=" + invoiceId + "&due=" + due + "&sampleNo=" + tokenSno + "&date=" + tokenDate, "_blank");
+
 
                 $('#inv_id').val('');
                 $('#due').val('');
