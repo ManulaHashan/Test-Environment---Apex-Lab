@@ -318,7 +318,7 @@ function setupTenderAmountListener() {
                 <label for="inv_days" style="font-size: 14px; min-width: 90px;"><b>Days:</b></label>
                 <label id="inv_days" style="font-size: 18px;width: 90px;"></label>
               </div>
-              <div>
+              <div hidden>
                 <input type="text" id="sampleNo" placeholder="Sample No">
                 <input type="date" id="patientDate" placeholder="Date">
               </div>
