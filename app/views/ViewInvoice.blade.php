@@ -274,9 +274,9 @@ View Invices
 
 function viewTokenInvoicePayments() {
     var tokenSno = $('#tokenSno').val();
-    var tokenDate = $('#tokenDate').val();
+    var idate = $('#idate').val();
 
-    if (!tokenSno || !tokenDate) {
+    if (!tokenSno || !idate) {
         alert("Sample No and Date notfound!");
         return;
     }
@@ -286,7 +286,7 @@ function viewTokenInvoicePayments() {
         type: 'POST',
         data: {
             sampleNo: tokenSno,
-            date: tokenDate
+            date: idate
         },
         success: function(response) {
             var invoiceId = response[0];
@@ -303,19 +303,31 @@ function viewTokenInvoicePayments() {
 
            
             // window.open("invoicePayments?iid=" + invoiceId + "&due=" + due, "_blank");
-            window.open("invoicePayments?iid=" + invoiceId + "&due=" + due + "&sampleNo=" + tokenSno + "&date=" + tokenDate, "_blank");
+            window.open("invoicePayments?iid=" + invoiceId + "&due=" + due + "&sampleNo=" + tokenSno + "&date=" + idate, "_blank");
+            location.reload();
 
 
-                $('#inv_id').val('');
-                $('#due').val('');
-                $('#tokenSno').val('');
-                $('#tokenDate').val('');
+                // $('#inv_id').val('');
+                // $('#due').val('');
+                // $('#tokenSno').val('');
+                //  $('#idate').val(today);
         },
         error: function() {
             alert("Server error !");
         }
     });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+        // Listen for Enter key globally
+        document.addEventListener("keydown", function (event) {
+            // Check if Enter key is pressed
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent default form submission if inside a form
+                viewTokenInvoicePayments(); // Call your function
+            }
+        });
+    });
 
 
 </script>
@@ -405,7 +417,16 @@ function viewTokenInvoicePayments() {
                     </select>
                     <input type="checkbox" name="with_other_branches" id="with_other_branches" class="ref_chkbox" value="0">
                     <label style="font-size: 16px; margin-left: 5px;"><b>With Other Branches</b></label>
-                    <label style="font-size: 16px; margin-left: 5px; width: 570px;"></label>
+                    <label style="font-size: 16px; margin-left: 5px; width: 270px;"></label>
+                      <label style="font-size: 18px; margin-left:15px; width:150px;">Search By Token</label>
+                    <input type="text" name="tokenSno" class="input-text" id="tokenSno" style="width: 90px">
+                    
+                        <div hidden>
+                            <label style="font-size: 18px; margin-left:15px; width:150px;" >InvId</label>
+                            <input type="text" name="inv_id" class="input-text" id="inv_id" style="width: 90px">
+                            <label style="font-size: 18px; margin-left:15px; width:150px;">Due</label>
+                            <input type="text" name="due" class="input-text" id="due" style="width: 90px">
+                        </div>
                     <input type="checkbox" name="due_bills_only" id="due_bills_only" class="ref_chkbox" value="0">
                     <label style="font-size: 16px; margin-left: 5px;"><b>Due Bills Only</b></label>
                 </div>
@@ -552,24 +573,8 @@ function viewTokenInvoicePayments() {
                     <label style="font-size: 18px; margin-right: 15px; width:160px;">Cashier Balance Rs:</label>
                     <label id="lblCashierBalance" style="font-size: 18px; margin-left: 15px; width:150px;">00,000.00</label>
                 </div>
-                 <div style="margin-top: 30px; display: flex; width: 100%;">
-                    <label style="font-size: 18px; margin-left:15px; width:150px;">Token Sample No</label>
-                    <input type="text" name="tokenSno" class="input-text" id="tokenSno" style="width: 90px">
-                
-                    <label style="font-size: 18px; width:150px;">Tokaen Date:</label>
-                    <input type="date" name="tokenDate" class="input-text" id="tokenDate" style="width: 90px">
-                     <input type="button" style=" width: 175px; height: 30px;" class="btn" id="tokenSer_btn"
-                        value="Token Search"
-                        onclick="viewTokenInvoicePayments()">
-                
-                </div>
+               
 
-                <div hidden>
-                    <label style="font-size: 18px; margin-left:15px; width:150px;" >InvId</label>
-                    <input type="text" name="inv_id" class="input-text" id="inv_id" style="width: 90px">
-                    <label style="font-size: 18px; margin-left:15px; width:150px;">Due</label>
-                    <input type="text" name="due" class="input-text" id="due" style="width: 90px">
-                </div>
                     
                 
             </div>
