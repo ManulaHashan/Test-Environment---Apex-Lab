@@ -308,6 +308,7 @@ Route::get('/email-feature-checking', 'PatientRegistrationController@emailFeatur
 Route::get('/whatsapp-feature-checking', 'PatientRegistrationController@whatsappFeatureChecking');
 Route::get('/patientDetailsEditing-feature-checking', 'PatientRegistrationController@patientDetailsEditingFeatureChecking');
 Route::get('/getRefByCode', 'PatientRegistrationController@getRefByCode');
+Route::get('/token-feature-checking', 'PatientRegistrationController@TokenFeatureChecking');
 
 
 

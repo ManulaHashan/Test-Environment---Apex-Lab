@@ -155,6 +155,7 @@ Add New Patient
             $('#smstd').hide();
             $('#emailtd').hide();
             $('#whatsapptd').hide();
+            $('#print_token').prop('checked', false);
 
             $.ajax({
                 url: '/reporting-feature-checking',
@@ -217,6 +218,24 @@ Add New Patient
                         ['sms', 'email', 'whatsapp'].forEach(id => {
                             console.log(id + ':', $('#' + id).css('display'));
                         });
+                    }
+                },
+                error: function (xhr) {
+                    console.error('AJAX error:', xhr.status, xhr.statusText);
+                    if (xhr.status === 401) {
+                        alert('Session expired. Please log in again.');
+                    }
+                }
+            });
+
+             $.ajax({
+                url: '/token-feature-checking',
+                type: 'GET',
+                success: function (response) {
+                    console.log('AJAX response received:', response);
+                    if (response.hasTokenFeature) {
+                         $('#print_token').prop('checked', true);
+                       
                     }
                 },
                 error: function (xhr) {
@@ -3793,7 +3812,7 @@ $('#btnFront').on('click', function() {
                                             <br/>Print Bill
                                         </td>
 
-                                        <td width="20%">
+                                        <td width="20%" hidden>
                                             <input type="checkbox" name="print_option" id="print_token" class="ref_chkbox" value="token" >
                                             <br/>Print Token
                                         </td>

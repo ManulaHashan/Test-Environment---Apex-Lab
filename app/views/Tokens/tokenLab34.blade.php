@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <title>Print Token</title>
 
-    <!-- QRCode.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- JsBarcode CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
         body {
@@ -23,9 +23,8 @@
             text-align: center;
         }
 
-        #qrcode {
+        .barcode-area {
             margin-top: 15px;
-           align-items: center;
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
@@ -44,28 +43,34 @@
 
         <div class="token-details">
             <p><strong>Sample No:</strong> {{ $sno }}</p>
-            <p><strong>Date:</strong> {{ $date }}</p>
+            {{-- <p><strong>Date:</strong> {{ $date }}</p> --}}
         </div>
 
-        <!-- QR Code will be rendered here -->
-        <div id="qrcode"></div>
+       
+        <div class="barcode-area">
+            <svg id="barcode"></svg>
+        </div>
     </div>
 
     <script>
-        // Combine sample no and date
-        var qrData = "{{ $sno }}|{{ $date }}";
+      
+        var sampleNo = "{{ $sno }}";
 
-        // Generate QR code
-        new QRCode(document.getElementById("qrcode"), {
-            text: qrData,
-            width: 128,
-            height: 128,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+        
+        var barcodeData = sampleNo;
+
+       
+        JsBarcode("#barcode", barcodeData, {
+            format: "CODE128",
+            lineColor: "#000",
+            width: 3,
+            height: 100,
+            displayValue: true,
+            fontSize: 16,
+            margin: 10
         });
 
-        // Auto-print on load
+      
         window.onload = function () {
             setTimeout(function () {
                 window.print();

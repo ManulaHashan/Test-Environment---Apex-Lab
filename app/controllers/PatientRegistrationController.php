@@ -1726,6 +1726,22 @@ class PatientRegistrationController extends Controller
         return Response::json(['hasWhatsappFeature' => $whatsappFeature]);
     }
 
+
+      public function TokenFeatureChecking()
+    {
+        if (!isset($_SESSION['lid'])) {
+            return Response::json(['error' => 'Session expired.'], 401);
+        }
+
+        $labLid = $_SESSION['lid']; 
+
+        $TokenFeature = DB::table('addpatientconfigs')
+            ->where('lab_lid', '=', $labLid)
+            ->where('registerbytoken', '=', 1)
+            ->exists();
+
+        return Response::json(['hasTokenFeature' => $TokenFeature]);
+    }
     
 //    public function reportingFeatureChecking()
 //     {
