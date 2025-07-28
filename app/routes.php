@@ -368,6 +368,14 @@ Route::get('getAllPatientHistoryRecords', 'PatientHistoryViewController@getAllPa
 
 
 
+Route::get('/SystemConfiguration', function () {
+    return View::make('SystemConfiguration');
+});
+
+Route::get('getAllAddPatientConfigs', 'SystemConfigurationController@getAllAddPatientConfigs');
+Route::post('updateAddPatientConfig', 'SystemConfigurationController@updateAddPatientConfig');
+Route::get('getAllReportConfigs', 'SystemConfigurationController@getAllReportConfigs');
+Route::post('updateReportConfig', 'SystemConfigurationController@updateReportConfig');
 
 
 
