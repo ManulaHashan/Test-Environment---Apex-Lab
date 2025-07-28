@@ -368,14 +368,33 @@ Route::get('getAllPatientHistoryRecords', 'PatientHistoryViewController@getAllPa
 
 
 
+// Route::get('/SystemConfiguration', function () {
+//     return View::make('SystemConfiguration');
+// });
 Route::get('/SystemConfiguration', function () {
-    return View::make('SystemConfiguration');
+     $uid = $_SESSION['uid'];
+
+    $priv = DB::table('privillages')
+        ->where('options_idoptions', '=', 2)
+        ->where('user_uid', '=', $uid)
+        ->first();
+
+    if ($priv) {
+        return View::make('SystemConfiguration');
+    } else {
+        return Redirect::to('/unauthorized'); 
+    }
 });
+
 
 Route::get('getAllAddPatientConfigs', 'SystemConfigurationController@getAllAddPatientConfigs');
 Route::post('updateAddPatientConfig', 'SystemConfigurationController@updateAddPatientConfig');
 Route::get('getAllReportConfigs', 'SystemConfigurationController@getAllReportConfigs');
 Route::post('updateReportConfig', 'SystemConfigurationController@updateReportConfig');
+Route::get('getAllConfigConfigs', 'SystemConfigurationController@getAllConfigConfigs');
+Route::post('updateConfigConfigurations', 'SystemConfigurationController@updateConfigConfigurations');
+Route::get('getAllSMSConfigs', 'SystemConfigurationController@getAllSMSConfigs');
+Route::post('updatSMSConfigurations', 'SystemConfigurationController@updateSMSConfig');
 
 
 

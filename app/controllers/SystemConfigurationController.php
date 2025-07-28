@@ -180,5 +180,122 @@ class SystemConfigurationController extends Controller {
     }
 
 
+     public function getAllConfigConfigs()
+    {
+        $labLid = isset($_SESSION['lid']) ? $_SESSION['lid'] : null;
+
+        if (!$labLid) {
+            return Response::json([
+                'status' => 'error',
+                'message' => 'Lab LID not found in session'
+            ], 400);
+        }
+
+        try {
+            $configConfigs = DB::table('configs')
+                ->where('lab_lid', $labLid)
+                ->get();
+
+            return Response::json([
+                'status' => 'success',
+                'data' => $configConfigs
+            ]);
+        } catch (Exception $e) {
+            return Response::json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateConfigConfigurations()
+    {
+        $input = Input::all();
+
+        try {
+            $id = $input['config_id'];
+
+            DB::table('configs')
+                ->where('idconfigs', $id)
+                ->update([
+                    
+                    'separate_prices_branch' => $input['separate_prices_branch'],
+                    'worksheet_pertest' => $input['worksheet_pertest'],
+                    'worksheet_perdept' => $input['worksheet_perdept'],
+                    'report_auth_1' => $input['report_auth_1'],
+                    'report_auth_2' => $input['report_auth_2']
+                ]);
+
+            return Response::json([
+                'status' => 'success',
+                'message' => 'Config updated successfully'
+            ]);
+        } catch (Exception $e) {
+            return Response::json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+
+     public function getAllSMSConfigs()
+    {
+        $labLid = isset($_SESSION['lid']) ? $_SESSION['lid'] : null;
+
+        if (!$labLid) {
+            return Response::json([
+                'status' => 'error',
+                'message' => 'Lab LID not found in session'
+            ], 400);
+        }
+
+        try {
+            $SMSConfigs = DB::table('sms_profile')
+                ->where('lab_lid', $labLid)
+                ->get();
+
+            return Response::json([
+                'status' => 'success',
+                'data' => $SMSConfigs
+            ]);
+        } catch (Exception $e) {
+            return Response::json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function updateSMSConfig()
+    {
+        $input = Input::all();
+
+        try {
+            $id = $input['sms_id'];
+
+            DB::table('sms_profile')
+                ->where('id', $id)
+                ->update([
+                    'username' => $input['smsusername'],
+                    'password' => $input['password'],
+                    'src' => $input['src'],
+                    'isactiveauto' => $input['isactiveauto']
+                ]);
+
+            return Response::json([
+                'status' => 'success',
+                'message' => 'SMS config updated successfully'
+            ]);
+        } catch (Exception $e) {
+            return Response::json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+
 
 }

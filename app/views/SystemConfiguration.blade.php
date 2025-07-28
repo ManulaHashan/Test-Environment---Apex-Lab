@@ -24,7 +24,7 @@ System Configuration
         dataType: 'json',
         success: function(response) {
             if (response.status === 'success') {
-                let data = response.data[0]; // 1 record ekak witharak kiyala assumption ekak
+                let data = response.data[0]; 
                 if (data) {
                     // Select fields (1 = Active, 0 = Inactive)
                     $('#tp_no').val(data.tpno);
@@ -83,8 +83,7 @@ System Configuration
         type: 'GET',
         success: function (response) {
             if (response.status === 'success') {
-                const data = response.data[0]; // Assume only one config for now
-
+                const data = response.data[0]; 
                 // Text fields
                 $('#rcid').val(data.id);
                 $('#rclab_lid').val(data.lab_lid);
@@ -122,123 +121,233 @@ System Configuration
     function setSelect(id, value) {
         $('#' + id).val(value === 1 ? '1' : '0');
     }
+
+        $.ajax({
+                url: '/getAllConfigConfigs',
+                type: 'GET',
+                success: function (response) {
+                    if (response.status === 'success') {
+                        const data = response.data[0];
+
+                        $('#config_id').val(data.idconfigs); 
+                        $('#config_lab_lid').val(data.Lab_lid); 
+                        $('#separate_prices_branch').val(data.separate_prices_branch);
+                        $('#worksheet_pertest').val(data.worksheet_pertest);
+                        $('#worksheet_perdept').val(data.worksheet_perdept);
+                        $('#report_auth_1').val(data.report_auth_1);
+                        $('#report_auth_2').val(data.report_auth_2);
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('AJAX Error: ' + error);
+                }
+            });
+
+              $.ajax({
+                url: '/getAllSMSConfigs',
+                type: 'GET',
+                success: function (response) {
+                    if (response.status === 'success') {
+                        const data = response.data[0]; 
+                        // console.log(data); 
+                        $('#sms_id').val(data.id); 
+                        $('#sms_lab_lid').val(data.Lab_lid); 
+                        $('#smsusername').val(data.username);
+                        $('#password').val(data.password);
+                        $('#src').val(data.src);
+                        $('#isactiveauto').val(data.isactiveauto);
+                        
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('AJAX Error: ' + error);
+                }
+            });
+       
 });
 
 
 
-    
-
- 
-
     //*************************************************************************************************
 
 
-function updateAddpatientConfigurations() {
-    var data = {
-        id: $('#id').val(),
-        lab_lid: $('#lab_lid').val(),
-        header: $('#header').val(),
-        address: $('#address').val(),
-        refby: $('#refby').val(),
-        refbydv: $('#ref_by_dv').val(),
-        type: $('#type').val(),
-        typedv: $('#typedv').val(),
-        genderdv: $('#gender_dv').val(),
-        viewinvoice: $('#viewinvoice').val(),
-        tot: $('#tot').val(),
-        discount: $('#discount').val(),
-        discountdv: $('#discount_dv').val(),
-        gtot: $('#gtot').val(),
-        paymeth: $('#paymeth').val(),
-        paymethdv: $('#pay_meth_dv').val(),
-        payment: $('#payment').val(),
-        printinvoicedv: $('#printinvoicedv').val(),
-        directresultenter: $('#directresultenter').val(),
-        patientsuggestion: $('#patientsuggestion').val(),
-        focusonpayment: $('#focusonpayment').val(),
-        patientinitials: $('#patientinitials').val(),
-        invoice_copy: $('#invoice_copy').val(),
-        duplicate_barcodes: $('#duplicate_barcodes').val(),
-        duplicate_barset: $('#duplicate_barset').val(),
-        bill_allowed_amount_limit: $('#bill_allowed_amount_limit').val(),
-        bill_duplicate_count: $('#bill_duplicate_count').val(),
-        print_center_receipt: $('#print_center_receipt').val(),
-        autoadd_center_discount: $('#autoadd_center_discount').val(),
-        print_bill_barcode: $('#print_bill_barcode').val(),
-        additional_test_barcode_name: $('#additional_test_barcode_name').val(),
-        invoice_sms: $('#invoice_sms').val(),
-        disable_branch_bill_print: $('#disable_branch_bill_print').val(),
-        bulk_special_barcode_skip: $('#bulk_special_barcode_skip').val(),
-        inward_priceincrease: $('#inward_price_increase').val(),
-        grandtotal_roundup: $('#grand_total_roundup').val(),
-        registerbytoken: $('#register_by_token').val()
-    };
-
-    $.ajax({
-        url: 'updateAddPatientConfig',
-        type: 'POST',
-        data: data,
-        success: function(response) {
-            if (response.status === 'success') {
-                alert('Details Update Successfull');
-            } else {
-                alert('Error: ' + response.message);
-            }
-        },
-        error: function(xhr) {
-            alert('Server error: ' + xhr.responseText);
-        }
-    });
-}
-
-
-
-    //*************************************************************************************************
-    function updateReportConfigurations() {
+    function updateAddpatientConfigurations() 
+    {
         var data = {
-            rcid: $('#rcid').val(),
-            rclab_lid: $('#rclab_lid').val(),
+            id: $('#id').val(),
+            lab_lid: $('#lab_lid').val(),
             header: $('#header').val(),
-            headerurl: $('#headerurl').val(),
-            footer: $('#footer').val(),
-            footerurl: $('#ref_by_dv').val(),
-            pageheading: $('#pageheading').val(),
-            rcdate: $('#rcdate').val(),
-            sign: $('#sign').val(),
-            confidential: $('#confidential').val(),
-            fontitelic: $('#fontitelic').val(),
-            agelabel: $('#agelabel').val(),
-            headerdefault: $('#headerdefault').val(),
-            valuestate: $('#valuestate').val(),
-            viewsno: $('#viewsno').val(),
-            viewregdate: $('#viewregdate').val(),
-            viewinitials: $('#viewinitials').val(),
-            viewspecialnote: $('#viewspecialnote').val(),
-            enableblooddrew: $('#enableblooddrew').val(),
-            enablecollected: $('#enablecollected').val(),
-            reference_in_invoice: $('#reference_in_invoice').val(),
-            rcdob: $('#rcdob').val()
+            address: $('#address').val(),
+            refby: $('#refby').val(),
+            refbydv: $('#ref_by_dv').val(),
+            type: $('#type').val(),
+            typedv: $('#typedv').val(),
+            genderdv: $('#gender_dv').val(),
+            viewinvoice: $('#viewinvoice').val(),
+            tot: $('#tot').val(),
+            discount: $('#discount').val(),
+            discountdv: $('#discount_dv').val(),
+            gtot: $('#gtot').val(),
+            paymeth: $('#paymeth').val(),
+            paymethdv: $('#pay_meth_dv').val(),
+            payment: $('#payment').val(),
+            printinvoicedv: $('#printinvoicedv').val(),
+            directresultenter: $('#directresultenter').val(),
+            patientsuggestion: $('#patientsuggestion').val(),
+            focusonpayment: $('#focusonpayment').val(),
+            patientinitials: $('#patientinitials').val(),
+            invoice_copy: $('#invoice_copy').val(),
+            duplicate_barcodes: $('#duplicate_barcodes').val(),
+            duplicate_barset: $('#duplicate_barset').val(),
+            bill_allowed_amount_limit: $('#bill_allowed_amount_limit').val(),
+            bill_duplicate_count: $('#bill_duplicate_count').val(),
+            print_center_receipt: $('#print_center_receipt').val(),
+            autoadd_center_discount: $('#autoadd_center_discount').val(),
+            print_bill_barcode: $('#print_bill_barcode').val(),
+            additional_test_barcode_name: $('#additional_test_barcode_name').val(),
+            invoice_sms: $('#invoice_sms').val(),
+            disable_branch_bill_print: $('#disable_branch_bill_print').val(),
+            bulk_special_barcode_skip: $('#bulk_special_barcode_skip').val(),
+            inward_priceincrease: $('#inward_price_increase').val(),
+            grandtotal_roundup: $('#grand_total_roundup').val(),
+            registerbytoken: $('#register_by_token').val()
         };
 
         $.ajax({
-            url: 'updateReportConfig', // ⬅️ Backend route name ekata adapt karanna
+            url: 'updateAddPatientConfig',
             type: 'POST',
             data: data,
             success: function(response) {
                 if (response.status === 'success') {
-                    alert('Report Configurations Updated Successfully!');
+                    // alert('Details Update Successfull');
                 } else {
-                    alert('Update Failed: ' + response.message);
+                    alert('Error: ' + response.message);
                 }
             },
             error: function(xhr) {
                 alert('Server error: ' + xhr.responseText);
             }
         });
-}
+    }
+
+
 
     //*************************************************************************************************
+    function updateReportConfigurations() 
+    {
+            var data = {
+                rcid: $('#rcid').val(),
+                rclab_lid: $('#rclab_lid').val(),
+                header: $('#header').val(),
+                headerurl: $('#headerurl').val(),
+                footer: $('#footer').val(),
+                footerurl: $('#ref_by_dv').val(),
+                pageheading: $('#pageheading').val(),
+                rcdate: $('#rcdate').val(),
+                sign: $('#sign').val(),
+                confidential: $('#confidential').val(),
+                fontitelic: $('#fontitelic').val(),
+                agelabel: $('#agelabel').val(),
+                headerdefault: $('#headerdefault').val(),
+                valuestate: $('#valuestate').val(),
+                viewsno: $('#viewsno').val(),
+                viewregdate: $('#viewregdate').val(),
+                viewinitials: $('#viewinitials').val(),
+                viewspecialnote: $('#viewspecialnote').val(),
+                enableblooddrew: $('#enableblooddrew').val(),
+                enablecollected: $('#enablecollected').val(),
+                reference_in_invoice: $('#reference_in_invoice').val(),
+                rcdob: $('#rcdob').val()
+            };
+
+            $.ajax({
+                url: 'updateReportConfig', // ⬅️ Backend route name ekata adapt karanna
+                type: 'POST',
+                data: data,
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // alert('Report Configurations Updated Successfully!');
+                    } else {
+                        alert('Update Failed: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert('Server error: ' + xhr.responseText);
+                }
+            });
+    }
+
     //*************************************************************************************************
+    function updateConfigConfigurations() 
+    {
+    
+        const config_id = $('#config_id').val();
+        const separate_prices_branch = $('#separate_prices_branch').val();
+        const worksheet_pertest = $('#worksheet_pertest').val();
+        const worksheet_perdept = $('#worksheet_perdept').val();
+        const report_auth_1 = $('#report_auth_1').val();
+        const report_auth_2 = $('#report_auth_2').val();
+
+        $.ajax({
+            url: '/updateConfigConfigurations',
+            type: 'POST',
+            data: {
+                config_id: config_id,
+                separate_prices_branch: separate_prices_branch,
+                worksheet_pertest: worksheet_pertest,
+                worksheet_perdept: worksheet_perdept,
+                report_auth_1: report_auth_1,
+                report_auth_2: report_auth_2
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    // alert('Successfully Updated!');
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert('AJAX Error: ' + error);
+            }
+        });
+    }
+    //*************************************************************************************************
+    function updateSMSConfigurations() 
+    {
+        const sms_id = $('#sms_id').val();
+        const smsusername = $('#smsusername').val();
+        const password = $('#password').val();
+        const src = $('#src').val();
+        const isactiveauto = $('#isactiveauto').val();
+
+        $.ajax({
+            url: '/updatSMSConfigurations',
+            type: 'POST',
+            data: {
+                sms_id: sms_id,
+                smsusername: smsusername,
+                password: password,
+                src: src,
+                isactiveauto: isactiveauto
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    alert('Successfully Updated!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert('AJAX Error: ' + error);
+            }
+        });
+    }
+
     //*************************************************************************************************
     //*************************************************************************************************
     //*************************************************************************************************
@@ -587,13 +696,14 @@ function updateAddpatientConfigurations() {
                         <option value="0">Inactive</option>
                     </select>
                     </div>
-
+                        
                     </div>
+                    <input type="button" style="display: none;flex: 0 0 80px; margin-left: 10px;" class="btn" id="update_btn" value="Update" onclick="updateAddpatientConfigurations()">
                 </div>
            </td>
 
            <td>
-                <div style="display: flex; align-items: left; gap: 15px; margin-top: -650px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: left; gap: 15px; margin-top: -640px; flex-wrap: wrap;">
                     <input type="hidden" id="invoiceId" value="">
                     <label style="font-size: 16px; font-weight: bold;">Add Report Config Table Configurations</label>
 
@@ -603,12 +713,12 @@ function updateAddpatientConfigurations() {
 
                 <div style="display: flex; align-items: center;">
                 <label for="id" style="font-size:14px; min-width:200px; font-weight:700;">ID:</label>
-                <input type="text" name="rcid" id="rcid" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                <input type="text" name="rcid" id="rcid" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"disabled>
                 </div>
 
                 <div style="display: flex; align-items: center;">
                 <label for="lab_lid" style="font-size:14px; min-width:200px; font-weight:700;">Lab LID:</label>
-                <input type="text" name="rclab_lid" id="rclab_lid" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                <input type="text" name="rclab_lid" id="rclab_lid" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"disabled>
                 </div>
 
                 <div style="display: flex; align-items: center;">
@@ -754,22 +864,140 @@ function updateAddpatientConfigurations() {
                 </div>
            
                 </div>
-                 <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="repoupdate_btn" value="Update" onclick="updateReportConfigurations()">
+                 <input type="button" style="display: none;flex: 0 0 80px; margin-left: 10px;" class="btn" id="repoupdate_btn" value="Update" onclick="updateReportConfigurations()">
             </div>
            </td>
         </tr>
 
         <tr>
-           
+            <td>
+                <div style="display: flex; align-items: left; gap: 15px; margin-top: 50px; flex-wrap: wrap;">
+                   
+                    <label style="font-size: 16px; font-weight: bold;">Add Config Table Configurations</label>
+
+                </div>
+                <div class="card" style="width: 620px; margin-top: 10px;">
+                    <div class="card-body" style="display: flex; flex-direction: column; gap: 12px;">
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="config_id" style="font-size:14px; min-width:200px; font-weight:700;">ID:</label>
+                        <input type="text" name="config_id" id="config_id" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;" disabled>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="lab_lid" style="font-size:14px; min-width:200px; font-weight:700;">Lab LID:</label>
+                        <input type="text" name="config_lab_lid" id="config_lab_lid" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"disabled>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="separate_prices_branch" style="font-size:14px; min-width:200px; font-weight:700;">Separate Prices Branch:</label>
+                        <select name="separate_prices_branch" id="separate_prices_branch" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="worksheet_pertest" style="font-size:14px; min-width:200px; font-weight:700;">Worksheet Pertest:</label>
+                        <select name="worksheet_pertest" id="worksheet_pertest" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="worksheet_perdept" style="font-size:14px; min-width:200px; font-weight:700;">Worksheet Perdept:</label>
+                        <select name="worksheet_perdept" id="worksheet_perdept" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="report_auth_1" style="font-size:14px; min-width:200px; font-weight:700;">Report Auth 1:</label>
+                         <select name="report_auth_1" id="report_auth_1" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="report_auth_2" style="font-size:14px; min-width:200px; font-weight:700;">Report Auth 2:</label>
+                        <select name="report_auth_2" id="report_auth_2" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        </div>
+
+                 
+
+                   
+                    </div>
+                    <input type="button" style="display: none;flex: 0 0 80px; margin-left: 10px;" class="btn" id="config_update_btn" value="Update" onclick="updateConfigConfigurations()">
+                </div>
+           </td>
+
+            <td>
+                <div style="display: flex; align-items: left; gap: 15px; margin-top: 55px; flex-wrap: wrap;">
+                   
+                    <label style="font-size: 16px; font-weight: bold;">Add SMS Profile  Table Configurations</label>
+
+                </div>
+                <div class="card" style="width: 620px; margin-top: 10px;height: 300px;">
+                    <div class="card-body" style="display: flex; flex-direction: column; gap: 12px;">
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="sms_id" style="font-size:14px; min-width:200px; font-weight:700;">ID:</label>
+                        <input type="text" name="sms_id" id="sms_id" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;" disabled>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="sms_lab_lid" style="font-size:14px; min-width:200px; font-weight:700;">Lab LID:</label>
+                        <input type="text" name="sms_lab_lid" id="sms_lab_lid" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"disabled>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="username" style="font-size:14px; min-width:200px; font-weight:700;">Username:</label>
+                         <input type="text" name="smsusername" id="smsusername" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="password" style="font-size:14px; min-width:200px; font-weight:700;">Password:</label>
+                         <input type="text" name="password" id="password" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="src" style="font-size:14px; min-width:200px; font-weight:700;">SRC:</label>
+                         <input type="text" name="src" id="src" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                        </div>
+
+                      
+
+                        <div style="display: flex; align-items: center;">
+                        <label for="isactiveauto" style="font-size:14px; min-width:200px; font-weight:700;">Is Active Auto:</label>
+                        <select name="isactiveauto" id="isactiveauto" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        </div>
+                         
+
+                 
+
+                   
+                    </div>
+                    <input type="button" style="display: none;flex: 0 0 80px; margin-left: 10px;" class="btn" id="smsupdate_btn" value="Update" onclick="updateSMSConfigurations()">
+                </div>
+           </td>
         </tr>
 
         </table>
    
     
+<input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="Allupdate_btn" value="Update" onclick="updateSMSConfigurations(),updateAddpatientConfigurations(),updateReportConfigurations(),updateConfigConfigurations()">
 
 
 
-<input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="update_btn" value="Update" onclick="updateAddpatientConfigurations()">
 
 
 {{-- ############################################################################################################# --}}
