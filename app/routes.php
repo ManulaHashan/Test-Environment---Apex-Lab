@@ -372,19 +372,30 @@ Route::get('getAllPatientHistoryRecords', 'PatientHistoryViewController@getAllPa
 //     return View::make('SystemConfiguration');
 // });
 Route::get('/SystemConfiguration', function () {
-     $uid = $_SESSION['uid'];
+    $uid = $_SESSION['uid'];
 
-    $priv = DB::table('privillages')
-        ->where('options_idoptions', '=', 2)
-        ->where('user_uid', '=', $uid)
+    $userData = DB::table('labUser as a')
+        ->join('privillages as b', 'a.user_uid', '=', 'b.user_uid')
+        ->where('b.user_uid', '=', $uid)
+        ->where('b.options_idoptions', '=', 2)
+        ->select('a.position', 'b.options_idoptions')
         ->first();
 
-    if ($priv) {
+    if ($userData && $userData->position === 'Super Admin') {
         return View::make('SystemConfiguration');
     } else {
-        return Redirect::to('/unauthorized'); 
+        // return Redirect::to('/unauthorized');
+        return Response::make("
+            <script>
+                alert('Access denied. You are not authorized!');
+                window.location.href = '/unauthorized';
+            </script>
+        ");
+        
+
     }
 });
+
 
 
 Route::get('getAllAddPatientConfigs', 'SystemConfigurationController@getAllAddPatientConfigs');

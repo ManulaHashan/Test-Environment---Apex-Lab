@@ -120,7 +120,7 @@ System Configuration
 
     function setSelect(id, value) {
         $('#' + id).val(value === 1 ? '1' : '0');
-    }
+        }
 
         $.ajax({
                 url: '/getAllConfigConfigs',
@@ -168,7 +168,7 @@ System Configuration
                 }
             });
        
-});
+    });
 
 
 
@@ -180,7 +180,7 @@ System Configuration
         var data = {
             id: $('#id').val(),
             lab_lid: $('#lab_lid').val(),
-            header: $('#header').val(),
+            tp_no: $('#tp_no').val(),
             address: $('#address').val(),
             refby: $('#refby').val(),
             refbydv: $('#ref_by_dv').val(),
@@ -245,7 +245,7 @@ System Configuration
                 header: $('#header').val(),
                 headerurl: $('#headerurl').val(),
                 footer: $('#footer').val(),
-                footerurl: $('#ref_by_dv').val(),
+                footerurl: $('#footerurl').val(),
                 pageheading: $('#pageheading').val(),
                 rcdate: $('#rcdate').val(),
                 sign: $('#sign').val(),
@@ -265,7 +265,7 @@ System Configuration
             };
 
             $.ajax({
-                url: 'updateReportConfig', // ⬅️ Backend route name ekata adapt karanna
+                url: 'updateReportConfig', 
                 type: 'POST',
                 data: data,
                 success: function(response) {
@@ -448,7 +448,7 @@ System Configuration
                     </div>
 
                     <div style="display: flex; align-items: center;">
-                    <label for="tp_no" style="font-size:14px; min-width:200px; font-weight:700;">TP No:</label>
+                    <label for="tp_no1" style="font-size:14px; min-width:200px; font-weight:700;">TP No:</label>
                     <select name="tp_no" id="tp_no" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
                         <option value="1">Active</option>
                         <option value="0">Inactive</option>
@@ -473,7 +473,9 @@ System Configuration
 
                     <div style="display: flex; align-items: center;">
                     <label for="ref_by_dv" style="font-size:14px; min-width:200px; font-weight:700;">Ref By DV:</label>
-                    <input type="text" name="ref_by_dv" id="ref_by_dv" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                   <input type="text" name="ref_by_dv" id="ref_by_dv" class="form-control"
+                        style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
 
                     <div style="display: flex; align-items: center;">
@@ -494,7 +496,9 @@ System Configuration
 
                     <div style="display: flex; align-items: center;">
                     <label for="gender_dv" style="font-size:14px; min-width:200px; font-weight:700;">Gender DV:</label>
-                    <input type="text" name="gender_dv" id="gender_dv" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <input type="text" name="gender_dv" id="gender_dv" class="form-control" 
+                        style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
 
                     <div style="display: flex; align-items: center;">
@@ -523,7 +527,9 @@ System Configuration
 
                     <div style="display: flex; align-items: center;">
                     <label for="discount_dv" style="font-size:14px; min-width:200px; font-weight:700;">Discount DV:</label>
-                    <input type="text" name="discount_dv" id="discount_dv" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <input type="text" name="discount_dv" id="discount_dv" class="form-control" 
+                        style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
 
                     <div style="display: flex; align-items: center;">
@@ -544,7 +550,9 @@ System Configuration
 
                     <div style="display: flex; align-items: center;">
                     <label for="pay_meth_dv" style="font-size:14px; min-width:200px; font-weight:700;">Pay Meth DV:</label>
-                    <input type="text" name="pay_meth_dv" id="pay_meth_dv" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <input type="text" name="pay_meth_dv" id="pay_meth_dv" class="form-control" 
+                        style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
 
                     <div style="display: flex; align-items: center;">
@@ -618,12 +626,20 @@ System Configuration
 
                     <div style="display: flex; align-items: center;">
                     <label for="bill_allowed_amount_limit" style="font-size:14px; min-width:200px; font-weight:700;">Bill Allowed Amount Limit:</label>
-                    <input type="text" name="bill_allowed_amount_limit" id="bill_allowed_amount_limit" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <input type="text" name="bill_allowed_amount_limit" id="bill_allowed_amount_limit" class="form-control" 
+                        style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"
+                          oninput="this.value = this.value
+                                    .replace(/[^0-9.]/g, '')               
+                                    .replace(/^(\.)/, '0.')               
+                                    .replace(/(\..*?)\..*/g, '$1')        
+                                    .replace(/^(\d+)(\.\d{0,2})?.*$/, '$1$2') ">
                     </div>
 
                     <div style="display: flex; align-items: center;">
                     <label for="bill_duplicate_count" style="font-size:14px; min-width:200px; font-weight:700;">Bill Duplicate Count:</label>
-                    <input type="text" name="bill_duplicate_count" id="bill_duplicate_count" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <input type="text" name="bill_duplicate_count" id="bill_duplicate_count" class="form-control" 
+                        style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
 
                     <div style="display: flex; align-items: center;">
@@ -681,12 +697,24 @@ System Configuration
 
                     <div style="display: flex; align-items: center;">
                     <label for="inward_price_increase" style="font-size:14px; min-width:200px; font-weight:700;">Inward Price Increase:</label>
-                    <input type="text" name="inward_price_increase" id="inward_price_increase" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <input type="text" name="inward_price_increase" id="inward_price_increase" class="form-control" 
+                        style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"
+                        oninput="this.value = this.value
+                                    .replace(/[^0-9.]/g, '')               
+                                    .replace(/^(\.)/, '0.')               
+                                    .replace(/(\..*?)\..*/g, '$1')        
+                                    .replace(/^(\d+)(\.\d{0,2})?.*$/, '$1$2') ">
                     </div>
 
                     <div style="display: flex; align-items: center;">
                     <label for="grand_total_roundup" style="font-size:14px; min-width:200px; font-weight:700;">Grand Total Roundup:</label>
-                    <input type="text" name="grand_total_roundup" id="grand_total_roundup" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <input type="text" name="grand_total_roundup" id="grand_total_roundup" class="form-control" 
+                        style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;"
+                        oninput="this.value = this.value
+                                    .replace(/[^0-9.]/g, '')               
+                                    .replace(/^(\.)/, '0.')               
+                                    .replace(/(\..*?)\..*/g, '$1')        
+                                    .replace(/^(\d+)(\.\d{0,2})?.*$/, '$1$2') ">
                     </div>
 
                     <div style="display: flex; align-items: center;">
@@ -765,7 +793,10 @@ System Configuration
 
                 <div style="display: flex; align-items: center;">
                 <label for="sign" style="font-size:14px; min-width:200px; font-weight:700;">Sign</label>
-                <input type="text" name="sign" id="sign" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                  <select name="sign" id="sign" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
                 </div>
 
                 <div style="display: flex; align-items: center;">
@@ -794,7 +825,10 @@ System Configuration
 
                 <div style="display: flex; align-items: center;">
                 <label for="headerdefault" style="font-size:14px; min-width:200px; font-weight:700;">Header Default:</label>
-                <input type="text" name="headerdefault" id="headerdefault" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                <select name="headerdefault" id="headerdefault" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
                 </div>
 
                 <div style="display: flex; align-items: center;">
@@ -814,8 +848,11 @@ System Configuration
                 </div>
 
                 <div style="display: flex; align-items: center;">
-                <label for="viewregdate" style="font-size:14px; min-width:200px; font-weight:700;">View Reg. Date:</label>
-                <input type="text" name="viewregdate" id="viewregdate" class="form-control" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                <label for="viewregdate1" style="font-size:14px; min-width:200px; font-weight:700;">View Reg. Date:</label>
+                  <select name="viewregdate" id="viewregdate" style="flex-grow:1; height:30px; font-size:14px; margin-left:10px;">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
                 </div>
 
                 <div style="display: flex; align-items: center;">

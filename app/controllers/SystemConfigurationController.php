@@ -46,7 +46,7 @@ class SystemConfigurationController extends Controller {
                 ->where('id', $id)
                 ->where('lab_lid', $lab_lid)
                 ->update([
-                    'tpno' => Input::get('tpno'),
+                    'tpno' => Input::get('tp_no'),
                     'address' => Input::get('address'),
                     'refby' => Input::get('refby'),
                     'refbydv' => Input::get('refbydv'),
@@ -131,20 +131,19 @@ class SystemConfigurationController extends Controller {
         $input = Input::all();
 
         try {
-            // Optional: validate input
+            
             $rcid = $input['rcid'];
 
             // Map values if they are 'Active'/'Inactive'
-            $valuestate = ($input['valuestate'] === 'Active') ? 1 : 0;
-            $viewsno = ($input['viewsno'] === 'Active') ? 1 : 0;
-            $viewregdate = ($input['viewregdate'] === 'Active') ? 1 : 0;
-            $viewinitials = ($input['viewinitials'] === 'Active') ? 1 : 0;
-            $viewspecialnote = ($input['viewspecialnote'] === 'Active') ? 1 : 0;
-            $enableblooddrew = ($input['enableblooddrew'] === 'Active') ? 1 : 0;
-            $enablecollected = ($input['enablecollected'] === 'Active') ? 1 : 0;
-            $reference_in_invoice = ($input['reference_in_invoice'] === 'Active') ? 1 : 0;
-            $rcdob = ($input['rcdob'] === 'Active') ? 1 : 0;
-
+             $valuestate = (int)$input['valuestate'];
+            $viewsno = (int)$input['viewsno'];
+            $viewregdate = (int)$input['viewregdate'];
+            $viewinitials = (int)$input['viewinitials'];
+            $viewspecialnote = (int)$input['viewspecialnote'];
+            $enableblooddrew = (int)$input['enableblooddrew'];
+            $enablecollected = (int)$input['enablecollected'];
+            $reference_in_invoice = (int)$input['reference_in_invoice'];
+            $rcdob = (int)$input['rcdob'];
             // id, lab_lid, header, headerurl, footer, footerurl, pageheading, date, sign, confidential, fontitelic, agelabel,
             //  headerdefault, valuestate, viewsno, viewregdate, viewinitials, viewspecialnote, enableblooddrew, enablecollected, 
             //  reference_in_invoice, dob
