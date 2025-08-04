@@ -417,6 +417,12 @@ Route::get('/SystemChangeLog', function () {
 Route::get('getSystemChangeLogs', 'SystemChangeLogController@getChangeLogs');
 
 
+Route::get('/EreportLog', function () {
+    return View::make('EreportLog');
+});
+Route::get('getEreportLogData', 'EreportLogController@getEreportLogData');
+Route::post('saveEreportLog', 'EreportLogController@save_EreportLog');
+
 
 
 
