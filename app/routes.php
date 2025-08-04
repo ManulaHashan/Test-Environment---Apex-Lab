@@ -411,6 +411,12 @@ Route::post('updatSMSConfigurations', 'SystemConfigurationController@updateSMSCo
 
 
 
+Route::get('/SystemChangeLog', function () {
+    return View::make('SystemChangeLog');
+});
+Route::get('getSystemChangeLogs', 'SystemChangeLogController@getChangeLogs');
+
+
 
 
 
