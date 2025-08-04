@@ -65,7 +65,7 @@ EReport Log
 
 
     function saveEreportLog() {
-        // Set hardcoded values
+      
         var currentDate = new Date().toISOString().split('T')[0]; 
         var currentTime = new Date().toTimeString().split(' ')[0]; 
         var method = "SMS";
@@ -245,14 +245,14 @@ EReport Log
                         <option value="Done">Done</option>
                     </select>
 
-                    <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="log_save_btn" value="Save" onclick="saveEreportLog();">
+                    
                     <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="log_ser_btn" value="Search" onclick="SearchEreportData();">
                 </div>
             </div>
         
         </div>
 
-        <div class="pageTableScope" style="display: flex; height: 500px; margin-top: 10px; width: 100%;">
+        <div class="pageTableScope" style="display: flex; height: 350px; margin-top: 10px; width: 100%;">
             <div style="flex: 1; padding-right: 10px;">
                 <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="ereport_logdataTable" width="100%" border="0" 
                     cellspacing="2" cellpadding="0">
@@ -280,6 +280,7 @@ EReport Log
                         </tr>
                     </tbody>
                 </table>
+                <input type="button" style="flex: 0 0 80px; margin-left: 10px;" class="btn" id="log_save_btn" value="Save Log" onclick="saveEreportLog();">
             </div>
         </div>
 
