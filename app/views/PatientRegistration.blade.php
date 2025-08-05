@@ -2395,51 +2395,51 @@ Add New Patient
 
  
 
-function loadPatient(direction) {
-    var currentSampleNo = $('#sampleNo').val();
-    var lab_lid = $('#lab_lid').val();
-    var date = $('#ser_date').val();
+    function loadPatient(direction) {
+        var currentSampleNo = $('#sampleNo').val();
+        var lab_lid = $('#lab_lid').val();
+        var date = $('#ser_date').val();
 
-    $.ajax({
-        url: '/getPatientDetailsBySample',
-        method: 'GET',
-        data: {
-            sampleNO: currentSampleNo,
-            direction: direction,
-            lab_lid: lab_lid,
-            searachDate: date
-        },
-        success: function(response) {
-            if (response.success) {
-                
-                const patient = response.data.patient;
-                const tests = response.data.tests;
-                const invoice = response.data.invoice;
-                 const lpsRecords = response.data.lpsRecords;
-                 const firstRecord = lpsRecords[0] || {};
-                $('#sampleNo').val(firstRecord.sampleNo || currentSampleNo || '');
-                view_selected_patient(firstRecord.sampleNo, date);
+        $.ajax({
+            url: '/getPatientDetailsBySample',
+            method: 'GET',
+            data: {
+                sampleNO: currentSampleNo,
+                direction: direction,
+                lab_lid: lab_lid,
+                searachDate: date
+            },
+            success: function(response) {
+                if (response.success) {
+                    
+                    const patient = response.data.patient;
+                    const tests = response.data.tests;
+                    const invoice = response.data.invoice;
+                    const lpsRecords = response.data.lpsRecords;
+                    const firstRecord = lpsRecords[0] || {};
+                    $('#sampleNo').val(firstRecord.sampleNo || currentSampleNo || '');
+                    view_selected_patient(firstRecord.sampleNo, date);
 
-            } else {
-                alert(response.message || 'No data found.');
+                } else {
+                    alert(response.message || 'No data found.');
+                }
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr);
+                alert('Error occurred while loading data: ' + 
+                    (xhr.responseJSON?.message || 'Please try again later.'));
             }
-        },
-        error: function(xhr) {
-            console.error('Error:', xhr);
-            alert('Error occurred while loading data: ' + 
-                 (xhr.responseJSON?.message || 'Please try again later.'));
-        }
+        });
+    }
+
+
+    $('#btnBack').on('click', function() {
+        loadPatient('back');
     });
-}
 
-
-$('#btnBack').on('click', function() {
-    loadPatient('back');
-});
-
-$('#btnFront').on('click', function() {
-    loadPatient('front');
-});
+    $('#btnFront').on('click', function() {
+        loadPatient('front');
+    });
 
 
     //*************************************************************************************************
@@ -2802,6 +2802,25 @@ $('#btnFront').on('click', function() {
     // window.onload = function () {
     //     document.getElementById('qr_input').focus();
     // };
+
+
+
+    // ***************Sample Number input feild validation***************
+
+    function restrictAfterDigit(input) {
+    const value = input.value;
+    const firstDigitIndex = value.search(/[0-9]/);
+
+    if (firstDigitIndex === -1) {
+      
+        input.value = value.replace(/[^a-zA-Z0-9]/g, '');
+    } else {
+      
+        const before = value.substring(0, firstDigitIndex);
+        const after = value.substring(firstDigitIndex).replace(/[^0-9]/g, '');
+        input.value = before + after;
+    }
+}
 
 </script>
 
@@ -3305,7 +3324,11 @@ $('#btnFront').on('click', function() {
 
                                     <td>
 
-                                        <input type="text" name="sampleNo" class="input-text" id="sampleNo" style="font-size: 18px; font-weight: bold; height: 30px; color: green;" disabled>
+                                       <input type="text" name="sampleNo" class="input-text" id="sampleNo"
+                                        style="font-size: 18px; font-weight: bold; height: 30px; color: green;"
+                                        disabled
+                                        oninput="restrictAfterDigit(this)" />
+
 
                                         <input type="checkbox" name="edit" id="edit" value="1" style="margin:0; padding: 0;"> Edit 
 

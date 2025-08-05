@@ -362,111 +362,111 @@ class PatientRegistrationController extends Controller
             ]);
         }
 
-        // Inserting into the invoice table
-        $totalAmount = Input::get('total_amount');
-        $grandTotal = Input::get('grand_total');
-        $paid = Input::get('paid');
-        $paymentMethod = Input::get('payment_method');
-        $invoiceRemark = Input::get('inv_remark');
-        $source = Input::get('source'); 
+            // Inserting into the invoice table
+            $totalAmount = Input::get('total_amount');
+            $grandTotal = Input::get('grand_total');
+            $paid = Input::get('paid');
+            $paymentMethod = Input::get('payment_method');
+            $invoiceRemark = Input::get('inv_remark');
+            $source = Input::get('source'); 
 
 
-        if ($paid == 0.0) {
-            $paymentStatus = "Not Paid";
-        } elseif ($paid >= $grandTotal) {
-            $paymentStatus = "Payment Done";
-        } else {
-            $paymentStatus = "Pending Due";
-        }
+            if ($paid == 0.0) {
+                $paymentStatus = "Not Paid";
+            } elseif ($paid >= $grandTotal) {
+                $paymentStatus = "Payment Done";
+            } else {
+                $paymentStatus = "Pending Due";
+            }
 
 
-        if (!empty($testData) && is_array($testData) && count($testData) > 0) {
-            $firstSample = $testData[0]; 
+            if (!empty($testData) && is_array($testData) && count($testData) > 0) {
+                $firstSample = $testData[0]; 
 
-            if (!empty($packageIdOnly) && !empty($firstSample['sampleNo'])) {
-                DB::table('invoice_has_labpackages')->insert([
-                    'pcid' => $packageIdOnly,
-                    'sno' => $firstSample['sampleNo'],
-                    'lab_lid' => $labLid
+                if (!empty($packageIdOnly) && !empty($firstSample['sampleNo'])) {
+                    DB::table('invoice_has_labpackages')->insert([
+                        'pcid' => $packageIdOnly,
+                        'sno' => $firstSample['sampleNo'],
+                        'lab_lid' => $labLid
+                    ]);
+                }
+            }
+
+            // Inserting tests into lps and lps_has_test tables
+            foreach ($testData as $index => $test) {
+
+                $sampleNoFromFront = $test['sampleNo'];
+        
+        
+                $existingSample = DB::table('lps')
+                ->where('Lab_lid', $labLid)
+                ->where('sampleNo', $sampleNoFromFront)
+                ->first();
+                // $fullSampleNo = $sampleNo . ($index < count($sampleSufArray) ? $sampleSufArray[$index] : '');
+
+                if ($existingSample) {
+                    $labBranchId = Input::get('labbranch');
+                    $sampleNoFromFront = $this->loadSampleNumberUniqe($labBranchId);
+                }
+                // Inserting lps tables
+            $lpsId = DB::table('lps')->insertGetId([
+                    'patient_pid' => $patientid,
+                    'Lab_lid' => $labLid,
+                    'date' => $now,
+                    'sampleNo' => $sampleNoFromFront, 
+                    'arivaltime' => $now,
+                    'refby' => $refName, 
+                    'refference_idref' => $refId,
+                    'type' => Input::get('type'),
+                    'fastingtime' => Input::get('fast_time'),
+                    'entered_uid' => '',
+                    'price' => $test['price'],
+                    'Testgroup_tgid' => $test['tgid'],
+                    'urgent_sample' => $test['priority'],
+                    'specialnote' => Input::get('inv_remark'),
+                    'status' => 'pending',
+                    'created_at' => $now,
+                    'updated_at' => $now
                 ]);
-            }
-        }
-
-        // Inserting tests into lps and lps_has_test tables
-        foreach ($testData as $index => $test) {
-
-            $sampleNoFromFront = $test['sampleNo'];
-    
-    
-            $existingSample = DB::table('lps')
-            ->where('Lab_lid', $labLid)
-            ->where('sampleNo', $sampleNoFromFront)
-            ->first();
-            // $fullSampleNo = $sampleNo . ($index < count($sampleSufArray) ? $sampleSufArray[$index] : '');
-
-             if ($existingSample) {
-                $labBranchId = Input::get('labbranch');
-                $sampleNoFromFront = $this->loadSampleNumberUniqe($labBranchId);
-            }
-            // Inserting lps tables
-          $lpsId = DB::table('lps')->insertGetId([
-                'patient_pid' => $patientid,
-                'Lab_lid' => $labLid,
-                'date' => $now,
-                'sampleNo' => $sampleNoFromFront, 
-                'arivaltime' => $now,
-                'refby' => $refName, 
-                'refference_idref' => $refId,
-                'type' => Input::get('type'),
-                'fastingtime' => Input::get('fast_time'),
-                'entered_uid' => '',
-                'price' => $test['price'],
-                'Testgroup_tgid' => $test['tgid'],
-                'urgent_sample' => $test['priority'],
-                'specialnote' => Input::get('inv_remark'),
-                'status' => 'pending',
-                'created_at' => $now,
-                'updated_at' => $now
-            ]);
 
                 
             
-//            echo "INSERT INTO lps (
-//     patient_pid,
-//     Lab_lid,
-//     date,
-//     sampleNo,
-//     arivaltime,
-//     refby,
-//     refference_idref,
-//     type,
-//     fastingtime,
-//     entered_uid,
-//     price,
-//     Testgroup_tgid,
-//     urgent_sample,
-//     specialnote,
-//     status,
-//     created_at,
-//     updated_at
-// ) VALUES (
-//     '{{$patientid}}',
-//     '{{$labLid}}',
-//     '{{$now}}',
-//     '{{$sampleNoFromFront}}',
-//     '{{$now}}',
-//     '{{$refName}}',
-//     '{{$refId}}',
-//     '1', '0',
-//     '',
-//     '{{$test["price"]}}',
-//     '{{$test["tgid"]}}',
-//     '{{$test["priority"]}}',
-//     '',
-//     'pending',
-//     '{{$now}}',
-//     '{{$now}}'
-// )";
+                //            echo "INSERT INTO lps (
+                //     patient_pid,
+                //     Lab_lid,
+                //     date,
+                //     sampleNo,
+                //     arivaltime,
+                //     refby,
+                //     refference_idref,
+                //     type,
+                //     fastingtime,
+                //     entered_uid,
+                //     price,
+                //     Testgroup_tgid,
+                //     urgent_sample,
+                //     specialnote,
+                //     status,
+                //     created_at,
+                //     updated_at
+                // ) VALUES (
+                //     '{{$patientid}}',
+                //     '{{$labLid}}',
+                //     '{{$now}}',
+                //     '{{$sampleNoFromFront}}',
+                //     '{{$now}}',
+                //     '{{$refName}}',
+                //     '{{$refId}}',
+                //     '1', '0',
+                //     '',
+                //     '{{$test["price"]}}',
+                //     '{{$test["tgid"]}}',
+                //     '{{$test["priority"]}}',
+                //     '',
+                //     'pending',
+                //     '{{$now}}',
+                //     '{{$now}}'
+                // )";
 
 
             
@@ -1774,7 +1774,7 @@ class PatientRegistrationController extends Controller
 //     }
    
 
-    public function patientDetailsEditingFeatureChecking()
+      public function patientDetailsEditingFeatureChecking()
     {
 
         $userUid = $_SESSION['uid'];
