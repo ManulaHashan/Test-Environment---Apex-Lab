@@ -410,15 +410,51 @@ Route::post('updatSMSConfigurations', 'SystemConfigurationController@updateSMSCo
 
 
 
-
+// *********************************ChangeLog Route**************************************************
 Route::get('/SystemChangeLog', function () {
-    return View::make('SystemChangeLog');
+    $uid = $_SESSION['uid'];
+
+    $hasPrivilege = DB::table('privillages')
+        ->where('user_uid', $uid)
+        ->where('options_idoptions', 2)
+        ->exists();
+
+    if ($hasPrivilege) {
+        return View::make('SystemChangeLog');
+    } else {
+        // return Response::make('Unauthorized access', 403); 
+         return Response::make("
+            <script>
+                alert('Access denied. You are not authorized!');
+                window.location.href = '/unauthorized';
+            </script>
+        ");
+    }
 });
+
 Route::get('getSystemChangeLogs', 'SystemChangeLogController@getChangeLogs');
 
 
+
+//-------------------------------------------Ereport Log Route***************************************************************-
 Route::get('/EreportLog', function () {
-    return View::make('EreportLog');
+    $uid = $_SESSION['uid'];
+
+    $hasPrivilege = DB::table('privillages')
+        ->where('user_uid', $uid)
+        ->where('options_idoptions', 2)
+        ->exists();
+
+    if ($hasPrivilege) {
+        return View::make('EreportLog');
+    } else {
+         return Response::make("
+            <script>
+                alert('Access denied. You are not authorized!');
+                window.location.href = '/unauthorized';
+            </script>
+        ");
+    }
 });
 Route::get('getEreportLogData', 'EreportLogController@getEreportLogData');
 Route::post('saveEreportLog', 'EreportLogController@save_EreportLog');
