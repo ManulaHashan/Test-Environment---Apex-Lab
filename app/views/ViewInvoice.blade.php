@@ -164,9 +164,21 @@ View Invices
         var selectedRow = $('#invdataTable tbody tr.selected');
         var sampleNo = selectedRow.find('td:eq(0)').text(); 
         var lpsId = selectedRow.data('lpsid'); 
-         var invoiceDate = selectedRow.data('date');
-         var password = $('#delete_password').val();
-         var note = $('#delete_remark').val();
+        var invoiceDate = selectedRow.data('date');
+        var password = $('#delete_password').val().trim();
+        var note = $('#delete_remark').val().trim();
+         
+         if (!password) {
+            alert("Please enter your password.");
+            $('#delete_password').focus();
+            return;
+        }
+
+        if (!note) {
+            alert("Please enter a remark for cancellation.");
+            $('#delete_remark').focus();
+            return;
+        }
         
         if (!confirm("Are you sure you want to cancel invoice for Sample No: " + sampleNo + "?")) {
             return;
@@ -271,6 +283,8 @@ View Invices
 
     function closeModal() {
         document.getElementById("cancelModal").style.display = "none";
+         $('#delete_password').val('');
+         $('#delete_remark').val('');
     }
 
 
@@ -615,7 +629,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <label for="remark" style="font-weight: bold; color: #555;">Remark:</label><br>
                     <input type="text" id="delete_remark" 
                         style="width: 90%; padding: 8px; margin: 8px 0 15px 0; border-radius: 5px; 
-                                border: 1px solid #ccc;"><br>
+                                border: 1px solid #ccc;" ><br>
 
                     <label for="delete_password" style="font-weight: bold; color: #555;">Password:</label><br>
                     <input type="password" id="delete_password" autocomplete="new-password" 
