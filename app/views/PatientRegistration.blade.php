@@ -1346,7 +1346,7 @@ Add New Patient
 
 
                     $('#refcode').val(firstRecord.code || '');
-                    $('#inv_remark').val(firstRecord.specialnote || '');
+                    $('#inv_remark').val(invoiceData.remark || '');
 
 
                     // Set the discount dropdown value
@@ -1628,6 +1628,16 @@ Add New Patient
                     $('#months').val(data.months != null ? data.months : '');
                     $('#days').val(data.days != null ? data.days : '');
                 }
+                
+                //disable fields
+                $('#fname').prop('readOnly', true);
+                $('#lname').prop('readOnly', true);
+                $('#years').prop('readOnly', true);
+                $('#months').prop('readOnly', true);
+                $('#days').prop('readOnly', true);
+                $('#dob').prop('readOnly', true);
+                $('#nic').prop('readOnly', true);
+                $('#address').prop('readOnly', true);
 
 
             },
@@ -2395,51 +2405,51 @@ Add New Patient
 
  
 
-    function loadPatient(direction) {
-        var currentSampleNo = $('#sampleNo').val();
-        var lab_lid = $('#lab_lid').val();
-        var date = $('#ser_date').val();
+function loadPatient(direction) {
+    var currentSampleNo = $('#sampleNo').val();
+    var lab_lid = $('#lab_lid').val();
+    var date = $('#ser_date').val();
 
-        $.ajax({
-            url: '/getPatientDetailsBySample',
-            method: 'GET',
-            data: {
-                sampleNO: currentSampleNo,
-                direction: direction,
-                lab_lid: lab_lid,
-                searachDate: date
-            },
-            success: function(response) {
-                if (response.success) {
-                    
-                    const patient = response.data.patient;
-                    const tests = response.data.tests;
-                    const invoice = response.data.invoice;
-                    const lpsRecords = response.data.lpsRecords;
-                    const firstRecord = lpsRecords[0] || {};
-                    $('#sampleNo').val(firstRecord.sampleNo || currentSampleNo || '');
-                    view_selected_patient(firstRecord.sampleNo, date);
+    $.ajax({
+        url: '/getPatientDetailsBySample',
+        method: 'GET',
+        data: {
+            sampleNO: currentSampleNo,
+            direction: direction,
+            lab_lid: lab_lid,
+            searachDate: date
+        },
+        success: function(response) {
+            if (response.success) {
+                
+                const patient = response.data.patient;
+                const tests = response.data.tests;
+                const invoice = response.data.invoice;
+                 const lpsRecords = response.data.lpsRecords;
+                 const firstRecord = lpsRecords[0] || {};
+                $('#sampleNo').val(firstRecord.sampleNo || currentSampleNo || '');
+                view_selected_patient(firstRecord.sampleNo, date);
 
-                } else {
-                    alert(response.message || 'No data found.');
-                }
-            },
-            error: function(xhr) {
-                console.error('Error:', xhr);
-                alert('Error occurred while loading data: ' + 
-                    (xhr.responseJSON?.message || 'Please try again later.'));
+            } else {
+                alert(response.message || 'No data found.');
             }
-        });
-    }
-
-
-    $('#btnBack').on('click', function() {
-        loadPatient('back');
+        },
+        error: function(xhr) {
+            console.error('Error:', xhr);
+            alert('Error occurred while loading data: ' + 
+                 (xhr.responseJSON?.message || 'Please try again later.'));
+        }
     });
+}
 
-    $('#btnFront').on('click', function() {
-        loadPatient('front');
-    });
+
+$('#btnBack').on('click', function() {
+    loadPatient('back');
+});
+
+$('#btnFront').on('click', function() {
+    loadPatient('front');
+});
 
 
     //*************************************************************************************************
@@ -2678,13 +2688,13 @@ Add New Patient
 
         // Fill patient detail section
         document.getElementById('patientDetailsPreview').innerHTML = `
-            <strong>Name:</strong> ${fullName}<br>
-            <strong>Age:</strong> ${years} Years, ${months} Months, ${days} Days<br>
-            <strong>DOB:</strong> ${dob}<br>
-            <strong>Gender:</strong> ${gender}<br>
-            <strong>NIC:</strong> ${nic}<br>
-            <strong>Address:</strong> ${address}<br>
-            <strong>Referred By:</strong> ${refCode} - ${refName}<br>
+            <p class='confP'><strong>Name:</strong> ${fullName}</p>
+            <p class='confP'><strong>Age:</strong> ${years} Years, ${months} Months, ${days} Days</p>
+            <p class='confP'><strong>DOB:</strong> ${dob}</p>
+            <p class='confP'><strong>Gender:</strong> ${gender}</p>
+            <p class='confP'><strong>NIC:</strong> ${nic}</p>
+            <p class='confP'><strong>Address:</strong> ${address}</p>
+            <p class='confP'><strong>Referred By:</strong> ${refCode} - ${refName}</p>
         `;
 
         // Get the confirmation table body
@@ -2802,25 +2812,6 @@ Add New Patient
     // window.onload = function () {
     //     document.getElementById('qr_input').focus();
     // };
-
-
-
-    // ***************Sample Number input feild validation***************
-
-    function restrictAfterDigit(input) {
-    const value = input.value;
-    const firstDigitIndex = value.search(/[0-9]/);
-
-    if (firstDigitIndex === -1) {
-      
-        input.value = value.replace(/[^a-zA-Z0-9]/g, '');
-    } else {
-      
-        const before = value.substring(0, firstDigitIndex);
-        const after = value.substring(firstDigitIndex).replace(/[^0-9]/g, '');
-        input.value = before + after;
-    }
-}
 
 </script>
 
@@ -2983,7 +2974,7 @@ Add New Patient
         margin: 5% auto;
         padding: 20px;
         border: 1px solid #888;
-        width: 20%;
+        width: 50%;
     }
     .close {
         color: #aaa;
@@ -3046,6 +3037,7 @@ Add New Patient
       .mainScreen{
           width: 95%;
           vertical-align: top;
+          background-color: #ECECEC;
       }
 
     .pregHeaderraw{
@@ -3254,7 +3246,7 @@ Add New Patient
           #print_barcode {
             padding: 8px 16px;
             margin: 4px;
-            background-color: #af288e;
+            background-color: #4b9bf0;
             color: white;
             border: none;
             border-radius: 6px;
@@ -3264,7 +3256,7 @@ Add New Patient
         #group_barcode {
             padding: 8px 16px;
             margin: 4px;
-            background-color: #af288e;
+            background-color: #4b9bf0;
             color: white;
             border: none;
             border-radius: 6px;
@@ -3274,7 +3266,7 @@ Add New Patient
           #test_wise_bcode {
             padding: 8px 16px;
             margin: 4px;
-            background-color: #af288e;
+            background-color: #4b9bf0;
             color: white;
             border: none;
             border-radius: 6px;
@@ -3284,7 +3276,7 @@ Add New Patient
           #remove_barcode {
             padding: 8px 16px;
             margin: 4px;
-            background-color: #af288e;
+            background-color: #4b9bf0;
             color: white;
             border: none;
             border-radius: 6px;
@@ -3292,7 +3284,12 @@ Add New Patient
             font-size: 14px;
         }
 
-       
+        .confP{
+            font-size: 16px;
+            color: darkblue;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
 
        
         
@@ -3324,11 +3321,7 @@ Add New Patient
 
                                     <td>
 
-                                       <input type="text" name="sampleNo" class="input-text" id="sampleNo"
-                                        style="font-size: 18px; font-weight: bold; height: 30px; color: green;"
-                                        disabled
-                                        oninput="restrictAfterDigit(this)" />
-
+                                        <input type="text" name="sampleNo" class="input-text" id="sampleNo" style="font-size: 18px; font-weight: bold; height: 30px; color: green;" disabled>
 
                                         <input type="checkbox" name="edit" id="edit" value="1" style="margin:0; padding: 0;"> Edit 
 
@@ -3787,18 +3780,53 @@ Add New Patient
                             <tr>
                                 <td width="50%" valign="top">
                                     
-                                      <div style="display: flex; gap: 10px;">
-                                        <input type="button" class="btn" id="make_priority" value="Make Priority" onclick="">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <input type="button" class="btn" id="make_priority" value="Make Priority" onclick="" style="margin:0">
+                                            </td>
+                                            <td align="right">
+                                                <label style="width: 140px; font-size: 10pt;" id="rep_chkboxlbl"><b>Repeat Samples</b></label>
+                            <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1" />
+                                            </td>
+                                        </tr>
                                         
-                                     </div>
+                                    </table>
+
                                                                     
                                     <input type="text" name=" inv_remark" class="input-text" id="inv_remark" style="width: 92%; margin-top: 5px;" placeholder="Invoice Remark">
                                     
-                                    <div style="display: flex; align-items: center;margin-top: 10px; font-size: 12px; ">
-                                        <label style="width: 230px;  "><i>Report Collection Method</i></label>
-                                    </div>
+                                    <input
+                                        type="button"
+                                        style="background-color:rgb(13, 134, 59); color:white; width: 100%; height: 40px; margin-left: 0px; margin-right: 0px; margin-top: 10px;"
+                                        class="btn"
+                                        id="save_Model"
+                                        value="Save & Confirm"
+                                        onclick="patientConfirmModal()"
+                                    />
 
-                                    <table style="margin-top: 5px; font-size: 10pt;" cellspacing="0" width="100%">
+                                    
+                                    
+                                </td>
+                                
+                                <td valign="top" width="0.5%" ><div style="background-color: #4b9bf0; width: 3px; height: 180px; margin-left: 10px;"></div></td>
+                                
+                                
+                            <td width="49%" valign="top" align="right"> 
+                            
+                            
+                            <table width="100%">
+                                <tr>
+                                    <td><input type="button" class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);" style="margin:0px; width: 100%"/></td>
+                                    <td><input type="button" class="btn" id="print_barcode" value="Single Barcode"  onclick="barcodePrint(false);" style="margin:0px; width: 100%" /></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="button" class="btn" id="test_wise_bcode" value="Test Wise Bcode" onclick="openBcodeModal();" style="margin:0px; width: 100%" /></td>
+                                    <td><input type="button" class="btn" id="remove_barcode" value="Remove Barcode" onclick="removeBarcode();" style="margin:0px; width: 100%" /></td>
+                                </tr>
+                            </table>
+                            
+                            <table style="margin-top: 5px; font-size: 10pt;" cellspacing="0" width="100%">
                                     <tr>
                                         <td width="25%">
                                             <input type="checkbox" name="hard_copy" id="hard_copy" value="Hard Copy" checked ><br/>Hard Copy
@@ -3854,27 +3882,12 @@ Add New Patient
                                     </tr>
 
                                 </table>
-                                    
-                                </td>
-                                
-                                <td valign="top" width="0.5%" ><div style="background-color: #4b9bf0; width: 3px; height: 180px; margin-left: 10px;"></div></td>
-                                
-                                
-                            <td width="49%" valign="top" align="right"> 
-                            <label style="width: 140px; font-size: 10pt;" id="rep_chkboxlbl"><b>Repeat Samples</b></label>
-                            <input type="checkbox" name="rep_chkbox" id="rep_chkbox" class="ref_chkbox" value="1" />
-                            <input type="button" class="btn" id="print_barcode" value="Print Barcode"  onclick="barcodePrint(false);" />
-                            <input type="button" class="btn" id="group_barcode" value="Group Barcodes" onclick="barcodePrint(true);" />
-                            <input type="button" class="btn" id="test_wise_bcode" value="Test Wise Bcode" onclick="openBcodeModal();" />
-                            <input type="button" class="btn" id="remove_barcode" value="Remove Barcode" onclick="removeBarcode();" />
-                            <input
-                                type="button"
-                                style="background-color:rgb(13, 134, 59); color:white; width: 90%; height: 40px; margin: 0px;"
-                                class="btn"
-                                id="save_Model"
-                                value="Save & Confirm"
-                                onclick="patientConfirmModal()"
-                            />
+                            
+                            
+                            
+                            
+                            
+                            
                         </td>
 
                             
@@ -3901,7 +3914,7 @@ Add New Patient
                         <iframe id="print-frame" style="display:none;"></iframe>
 
 
-                        <hr style=" background-color: rgb(19, 153, 211); height: 3px; border: none;">
+                        <hr style=" background-color: #8e7ef7; height: 2px; border: none;">
                         
                         <table width="100%">
                                 
@@ -4061,16 +4074,20 @@ Add New Patient
                         <!-- Modal content -->
                         <div class="bcodemodal-content">
                             <span class="close" onclick="closeBcodeModal()">&times;</span>
-                            <h1>Test Wise Barcode </h1>
-                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                                <label for="test_name" style="font-size: 14px; min-width: 90px;"><b>Test Name:</b></label>
-                                <label id="test_name" style="  width: 190px;"></label>
-                                <input type="text" id="test_ID" hidden> 
-                            </div>
-                             <div class="pageTableScope" style="display: block; height: auto; margin-top: 10px; width: 100%;">
+                            <h3>Test Wise Barcode </h3> <br>
+                            
+                            <table width="100%">
+                                <tr>
+                                    <td><label for="test_name" style="font-size: 14px; min-width: 90px;"><b>Test Name:</b></label></td>
+                                    <td><label id="test_name" style="  width: 190px;"></label><input type="text" id="test_ID" hidden> </td>
+                                </tr>
+                            </table>
+                            
+                            
+                             <div class="pageTableScope" style="display: block; height: auto; margin-top: 10px; width: 100%; ">
                                 <!-- Left Side: Table -->
                                 <div style="flex: 0 0 50%; padding-left: 10px;">
-                                     <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" id="test_param_record_tbl" width="100%" border="0" cellspacing="2" cellpadding="0">
+                                     <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt; border: 1px black solid;" id="test_param_record_tbl" width="100%" border="0" cellspacing="2" cellpadding="0">
                                         <tbody>
                                             <tr>
                                                 <td valign="top">
@@ -4105,14 +4122,13 @@ Add New Patient
                    <div id="patientConfirmModal" class="patientConfirmModal">
                     <div class="patientConfirmModal-content">
                         <span class="close" onclick="closepatientConfirmModal()">&times;</span>
-                        <h1>Patient Details Confirmation</h1>
+                        <h3>Patient Details Confirmation</h3>
 
                         <!-- Patient Details Section -->
-                        <div id="patientDetailsPreview" style="margin-top: 10px; font-size: 14px;"></div>
+                        <div id="patientDetailsPreview" style="margin-top: 10px; font-size: 18px;"></div>
 
                         <!-- Test Details Table -->
-                        <h3 style="margin-top: 20px;">Selected Tests</h3>
-                        <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 13pt;" width="100%" border="1" cellspacing="0" cellpadding="5">
+                        <table style="font-family: Futura, 'Trebuchet MS', Arial, sans-serif; font-size: 10pt;" width="100%" border="1" cellspacing="0" cellpadding="3">
                         <thead>
                             <tr class="viewTHead">
                             <td width="15%" class="fieldText">Test ID</td>
@@ -4124,10 +4140,17 @@ Add New Patient
                             <!-- Test rows will be populated here -->
                         </tbody>
                         </table>
+                        <br/>
+                        <table> 
+                            <tr>
+                                <td><input type="button" style="color:green; background-color:green; width: 200px; margin: 0px; color: white;" class="btn" id="savebtn" value="Save" ></td>
+                                <td><input type="button" class="btn" value="Cancel" onclick="closepatientConfirmModal()" style="color:rgb(238, 49, 43); width: 200px; margin: 0px;"></td>
+                            </tr>
+                        </table>
 
                         <div style="text-align: right; margin-top: 15px;">
-                        <input type="button" style="color:green; " class="btn" id="savebtn" value="Save">
-                        <input type="button" class="btn" value="Cancel" onclick="closepatientConfirmModal()" style="color:rgb(238, 49, 43)">
+                        
+                        
                         </div>
                     </div>
                     </div>

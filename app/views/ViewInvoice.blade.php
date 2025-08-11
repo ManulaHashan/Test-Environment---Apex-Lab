@@ -165,6 +165,7 @@ View Invices
         var sampleNo = selectedRow.find('td:eq(0)').text(); 
         var lpsId = selectedRow.data('lpsid'); 
          var invoiceDate = selectedRow.data('date');
+         var password = $('#delete_password').val();
         
         if (!confirm("Are you sure you want to cancel invoice for Sample No: " + sampleNo + "?")) {
             return;
@@ -176,18 +177,29 @@ View Invices
             data: {
                 sampleNo: sampleNo,
                 lpsId: lpsId,
-                invoiceDate: invoiceDate
+                invoiceDate: invoiceDate,
+                password: password
             },
             success: function (response) {
-                alert(response.message);
-                loadRecordToTable(); 
-                $('#sample_record_tbl').html(''); 
+                if(response.message) {
+                    alert(response.message);
+                } else {
+                    alert("Invoice cancelled successfully.");
+                }
+                loadRecordToTable();
+                $('#sample_record_tbl').html('');
+                closeModal();
             },
             error: function (xhr) {
-                alert("Error: " + xhr.status + " - " + xhr.statusText);
+                var err = xhr.responseJSON;
+                if(err && err.message) {
+                    alert("Error: " + err.message);
+                } else {
+                    alert("Error: " + xhr.status + " - " + xhr.statusText);
+                }
             }
         });
- 
+    
     }
 
     function selectToDelete(){
