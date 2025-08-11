@@ -166,6 +166,7 @@ View Invices
         var lpsId = selectedRow.data('lpsid'); 
          var invoiceDate = selectedRow.data('date');
          var password = $('#delete_password').val();
+         var note = $('#delete_remark').val();
         
         if (!confirm("Are you sure you want to cancel invoice for Sample No: " + sampleNo + "?")) {
             return;
@@ -178,7 +179,8 @@ View Invices
                 sampleNo: sampleNo,
                 lpsId: lpsId,
                 invoiceDate: invoiceDate,
-                password: password
+                password: password,
+                note:note
             },
             success: function (response) {
                 if(response.message) {

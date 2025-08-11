@@ -221,6 +221,7 @@ class ViewInvoiceController extends Controller{
     $lpsId = Input::get('lpsId');
     $invoiceDate = Input::get('invoiceDate');
     $inputPassword = Input::get('password');
+    $inputRemark = Input::get('note');
 
     $uId = $_SESSION['uid'];
 
@@ -281,7 +282,7 @@ class ViewInvoiceController extends Controller{
             'canceled_time' => $today_time,
             'user' => $uId,
             'approved' => $uId, 
-            'note' => 'Invoice canceled by user.', 
+            'note' => $inputRemark, 
             'Lab_lid' =>  $labId,
         ]);
 
