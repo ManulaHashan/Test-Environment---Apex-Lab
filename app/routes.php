@@ -461,6 +461,35 @@ Route::post('saveEreportLog', 'EreportLogController@save_EreportLog');
 
 
 
+// Value Suggesions Route
+
+Route::get('/ValueSuggestions', function () {
+    return View::make('ValueSuggestions');
+});
+
+
+// Route::get('get-parameters', function() {
+//     $tgid = Input::get('tgid');
+//     $lid = $_SESSION['lid'];
+
+//     $results = DB::select("SELECT test_tid, reportname FROM Lab_has_test WHERE Lab_lid = ? AND Testgroup_tgid = ? ORDER BY orderno ASC", [$lid, $tgid]);
+
+//     $options = '<option value="">-- Select Parameter --</option>';
+//     foreach($results as $res) {
+//         $options .= '<option value="'.$res->test_tid.'">'.$res->test_tid.' : '.$res->reportname.'</option>';
+//     }
+
+//     return $options;
+// });
+
+// routes.php
+Route::get('get-parameters', 'ValueSuggestionsController@getParameters');
+Route::get('get_values_records', 'ValueSuggestionsController@getValuesRecords');
+Route::post('save_to_suggestions', 'ValueSuggestionsController@saveToSuggestions');
+Route::post('delete_values', 'ValueSuggestionsController@deleteValues');
+
+
+
 
 
 
