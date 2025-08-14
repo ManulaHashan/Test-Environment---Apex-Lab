@@ -16,13 +16,6 @@
 
     <script>
 
-
-
-
-
-      
-
-
     function loadParameters(tgid) {
         if(tgid) {
             $.ajax({
@@ -49,7 +42,7 @@
     });
 
     function searchValuesRecords() {
-        var test_tid = $('#test_parameeter').val(); // Parameter dropdown එකෙන් value ගන්නවා
+        var test_tid = $('#test_parameeter').val(); 
         
         if (!test_tid) {
             alert('Please select a parameter first.');
@@ -92,6 +85,9 @@
     }
 
 
+
+
+
     function addToSuggestions() {
         var selected = [];
 
@@ -119,6 +115,7 @@
                 if (response.success) {
                     alert(response.message);
                      searchValuesRecords(); 
+                     searchSuggestions();
                 } else {
                     alert(response.message);
                 }
@@ -171,6 +168,142 @@
         });
     }
 
+
+
+    function searchSuggestions() {
+        var test_tid = $('#test_parameeter').val();
+        if(!test_tid){ alert('Select parameter'); return; }
+
+        $.ajax({
+            url: 'get-suggestions',
+            type: 'GET',
+            data: {test_tid:test_tid},
+            dataType:'json',
+            success:function(data){
+                var rows='';
+                if(data.length>0){
+                    $.each(data,function(i,item){
+                        rows+=`<tr data-id="${item.id}">
+                            <td align="center">${item.lhtid}</td>
+                            <td align="center">
+                                <input type="text" class="edit-value" value="${item.value}" data-id="${item.id}">
+                            </td>
+                        </tr>`;
+                    });
+                } else {
+                    rows='<tr><td colspan="2" align="center">No records</td></tr>';
+                }
+                $('#valueSugges_record_tbl').html(rows);
+            },
+            error:function(){ alert('Error loading data'); }
+        });
+    }
+
+
+    // Insert new row and DB insert
+    function insertSuggestions(){
+        var test_tid = $('#test_parameeter').val();
+        if(!test_tid){ alert('Select parameter'); return; }
+
+        var new_value = prompt('Enter new value:');
+        if(!new_value) return;
+
+        $.ajax({
+            url:'insert-suggestion',
+            type:'POST',
+            data:{
+                lhtid:test_tid,
+                value:new_value
+            },
+            success:function(res){
+                alert(res.message);
+                if(res.success) searchSuggestions();
+            },
+            error:function(){ alert('Error inserting'); }
+        });
+    }
+
+
+    // Row click event to select row
+    $(document).on('click', '#valueSugges_record_tbl tr', function() {
+        $(this).addClass('selected').siblings().removeClass('selected');
+    });
+
+    // Update only selected row
+    function updateValues(){
+        var selectedRow = $('#valueSugges_record_tbl tr.selected');
+        if(selectedRow.length == 0){
+            alert('Select a row to update');
+            return;
+        }
+
+        var input = selectedRow.find('.edit-value');
+        var id = input.data('id'); 
+        var new_value = input.val().trim();
+
+        if(new_value === ''){
+            alert('Value cannot be empty');
+            return;
+        }
+
+        $.ajax({
+            url:'update-suggestion',
+            type:'POST',
+            data:{
+                id: id,
+                value: new_value,
+               
+            },
+            success:function(res){
+                if(res.success){
+                    alert('Value updated successfully');
+                    searchSuggestions(); 
+                } else {
+                    alert(res.message);
+                }
+            },
+            error:function(){
+                alert('Error updating value');
+            }
+        });
+    }
+
+
+    // Delete selected row
+    function deleteValues(){
+        var selectedRow = $('#valueSugges_record_tbl tr.selected');
+        if(selectedRow.length == 0){
+            alert('Select a row to delete');
+            return;
+        }
+
+        var id = selectedRow.data('id');
+
+        if(!confirm('Delete selected value?')) return;
+
+        $.ajax({
+            url:'delete-suggestion',
+            type:'POST',
+            data:{
+                id: id,
+                
+            },
+            success:function(res){
+                alert(res.message);
+                searchSuggestions(); 
+            },
+            error:function(){ alert('Error deleting'); }
+        });
+    }
+
+
+    // Select row on click
+    $(document).on('click','#valueSugges_record_tbl tr',function(){
+        $(this).addClass('selected').siblings().removeClass('selected');
+    });
+
+
+    
        
     </script>
 
@@ -206,6 +339,15 @@
         .card-text {
             font-size: 14px;
         }
+
+         #valueSugges_record_tbl tr.selected {
+        background-color: #ffcccc; /* light red */
+        }
+        #valueSugges_record_tbl tr:hover {
+            background-color: #f0f0f0; /* hover effect */
+            cursor: pointer;
+        }
+
     </style>
 @stop
 
@@ -250,7 +392,7 @@
 
                     <div style="display: flex; align-items: center;">
                         <input type="button" style="flex: 0 0 80px; margin-left: 10px; color:green" class="btn"
-                                id="ser_btn" value="Search" onclick="searchValuesRecords()">
+                                id="ser_btn" value="Search" onclick="searchValuesRecords(); searchSuggestions();">
                     
                     </div>
 
@@ -335,6 +477,35 @@
                             </tr>
                         </tbody>
                     </table>
+
+                     <div style="display: flex; align-items: center; gap: 10px; position: sticky; bottom: 0; background: #bcb2b2; padding: 5px 0; border-top: 1px solid #ccc;">
+                            <input 
+                                type="button" 
+                                class="btn" 
+                                id="insert_btn" 
+                                value="Insert" 
+                                onclick="insertSuggestions()" 
+                                style="color: green;"
+                            >
+                            <input 
+                                type="button" 
+                                class="btn" 
+                                id="update_btn" 
+                                value="Update" 
+                                onclick="updateValues()" 
+                                style="color: yellow;"
+                            >
+                            <input 
+                                type="button" 
+                                class="btn" 
+                                id="delete_val_btn" 
+                                value="Delete" 
+                                onclick="deleteValues()" 
+                                style="color: red;"
+                            >
+                            
+                           
+                        </div>
                 </div>
 
 

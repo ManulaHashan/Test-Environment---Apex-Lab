@@ -34,7 +34,7 @@ class ValueSuggestionsController extends Controller
         return $options;
     }
 
-     public function getValuesRecords()
+    public function getValuesRecords()
     {
 
         $lid = $_SESSION['lid'];
@@ -58,7 +58,7 @@ class ValueSuggestionsController extends Controller
 
         // JSON return
         return Response::json($results);
-}
+    }
 
     public function saveToSuggestions() {
         $selected = Input::get('selected'); // array of {test_tid, value}
@@ -108,8 +108,93 @@ class ValueSuggestionsController extends Controller
         }
 
         return Response::json(['success' => true, 'message' => 'Selected records deleted successfully.']);
-}
+    }
 
+
+ 
+
+     // Load suggestions
+    public function getSuggestions()
+    {
+        $test_tid = Input::get('test_tid');
+
+        if (!$test_tid) {
+            return Response::json([]);
+        }
+
+        $results = DB::select("
+            SELECT id,lhtid, value
+            FROM value_suggests
+            WHERE lhtid = ?
+            ORDER BY value
+        ", [$test_tid]);
+
+        return Response::json($results);
+    }
+
+    // Insert new value
+    public function insertSuggestion()
+    {
+        $lhtid = Input::get('lhtid');
+        $value = Input::get('value');
+
+        if (!$lhtid || !$value) {
+            return Response::json(['success'=>false,'message'=>'Invalid data']);
+        }
+
+        // Duplicate check
+        $exists = DB::table('value_suggests')->where('lhtid',$lhtid)->where('value',$value)->first();
+        if($exists){
+            return Response::json(['success'=>false,'message'=>'Value already exists']);
+        }
+
+        DB::table('value_suggests')->insert([
+            'lhtid'=>$lhtid,
+            'value'=>$value
+        ]);
+
+        return Response::json(['success'=>true,'message'=>'Value inserted']);
+    }
+
+    // Update value
+    public function updateSuggestion()
+    {
+        $id = Input::get('id');
+        $new_value = trim(Input::get('value'));
+
+        if(!$id || $new_value === ''){
+            return Response::json(['success'=>false,'message'=>'Invalid data']);
+        }
+
+        $affected = DB::table('value_suggests')
+                    ->where('id', $id) // use id
+                    ->update(['value' => $new_value]);
+
+        if($affected){
+            return Response::json(['success'=>true,'message'=>'Value updated']);
+        } else {
+            return Response::json(['success'=>false,'message'=>'No record updated']);
+        }
+    }
+
+
+
+    // Delete value
+   public function deleteSuggestion()
+    {
+        $id = Input::get('id');
+        if(!$id){
+            return Response::json(['success'=>false,'message'=>'Invalid id']);
+        }
+
+        $deleted = DB::table('value_suggests')->where('id',$id)->delete();
+
+        if($deleted){
+            return Response::json(['success'=>true,'message'=>'Value deleted']);
+        } else {
+            return Response::json(['success'=>false,'message'=>'No record deleted']);
+        }
+    }
 
 
 }
