@@ -56,12 +56,12 @@ class ValueSuggestionsController extends Controller
                 a.value
         ", [$lid, $test_tid]);
 
-        // JSON return
+        
         return Response::json($results);
     }
 
     public function saveToSuggestions() {
-        $selected = Input::get('selected'); // array of {test_tid, value}
+        $selected = Input::get('selected'); 
 
         if(empty($selected) || !is_array($selected)) {
             return Response::json(['success' => false, 'message' => 'No records selected.']);
@@ -91,7 +91,7 @@ class ValueSuggestionsController extends Controller
 
     public function deleteValues()
     {
-        $selected = Input::get('selected'); // array of {test_tid, value}
+        $selected = Input::get('selected'); 
 
         if (empty($selected) || !is_array($selected)) {
             return Response::json(['success' => false, 'message' => 'No records selected.']);
@@ -110,10 +110,7 @@ class ValueSuggestionsController extends Controller
         return Response::json(['success' => true, 'message' => 'Selected records deleted successfully.']);
     }
 
-
- 
-
-     // Load suggestions
+    // Load suggestions
     public function getSuggestions()
     {
         $test_tid = Input::get('test_tid');
@@ -167,7 +164,7 @@ class ValueSuggestionsController extends Controller
         }
 
         $affected = DB::table('value_suggests')
-                    ->where('id', $id) // use id
+                    ->where('id', $id) 
                     ->update(['value' => $new_value]);
 
         if($affected){
