@@ -248,10 +248,18 @@ class ViewInvoiceController extends Controller{
     try {
         DB::transaction(function () use ($sampleNo, $lpsId, $invoiceDate) {
             // Update lps table
+            // DB::table('lps')
+            //     ->where('sampleNo', 'like', $sampleNo . '%')
+            //     ->where('date', '=', $invoiceDate)
+            //     ->update(['date' => '0000-00-00']);
+
             DB::table('lps')
-                ->where('sampleNo', 'like', $sampleNo . '%')
-                ->where('date', '=', $invoiceDate)
-                ->update(['date' => '0000-00-00']);
+            ->where(function($q) use ($sampleNo) {
+                $q->where('sampleNo', '=', $sampleNo) 
+                ->orWhere('sampleNo', 'REGEXP', '^' . $sampleNo . '[A-Z]$'); 
+            })
+            ->where('date', '=', $invoiceDate)
+            ->update(['date' => '0000-00-00']);
 
             // Get related invoice IDs
             $invoiceIds = DB::table('invoice')

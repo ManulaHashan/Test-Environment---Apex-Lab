@@ -572,6 +572,11 @@ Route::post('delete-suggestion', 'ValueSuggestionsController@deleteSuggestion');
 
 
 
+
+
+
+
+
 // ************************************************************************************************
 //new Update
 //Route::get('/financestat',function(){
