@@ -1454,4 +1454,37 @@ class PatientRegistrationController extends Controller {
 
         return Response::json(['hasPdetailsUpdateFeature' => $patientDetailsEditingFeature]);
     }
+
+
+
+    public function getReferenceDetails()
+    {
+        try {
+            $referenceId = Input::get('reference_id'); 
+
+            if (!$referenceId) {
+                return Response::json([], 200);
+            }
+
+        
+            $result = DB::table('refference')
+                ->where('idref', $referenceId)
+                ->select('idref', 'code', 'name') 
+                ->first();
+
+            if ($result) {
+                return Response::json($result, 200);
+            } else {
+                return Response::json([], 200);
+            }
+
+        } catch (Exception $e) {
+            return Response::json(['error' => $e->getMessage()], 500);
+        }
+    }
+
 }
+
+
+
+

@@ -1649,68 +1649,7 @@ Add New Patient
 
     
 
-    function searchRefferenceCode() {
-        var refCode = $('#refcode').val();
-
-        if (refCode.length < 1) {
-            $('#refcode_suggestions').hide();
-            return;
-        }
-
-        $.ajax({
-            type: "GET",
-            url: "/getRefCode",
-            data: { keyword: refCode },
-            success: function (data) {
-                var suggestionsHtml = '';
-                if (data.length > 0) {
-                    $.each(data, function (index, ref) {
-                        suggestionsHtml += '<div class="suggestion-item" style="padding:5px; cursor:pointer;" onclick="selectRef(\'' +
-                            ref.code + '\', \'' + ref.idref + '\', \'' + ref.name + '\')">' +
-                            ref.code + ' - ' + ref.name + '</div>';
-                    });
-                    $('#refcode_suggestions').html(suggestionsHtml).show();
-                } else {
-                    $('#refcode_suggestions').hide();
-                }
-            },
-            error: function (xhr) {
-                console.error('Error:', xhr.statusText);
-            }
-        });
-    }
-
-    function searchRefName() {
-        var keyword = $('#refDropdown').val();
-
-        if (keyword.length < 1) {
-            $('#refname_suggestions').hide();
-            return;
-        }
-
-        $.ajax({
-            type: "GET",
-            url: "/getRefName", 
-            data: {
-                keyword: keyword
-            },
-            success: function (data) {
-                var suggestionsHtml = '';
-                if (data.length > 0) {
-                    $.each(data, function (index, ref) {
-                        suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\', \'' + ref.name + '\')">' +
-                            ref.name + ' (' + ref.code + ')</div>';
-                    });
-                    $('#refname_suggestions').html(suggestionsHtml).show();
-                } else {
-                    $('#refname_suggestions').hide();
-                }
-            },
-            error: function (xhr) {
-                console.error('Error:', xhr.statusText);
-            }
-        });
-    }
+   
 
 
  
@@ -1809,6 +1748,68 @@ Add New Patient
     // }
 
     
+     function searchRefferenceCode() {
+        var refCode = $('#refcode').val();
+
+        if (refCode.length < 1) {
+            $('#refcode_suggestions').hide();
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/getRefCode",
+            data: { keyword: refCode },
+            success: function (data) {
+                var suggestionsHtml = '';
+                if (data.length > 0) {
+                    $.each(data, function (index, ref) {
+                        suggestionsHtml += '<div class="suggestion-item" style="padding:5px; cursor:pointer;" onclick="selectRef(\'' +
+                            ref.code + '\', \'' + ref.idref + '\', \'' + ref.name + '\')">' +
+                            ref.code + ' - ' + ref.name + '</div>';
+                    });
+                    $('#refcode_suggestions').html(suggestionsHtml).show();
+                } else {
+                    $('#refcode_suggestions').hide();
+                }
+            },
+            error: function (xhr) {
+                console.error('Error:', xhr.statusText);
+            }
+        });
+    }
+
+    function searchRefName() {
+        var keyword = $('#refDropdown').val();
+
+        if (keyword.length < 1) {
+            $('#refname_suggestions').hide();
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/getRefName", 
+            data: {
+                keyword: keyword
+            },
+            success: function (data) {
+                var suggestionsHtml = '';
+                if (data.length > 0) {
+                    $.each(data, function (index, ref) {
+                        suggestionsHtml += '<div class="suggestion-item" onclick="selectRef(\'' + ref.code + '\', \'' + ref.idref + '\', \'' + ref.name + '\')">' +
+                            ref.name + ' (' + ref.code + ')</div>';
+                    });
+                    $('#refname_suggestions').html(suggestionsHtml).show();
+                } else {
+                    $('#refname_suggestions').hide();
+                }
+            },
+            error: function (xhr) {
+                console.error('Error:', xhr.statusText);
+            }
+        });
+    }
 
 
     function selectRef(code, idref, name) {
@@ -1818,6 +1819,10 @@ Add New Patient
 
         $('#refcode_suggestions').hide();
         $('#refname_suggestions').hide();
+
+        if (idref) {
+        loadReferenceData(idref);
+    }
     }
 
     //-----------------------------------------------------------------------
@@ -1833,6 +1838,36 @@ Add New Patient
     });
 
 
+    function loadReferenceData(referenceId) {
+        $.ajax({
+            type: "GET",
+            url: "/getReferenceDetails",
+            data: { reference_id: referenceId },
+            success: function (data) {
+                if (data) {
+                    $('#refcode').val(data.code);
+                    $('#refDropdown').val(data.name);
+                    $('#ref').val(data.idref);
+                }
+            },
+            error: function (xhr) {
+                console.error("Reference details load error:", xhr.statusText);
+            }
+        });
+    }
+
+
+    function onBranchChange() {
+        var selectedOption = $('#labBranchDropdown').find('option:selected');
+        var referenceId = selectedOption.data('reference');  // option එකේ data-reference ගන්නවා
+
+        loadcurrentSampleNo();
+        load_test();
+
+        if (referenceId) {
+            loadReferenceData(referenceId);  // reference_id තියෙනවා නම් call කරන්න
+        }
+    }
 
     //-----------------------------------------------------------------------
 
@@ -3333,20 +3368,22 @@ $('#btnFront').on('click', function() {
 
                                     <td>
 
-                                        <select name="labbranch" class="input-text" id="labBranchDropdown" onchange="loadcurrentSampleNo();
-                                                    load_test();">
+                                        {{-- <select name="labbranch" class="input-text" id="labBranchDropdown" onchange="loadcurrentSampleNo();
+                                                    load_test();"> --}}
+                                        <select name="labbranch" class="input-text" id="labBranchDropdown" onchange="onBranchChange()">
                                             <option value="%" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
                                             <?php
-                                            $Result = DB::select("SELECT name, code, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+                                            $Result = DB::select("SELECT name, code, bid,reference_id FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
 
                                             foreach ($Result as $res) {
                                                 $branchName = $res->name;
                                                 $branchCode = $res->code;
+                                                $branchReference = $res->reference_id;
                                                 $bid = $res->bid;
 
                                                 $displayText = $branchCode . " : " . $branchName;
                                                 ?>
-                                                <option value="<?= $bid ?>"><?= $displayText ?></option>
+                                                <option value="<?= $bid ?>" data-reference="<?= $branchReference ?>"><?= $displayText ?></option>
                                                 <?php
                                             }
                                             ?>

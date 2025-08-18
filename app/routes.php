@@ -309,6 +309,7 @@ Route::get('/whatsapp-feature-checking', 'PatientRegistrationController@whatsapp
 Route::get('/patientDetailsEditing-feature-checking', 'PatientRegistrationController@patientDetailsEditingFeatureChecking');
 Route::get('/getRefByCode', 'PatientRegistrationController@getRefByCode');
 Route::get('/token-feature-checking', 'PatientRegistrationController@TokenFeatureChecking');
+Route::get('getReferenceDetails', 'PatientRegistrationController@getReferenceDetails');
 
 
 
