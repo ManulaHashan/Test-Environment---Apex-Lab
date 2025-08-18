@@ -300,62 +300,62 @@ View Invices
 
 
 
-function viewTokenInvoicePayments() {
-    var tokenSno = $('#tokenSno').val();
-    var idate = $('#idate').val();
+    function viewTokenInvoicePayments() {
+        var tokenSno = $('#tokenSno').val();
+        var idate = $('#idate').val();
 
-    if (!tokenSno || !idate) {
-        alert("Sample No and Date notfound!");
-        return;
-    }
-
-    $.ajax({
-        url: 'getInvoiceArray',
-        type: 'POST',
-        data: {
-            sampleNo: tokenSno,
-            date: idate
-        },
-        success: function(response) {
-            var invoiceId = response[0];
-            var due = response[1];
-
-           
-            $('#inv_id').val(invoiceId);
-            $('#due').val(due);
-
-            if (invoiceId === '0') {
-                alert("Can't find Invoice data!");
-                return;
-            }
-
-           
-            // window.open("invoicePayments?iid=" + invoiceId + "&due=" + due, "_blank");
-            window.open("invoicePayments?iid=" + invoiceId + "&due=" + due + "&sampleNo=" + tokenSno + "&date=" + idate, "_blank");
-            location.reload();
-
-
-                // $('#inv_id').val('');
-                // $('#due').val('');
-                // $('#tokenSno').val('');
-                //  $('#idate').val(today);
-        },
-        error: function() {
-            alert("Server error !");
+        if (!tokenSno || !idate) {
+            alert("Sample No and Date notfound!");
+            return;
         }
-    });
-}
 
-document.addEventListener("DOMContentLoaded", function () {
-        // Listen for Enter key globally
-        document.addEventListener("keydown", function (event) {
-            // Check if Enter key is pressed
-            if (event.key === "Enter") {
-                event.preventDefault(); // Prevent default form submission if inside a form
-                viewTokenInvoicePayments(); // Call your function
+        $.ajax({
+            url: 'getInvoiceArray',
+            type: 'POST',
+            data: {
+                sampleNo: tokenSno,
+                date: idate
+            },
+            success: function(response) {
+                var invoiceId = response[0];
+                var due = response[1];
+
+            
+                $('#inv_id').val(invoiceId);
+                $('#due').val(due);
+
+                if (invoiceId === '0') {
+                    alert("Can't find Invoice data!");
+                    return;
+                }
+
+            
+                // window.open("invoicePayments?iid=" + invoiceId + "&due=" + due, "_blank");
+                window.open("invoicePayments?iid=" + invoiceId + "&due=" + due + "&sampleNo=" + tokenSno + "&date=" + idate, "_blank");
+                location.reload();
+
+
+                    // $('#inv_id').val('');
+                    // $('#due').val('');
+                    // $('#tokenSno').val('');
+                    //  $('#idate').val(today);
+            },
+            error: function() {
+                alert("Server error !");
             }
         });
-    });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+            // Listen for Enter key globally
+            document.addEventListener("keydown", function (event) {
+                // Check if Enter key is pressed
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevent default form submission if inside a form
+                    viewTokenInvoicePayments(); // Call your function
+                }
+            });
+        });
 
 
 </script>

@@ -26,6 +26,7 @@ class ViewInvoiceController extends Controller{
         $invoiceNo = Input::get('invoiceNo');
         $firstName = Input::get('firstName');
         $lastName = Input::get('lastName');
+
         $contact = Input::get('contact');
         $patientType = Input::get('patientType');
 
@@ -93,6 +94,7 @@ class ViewInvoiceController extends Controller{
                 $output = '';
                 foreach ($records as $row) {
                     $due = $row->gtotal - $row->paid;
+                    $due = max(0, $due); 
                     $output .= '<tr class="invoiceRow" data-lpsid="' . $row->lpsid . '" data-date="' . htmlspecialchars($row->date) . '">
                                     <td align="left">' . htmlspecialchars($row->sampleNo) . '</td>
                                     <td align="left">' . htmlspecialchars($row->fname) . '</td>
