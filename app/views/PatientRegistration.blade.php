@@ -1859,14 +1859,19 @@ Add New Patient
 
     function onBranchChange() {
         var selectedOption = $('#labBranchDropdown').find('option:selected');
-        var referenceId = selectedOption.data('reference');  // option එකේ data-reference ගන්නවා
+        var referenceId = selectedOption.data('reference');  
 
         loadcurrentSampleNo();
         load_test();
 
         if (referenceId) {
-            loadReferenceData(referenceId);  // reference_id තියෙනවා නම් call කරන්න
-        }
+            loadReferenceData(referenceId); 
+        }else {
+        
+        $('#refcode').val('');
+        $('#refDropdown').val('');
+        $('#ref').val('');
+    }
     }
 
     //-----------------------------------------------------------------------
