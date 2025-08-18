@@ -1424,6 +1424,7 @@ class PatientRegistrationController extends Controller {
 //         }
 //         $labLid = $_SESSION['lid']; 
 //         $hasEmail = DB::table('Lab_features')
+
 //             ->where('Lab_lid', $labLid)
 //             ->where('features_idfeatures', 8)
 //             ->exists();

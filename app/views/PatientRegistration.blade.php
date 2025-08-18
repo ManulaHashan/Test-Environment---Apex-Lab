@@ -1027,7 +1027,7 @@ Add New Patient
 
 
 
-    //view selected invoice in viewinvoice page proces related function
+    //***********************view selected invoice in viewinvoice page proces related function***********************
     function view_selected_patient(sampleNo, date)
     {
         $.ajax({
@@ -1253,6 +1253,7 @@ Add New Patient
         });
     }
 
+    //***********************Petation Details edit checkbox process************************************
     $(document).on('change', '.patient_details_edit', function () {
         if ($(this).is(':checked')) {
             // Enable all readonly fields
@@ -1516,7 +1517,7 @@ Add New Patient
     });
 
   
-
+//***********************Patient Search Process Start***********************
     var lastSearchedTpno = '';
 
     function searchUserRecords() {
@@ -1647,11 +1648,11 @@ Add New Patient
         });
     }
 
-    
+    //***********************Patient Search Process End***********************
 
    
 
-
+//############################### Reference section process Start#############################
  
     $(document).ready(function () {
 
@@ -1687,67 +1688,6 @@ Add New Patient
 
 
    
-    //     function searchRefferenceCode() {
-    //     var refCode = $('#refcode').val();
-
-    //     if (refCode.length < 1) {
-    //         $('#refcode_suggestions').hide();
-    //         return;
-    //     }
-
-    //         $.ajax({
-    //             type: "GET",
-    //             url: "/getRefCode",
-    //             data: { keyword: refCode },
-    //             success: function (data) {
-    //             var suggestionsHtml = '';
-    //             if (data.length > 0) {
-    //                 $.each(data, function (index, ref) {
-    //                     suggestionsHtml += '<option value="' + ref.code + '">' + ref.code + ' - ' + ref.name + '</option>';
-    //                 });
-    //                 $('#refcode_list').html(suggestionsHtml);
-    //             } else {
-    //                 $('#refcode_list').empty();
-    //             }
-    //         },
-    //         error: function (xhr) {
-    //             console.error('Error:', xhr.statusText);
-    //         }
-    //     });
-    // }
-
-    // function searchRefName() {
-    //     var keyword = $('#refDropdown').val();
-
-    //     if (keyword.length < 1) {
-    //         $('#refname_suggestions').hide();
-    //         return;
-    //     }
-
-    //     $.ajax({
-    //         type: "GET",
-    //         url: "/getRefName", // you need to handle this route in backend
-    //         data: {
-    //             keyword: keyword
-    //         },
-    //        success: function (data) {
-    //             var suggestionsHtml = '';
-    //             if (data.length > 0) {
-    //                 $.each(data, function (index, ref) {
-    //                     suggestionsHtml += '<option value="' + ref.name + '">' + ref.name + ' (' + ref.code + ')</option>';
-    //                 });
-    //                 $('#refname_list').html(suggestionsHtml);
-    //             } else {
-    //                 $('#refname_list').empty();
-    //             }
-    //         },
-    //         error: function (xhr) {
-    //             console.error('Error:', xhr.statusText);
-    //         }
-    //     });
-    // }
-
-    
      function searchRefferenceCode() {
         var refCode = $('#refcode').val();
 
@@ -1883,7 +1823,7 @@ Add New Patient
         var refCode = selectedOption.getAttribute("data-code") || '';
         document.getElementById("refcode").value = refCode;
     }
-
+//############################### Reference section process End#############################
 
 
 
@@ -2034,84 +1974,7 @@ Add New Patient
     }
 
 
-    //Print Invoice Section
-    // function printInvoice() {
-    //     var fname = $('#fname').val().trim();
-    //     // var lname = $('#lname').val().trim();
-    //     var years = $('#years').val().trim();
-    //     var months = $('#months').val().trim();
-    //     var days = $('#days').val().trim();
-    //     var testRows = $('#test_tbl tbody tr').length;
 
-    //     if (
-    //         fname === "" || 
-    //         (years === "" && months === "" && days === "") || 
-    //         testRows === 0
-    //         ) 
-    //         {
-    //             alert("Please fill all required fields and add at least one test before printing.");
-    //             return; 
-    //         }
-
-    //         var date = $('#patientDate').val();
-    //         var sno = $('#sampleNo').val();
-
-    //         var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
-
-    //         setTimeout(function () {
-    //             win.print();
-    //         }, 5000);
-
-    //         setTimeout(function () {
-    //             win.close();
-    //             resetPage();
-    //         }, 8000);
-    // }
-
-   
-    // function printInvoice() {
-    //     var fname = $('#fname').val().trim();
-    //     var years = $('#years').val().trim();
-    //     var months = $('#months').val().trim();
-    //     var days = $('#days').val().trim();
-    //     var testRows = $('#test_tbl tbody tr').length;
-
-    //     if (
-    //         fname === "" || 
-    //         (years === "" && months === "" && days === "") || 
-    //         testRows === 0
-    //     ) {
-    //         alert("Please fill all required fields and add at least one test before printing.");
-    //         return; 
-    //     }
-
-    //     var date = $('#patientDate').val();
-    //     var sno = $('#sampleNo').val();
-    //     var isClaimBill = $('#claim_bill').is(':checked');
-    //     var isTokenPrint = $('#print_token').is(':checked');
-
-    //     // build correct URL based on checkbox
-    //     var url = isClaimBill 
-    //         ? "printinvoice/claim/" + sno + "&" + date 
-    //         : "printinvoice/" + sno + "&" + date;
-
-    //     var win = window.open(url, '_blank');
-
-    //     setTimeout(function () {
-    //         win.print();
-    //     }, 5000);
-
-    //     setTimeout(function () {
-    //         win.close();
-    //         resetPage();
-    //     }, 8000);
-
-
-    //     // Final cleanup
-    //     setTimeout(function () {
-    //         resetPage();
-    //     }, 6000);
-    //     }
 
 
     function printInvoice() {
@@ -2559,7 +2422,7 @@ $('#btnFront').on('click', function() {
     }
 
 
-
+    // Function to Test Wise Barcode Load
     function testWiseBarcodeLoad() {
         var date = $('#patientDate').val();
         var sno = $('#sampleNo').val();
@@ -2818,40 +2681,6 @@ $('#btnFront').on('click', function() {
 
     
 
-    // function handleQRScanAndClear(inputElem) {
-    //     const scannedData = inputElem.value.trim();
-    //     handleQRScan(scannedData);
-    //     inputElem.value = ''; 
-    // }
-
-    // function handleQRScan(scannedData) {
-      
-    //     const parts = scannedData.split('|');
-
-    //     if (parts.length === 2) {
-    //         const sno = parts[0];
-    //         const date = parts[1];
-
-           
-    //         document.getElementById('ser_sampleno').value = sno;
-    //         document.getElementById('ser_date').value = date;
-
-           
-    //         view_search_patient();
-    //     } else {
-    //         alert("Invalid QR code format");
-    //     }
-    // }
-
-    
-    // document.addEventListener('click', function () {
-    //     document.getElementById('qr_input').focus();
-    // });
-
-  
-    // window.onload = function () {
-    //     document.getElementById('qr_input').focus();
-    // };
 
 </script>
 
