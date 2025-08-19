@@ -331,7 +331,7 @@ Branch Wise Test Mapping
         })
     }
 
-    // Global edit toggle
+   
     $(document).on('change', '#enableEdit', function() {
         if ($(this).is(':checked')) {
             $('.price-input').prop('disabled', false);
@@ -342,32 +342,38 @@ Branch Wise Test Mapping
         }
     });
 
-   function updatePrices() {
-    var updatedData = [];
-    $('.price-input').each(function() {
-        var tgid = $(this).data('tgid');
-        var newPrice = $(this).val();
-        updatedData.push({ tgid: tgid, price: newPrice });
-    });
+    function updatePrices() {
+        var updatedData = [];
+        var labBranchDropdown = $('#labBranchDropdown').val(); 
 
-    if (updatedData.length === 0) {
-        alert('No prices to update.');
-        return;
+        $('.price-input').each(function() {
+            var tgid = $(this).data('tgid');
+            var newPrice = $(this).val();
+            updatedData.push({ tgid: tgid, price: newPrice });
+        });
+
+        if (updatedData.length === 0) {
+            alert('No prices to update.');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "updateBranchTestPrices",
+            data: { tests: updatedData, labBranchDropdown: labBranchDropdown },
+            success: function(response) {
+                alert(response);
+                $('#enableEdit').prop('checked', false);
+                $('.price-input').prop('disabled', true);
+                $('#updatePriceBtn').prop('disabled', true);
+                loadRecordToTable(); 
+            },
+            error: function(xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
+            }
+        });
     }
 
-    $.ajax({
-        type: "POST",
-        url: "updateBranchTestPrices",
-        data: { tests: updatedData },
-        success: function(response) {
-            alert(response);
-            loadRecordToTable(); // reload table after update
-        },
-        error: function(xhr, status, error) {
-            alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
-        }
-    });
-}
 
 
 </script>

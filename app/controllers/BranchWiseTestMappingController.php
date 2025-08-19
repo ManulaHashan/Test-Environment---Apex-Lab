@@ -252,21 +252,36 @@ class BranchWiseTestMappingController extends Controller
     }
 
 
+
+
     public function updateBranchTestPrices()
     {
         $tests = Input::get('tests');
+        $labBranch = Input::get('labBranchDropdown'); 
+        $labId = $_SESSION['lid'];
 
         if (!empty($tests)) {
             foreach ($tests as $test) {
-                DB::table('labbranches_has_Testgroup')
-                    ->where('tgid', '=', $test['tgid'])
-                    ->update(['price' => $test['price']]);
+                if ($labBranch === "%" || empty($labBranch)) {
+                    
+                    DB::table('Testgroup')
+                        ->where('Lab_lid', '=', $labId)
+                        ->where('tgid', '=', $test['tgid'])
+                        ->update(['price' => $test['price']]);
+                } else {
+                    
+                    DB::table('labbranches_has_Testgroup')
+                        ->where('bid', '=', $labBranch)
+                        ->where('tgid', '=', $test['tgid'])
+                        ->update(['price' => $test['price']]);
+                }
             }
             return "Prices updated successfully!";
         } else {
             return "No data received.";
         }
-}
+    }
+
 
 
 }
