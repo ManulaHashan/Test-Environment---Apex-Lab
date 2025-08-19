@@ -283,11 +283,11 @@ class DocRefferenceController extends Controller
     }
 
 
-public function getInvoiceCountFor_Reference(){
-    $refID = Input::get('refID'); // Get the reference ID from the request
+    public function getInvoiceCountFor_Reference(){
+            $refID = Input::get('refID'); // Get the reference ID from the request
 
-    $count = DB:: table('lps')->where('refference_idref','=',$refID)->count();
-   return Response::json(['success' => true, 'count' => $count]);
-}
+            $count = DB:: table('lps')->where('refference_idref','=',$refID)->count();
+        return Response::json(['success' => true, 'count' => $count]);
+    }
 
 }

@@ -127,7 +127,7 @@ Route::get('/expmanage', function() {
 
 
 
-// **************************************Manula's Development Routes************************************************************
+// **************************************Manula's Development Routes Start************************************************************
 //~~~~~~~~~~~~~~~~~~~~~~~~Route To DOC Refference Page~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/doc-reference', function () {
     return View::make('DocRefference');
@@ -360,7 +360,7 @@ Route::get('/get-test-codes', 'PatientRegistrationController@getTestCodes');
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+// **************************************Manula's Development Routes************************************************************
 
 Route::get('/PatientHistoryView', function () {
     return View::make('PatientHistoryView');
@@ -371,7 +371,6 @@ Route::get('getAllPatientHistoryRecords', 'PatientHistoryViewController@getAllPa
 
 
 
-// Route::get('/SystemConfiguration', function () {
 //     return View::make('SystemConfiguration');
 // });
 Route::get('/SystemConfiguration', function () {
@@ -492,7 +491,7 @@ Route::post('delete-suggestion', 'ValueSuggestionsController@deleteSuggestion');
 
 
 
-
+// **************************************Manula's Development Routes End************************************************************
 
 
 
@@ -941,6 +940,10 @@ Route::get('/clear-cache', function() {
 //     return View::make('Invoices.Inv' . $lid)->with('sno', $arr[0])->with('date', $arr[1]);
 // });
 
+
+
+
+// **************************************Manula's Development Routes start************************************************************
 // Default invoice route
 Route::get('/printinvoice/{id}', function($id) {
     $arr = explode("&", $id);
@@ -993,7 +996,13 @@ Route::get('/printParameterBarcode/{id}', function($id) {
     return View::make('Barcodes.Test_parameeter_wise_Bcode' )->with('sno', $arr[0])->with('date',  $arr[1])->with('tgid', $arr[2])->with('testGroupName', $arr[3])->with('orderNo', $arr[4]);
 });
 
+
+// **************************************Manula's Development End************************************************************
+
+
 // text code buttons route~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Route::get('/get-testcodes', 'YourController@getTestCodes');
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+

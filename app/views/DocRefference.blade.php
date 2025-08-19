@@ -307,6 +307,9 @@ Enter Doctor Refference
         });
     }
 
+
+
+   
     var selectChecks = [];
 
     function getData() {
@@ -338,6 +341,12 @@ Enter Doctor Refference
         }
 
 
+    }
+
+     function confirmMerge() {
+        if (confirm("Are you sure you want to merge the selected references?")) {
+            getData(); 
+        }
     }
 
     //*********************Function for veiw invoice count******************************
@@ -395,13 +404,13 @@ Enter Doctor Refference
         width: 100%;
         margin: 20px;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/*        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         background-color: #fff;
-        border: 1px solid #ccc;
+        border: 1px solid #ccc;*/
 
     }
 
-    .card-body {
+/*    .card-body {
         padding: 5px;
     }
 
@@ -412,7 +421,7 @@ Enter Doctor Refference
 
     .card-text {
         font-size: 14px;
-    }
+    }*/
 
     .warning-container {
         display: flex;
@@ -442,45 +451,45 @@ Enter Doctor Refference
 @section('body')
 
 
-<h2 class="pageheading" style="margin-top: -1px;"> Manage Refferences
+<h2 class="pageheading" style="margin-top: 5px; margin-bottom: 5px;"> Manage Invoice References
 </h2>
 <div class="container">
-    <div class="card" style="height: 750px;">
+    <div class="card" >
         <div class="card-body">
-            <div style="width: 1300px; display: inline-block;">
+            <div style="width: 1100px; display: inline-block;">
                 <!-- Input group container -->
 
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <label style="width: 150px;font-size: 18px;">Code &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px;">Code &nbsp;</label>
                     <input type="text" name="refcode" class="input-text" id="refcode" style="width: 150px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
                     <input type="hidden" name="refID" id="refID">
                     <!-- Input field to display generated code -->
                     <!-- <input type="text" id="generatedCodeInput" class="form-control" readonly>
                     <input type="button" class="btn" id="generateCodeBtn" value="Genarate" onclick=""> -->
                     &nbsp;&nbsp;&nbsp&nbsp&nbsp;
-                    <label style="width: 150px;font-size: 18px; color: blue;">Invoice Count:</label>
+                    <label style="width: 150px;font-size: 18px; color: blue;">Invoice Count</label>
                     <label style="width: 150px;font-size: 18px; color: green;" id="invoicecount">0</label>
 
-                     <label style="width: 150px;font-size: 18px; margin-left: 0px;">Ref.Category &nbsp;:</label>
+                     <label style="width: 150px;font-size: 18px; margin-left: -5px;">Ref.Category &nbsp;</label>
                     <input type="text" name="Ref_address" class="input-text" id="Ref_category" style="width: 450px"  title="" value="">
                 </div>
 
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <label style="width: 150px;font-size: 18px;">Name &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px;">Name &nbsp;</label>
                     <input type="text" oninput="validateLettersOnly(this)" name=" Ref_name" class="input-text" id="Ref_name" style="width: 450px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
 
-                    <label style="width: 150px;font-size: 18px; margin-left: 20px;">Ref.Speciality  &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px; margin-left: 20px;">Ref.Speciality  &nbsp;</label>
                     <input type="text" name="Ref_address" class="input-text" id="Ref_speciality" style="width: 450px"  title="" value="">
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <label style="width: 150px;font-size: 18px;">Address &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px;">Address &nbsp;</label>
                     <input type="text" name="Ref_address" class="input-text" id="Ref_address" style="width: 450px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
                 
-                    <label style="width: 150px;font-size: 18px;margin-left: 20px;">Ref. Unit &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px;margin-left: 20px;">Ref. Unit &nbsp;</label>
                     <input type="text" name="Ref_address" class="input-text" id="Ref_unit" style="width: 450px; "  title="" value="">
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <label style="width: 150px;font-size: 18px;">Contact No &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px;">Contact No &nbsp;</label>
                     <input type="text"
                         name="Ref_contact"
                         class="input-text"
@@ -489,31 +498,31 @@ Enter Doctor Refference
                         maxlength="10"
                         oninput="validateNumbersOnly(this)">
 
-                        <label style="width: 150px;font-size: 18px;margin-left: 20px;">Ref. Nearest Area &nbsp;:</label>
+                        <label style="width: 150px;font-size: 18px;margin-left: 20px;">Ref. Nearest Area &nbsp;</label>
                     <input type="text" name="Ref_address" class="input-text" id="Ref_area" style="width: 450px;" title="" value="">
                 </div>
 
 
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <label style="width: 150px;font-size: 18px;">Ref.Initials  &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px;">Ref.Initials  &nbsp;</label>
                     <input type="text" name="Ref_degree" class="input-text" id="Ref_degree" style="width: 450px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
-                    <label style="width: 150px;font-size: 18px; margin-left: 20px;">Coordinator &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px; margin-left: 20px;">Coordinator &nbsp;</label>
                      <input type="text" name="Ref_address" class="input-text" id="Ref_coodinator" style="width: 450px;"  title="" value="">
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <label style="width: 150px;font-size: 18px;">Joined Date &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px;">Joined Date &nbsp;</label>
                     <input type="date" name="jdate" class="input-text" id="jdate" style="width: 150px">
-                    <label style="width: 150px;font-size: 18px; margin-left: 320px;">Date of Birth &nbsp;:</label>
+                    <label style="width: 150px;font-size: 18px; margin-left: 320px;">Date of Birth &nbsp;</label>
                     <input type="date" name="jdate" class="input-text" id="Ref_dob" style="width: 150px">
                 </div>
                  
 
 
                 <div style="display: flex; justify-content: flex-center; gap: 5px; margin-bottom: 10px;">
-                    <input type="button" style="color:green" class="btn" id="saveBtn" value="Save" onclick="saveReference()">
-                    <input type="button" style="color:Blue" class="btn" id="updateBtn" value="Update" onclick="updateReference()">
-                    <input type="button" style="color:red" class="btn" id="deleteBtn" value="Delete" onclick="deleteReference()">
-                    <input type="button" style="color:gray" class="btn" id="resetbtn" value="Reset" onclick="resetFields()">
+                    <input type="button" style="color:green; width:100px;" class="btn" id="saveBtn" value="Save" onclick="saveReference()">
+                    <input type="button" style="color:Blue; width:100px;" class="btn" id="updateBtn" value="Update" onclick="updateReference()">
+                    <input type="button" style="color:red; width:100px;" class="btn" id="deleteBtn" value="Delete" onclick="deleteReference()">
+                    <input type="button" style="color:gray; width:100px;" class="btn" id="resetbtn" value="Reset" onclick="resetFields()">
                 </div>
 
 
@@ -562,7 +571,7 @@ Enter Doctor Refference
                             Merge references is permanent. Please double-check your selections before proceeding.
                         </span>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="button"  class="btn" style="margin: 0 5px; color:red; margin-left: 400px;" name="remove" value="Merge Reference" onclick="getData()">
+                        <input type="button"  class="btn" style="margin: 0 5px; color:red; margin-left: 400px;" name="remove" value="Merge Reference" onclick="confirmMerge()">
                     </div>
                 </div>
             </div>
