@@ -40,8 +40,12 @@ class BulkPaymentUpdateController extends Controller
                 ->where('a.Lab_lid', $labId)
                 ->whereRaw('(b.gtotal - b.paid) > 0')
                 ->whereBetween('a.date', [$dateFrom, $dateTo])
-               ->where('a.sampleNo', 'like', $branch . '%')
-                ->get();
+                ->where('a.sampleNo', 'like', $branch . '%');
+            if ($reference != '%') {
+                $samples->where('a.refference_idref', '=', $reference);
+            }
+
+            $samples = $samples->get();
             
             $output = '';
             if (count($samples) == 0) {
@@ -114,8 +118,9 @@ class BulkPaymentUpdateController extends Controller
                 ]);
             }
 
-            return Response::json(['success' => true, 'error' => 'updated']);
+           
                 
         }
+         return Response::json(['success' => true, 'error' => 'updated']);
     }
 }

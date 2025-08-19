@@ -177,11 +177,10 @@ Bulk Payment Update
 
 
 <style>
-    /* Add this to your CSS file or inline styles */
-
+    
     .container {
         width: 100%;
-        height: 100vh;
+        /*height: 100vh;*/
         display: flex;
         flex-direction: row;
     }
@@ -189,25 +188,14 @@ Bulk Payment Update
     .card {
         width: 100%;
         margin: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        border: 1px solid #ccc;
+        /*border-radius: 10px;*/
+        /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
+        /*background-color: #fff;*/
+        /*border: 1px solid #ccc;*/
 
     }
 
-    .card-body {
-        padding: 5px;
-    }
 
-    .card-title {
-        font-size: 18px;
-        font-weight: bold;
-    }
-
-    .card-text {
-        font-size: 14px;
-    }
 </style>
 @stop
 
@@ -216,25 +204,25 @@ Bulk Payment Update
 
 <h2 class="pageheading" style="margin-top: 5px;"> Bulk Payment Update
 </h2>
-<div class="container" style="margin-top: 20px;">
+<div class="container" style="margin-top: 0px;">
 
-    <div class="card" style="height: 958px;">
+    <div class="card" style="height: 800px;">
 
         <div class="card-body">
 
             <div style="width: 1000px; display: flex;">
 
-                <div style="flex: 1; padding: 10px; margin-right: 5px;">
+                <div style="flex: 1; padding: 0px; margin-right: 5px;">
 
                     <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
-                        <label style="width: 90px;font-size: 18px;">Date From:</label>
+                        <label style="">Date From:</label>
                         <input type="date" name=" date_from" class="input-text" id="date_from"
-                            style="width: 130px;font-size: 18px;">
-                        <label style="width: 70px;font-size: 18px;margin-left: 15px; ">Date To:</label>
+                            style="width: 110px;">
+                        <label style="width: 70px;margin-left: 15px; ">Date To:</label>
                         <input type="date" name=" date_to" class="input-text" id="date_to"
-                            style="width: 130px;font-size: 18px;">
-                        <label style="width: 120px;font-size: 18px; margin-left: 15px;">Branch Name &nbsp;:</label>
-                        <select name="labbranch" style="width: 230px" class="input-text" id="labBranchDropdown">
+                            style="width: 110px;">
+                        <label style="width: 120px; margin-left: 15px;">Branch Name &nbsp;:</label>
+                        <select name="labbranch" style="width: 150px" class="input-text" id="labBranchDropdown">
                             <option value="%"> All</option>
                             <?php
 
@@ -262,7 +250,7 @@ Bulk Payment Update
                             ?>
 
                         </select>
-                        <label style="width: 80px;font-size: 18px;margin-left:15px">Reference</label>
+                        <label style="width: 80px;margin-left:15px">Reference</label>
                         <select name="refname" style="width: 230px" class="input-text" id="refNameDropdown">
                             <option value="%">All</option>
                             <?php
@@ -271,13 +259,13 @@ Bulk Payment Update
                                 $Refid = $res->idref;
                                 $Refname = $res->name;
 
-                                if (isset($refname) && $refname == $Refname) {
+                                if (isset($refname) && $refname == $Refid) {
                             ?>
-                                    <option value="{{ $Refname }}" selected="selected">{{ $Refname }}</option>
+                                    <option value="{{ $Refid }}" selected="selected">{{ $Refname }}</option>
                                 <?php
                                 } else {
                                 ?>
-                                    <option value="{{ $Refname }}">{{ $Refname }}</option>
+                                    <option value="{{ $Refid }}">{{ $Refname }}</option>
                             <?php
                                 }
                             }
@@ -287,7 +275,7 @@ Bulk Payment Update
                             }
                             ?>
                         </select>
-                        <input type="button" style="color:green; font-size: 20px; margin-left: 15px;" class="btn" id="searchBtn" value="Search" onclick="">
+                        <input type="button" style="color:green;  margin-left: 15px;" class="btn" id="searchBtn" value="Search" onclick="">
                     </div>
 
                     <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px; margin-top: 10px;">
@@ -300,8 +288,8 @@ Bulk Payment Update
             </div>
 
             <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; border-radius: 10px;">
-                <label for="" style="font-size: 20px; "><b><i><u>Sample Details</u></i></b></label>
-                <div class="pageTableScope" style="height: 450px; margin-top: 10px;">
+               
+                <div class="pageTableScope" style="height: 200px; margin-top: 10px;">
                     <table style="font-family: Futura, 'Trebuchet MS', Arial, 
                     sans-serif; font-size: 13pt;" id="sampledataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
                         <thead>
@@ -327,20 +315,20 @@ Bulk Payment Update
 
         <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
             <label style="width: 250px;font-size: 18px;margin-left: 15px; ">Total Amount(Selected) Rs:</label>
-            <label style="width: 70px;font-size: 35px; color:rgb(18, 117, 63); margin-left: 15px;" id="dueSum">0000.00</label>
+            <label style="width: 70px;font-size: 25px; color:rgb(18, 117, 63); margin-left: 15px;" id="dueSum">0000.00</label>
         </div>
         <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
             <label style="width: 250px;font-size: 18px;margin-left: 15px; ">Total Discount Rs:</label>
-            <label style="width: 70px;font-size: 35px;margin-left: 15px; color:rgb(18, 117, 63);">0000.00</label>
+            <label style="width: 70px;font-size: 25px;margin-left: 15px; color:rgb(18, 117, 63);">0000.00</label>
         </div>
         <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
             <label style="width: 250px;font-size: 18px;margin-left: 15px; ">Total Due Rs:</label>
-            <label style="width: 70px;font-size: 35px;margin-left: 15px; color:rgb(18, 117, 63);" id="totalDue">0000.00</label>
+            <label style="width: 70px;font-size: 25px;margin-left: 15px; color:rgb(18, 117, 63);" id="totalDue">0000.00</label>
         </div>
         <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
             <label style="width: 250px;font-size: 18px;margin-left: 15px;">Paid On:</label>
             <input type="date" name=" paid_date" class="input-text" id="paid_date"
-                style="width: 130px;font-size: 18px; height: 20px;">
+                style="width: 130px;height: 20px;">
         </div>
         <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
             <label style="width: 250px; font-size: 18px; margin-left: 15px;">Payment Method</label>
@@ -354,7 +342,7 @@ Bulk Payment Update
             <input type="checkbox" name="cheque" class="input-check" id="cheque" style="margin-right: 5px;width: 20px; height: 20px;margin-left: 20px;" onclick="paymentMethodCheckSelect(this.id)">
             <label for="cheque" style="font-size: 18px; color:rgb(16, 88, 197); ">Cheque</label>
 
-            <input type="button" style="color:blue; font-size: 20px; margin-left: 15px;" class="btn" id="updateBtn" value="Update Payment" onclick="UpdatePayments()">
+            <input type="button" style="color:blue; font-size: 16px; margin-left: 15px;" class="btn" id="updateBtn" value="Update Payment" onclick="UpdatePayments()">
 
         </div>
 
