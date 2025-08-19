@@ -137,13 +137,13 @@ Sample Container Configuration
         width: 100%;
         margin: 20px;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/*        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         background-color: #fff;
-        border: 1px solid #ccc;
+        border: 1px solid #ccc;*/
 
     }
 
-    .card-body {
+/*    .card-body {
         padding: 5px;
     }
 
@@ -154,7 +154,7 @@ Sample Container Configuration
 
     .card-text {
         font-size: 14px;
-    }
+    }*/
 </style>
 @stop
 
@@ -165,7 +165,7 @@ Sample Container Configuration
 </h2>
 <div class="container" style="margin-top: 20px;">
 
-    <div class="card" style="height: 700px;">
+    <div class="card">
 
         <div class="card-body">
 
@@ -174,7 +174,7 @@ Sample Container Configuration
                 <div style="flex: 1; padding: 10px; margin-right: 5px;">
 
                     <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
-                        <label style="width: 150px;font-size: 20px; margin-left: 15px;">Container Type &nbsp;:</label>
+                        <label style="width: 150px;font-size: 20px; margin-left: 15px;">Container Type &nbsp;</label>
                         <select name="labbranch" style="width: 250px" class="input-text" id="containerDropdown">
                             <option value=""></option>
                             <?php
@@ -194,7 +194,7 @@ Sample Container Configuration
 
                     </div>
                     <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
-                        <label style="width: 150px;font-size: 20px; margin-left: 15px; ">Search Test &nbsp;:</label>
+                        <label style="width: 150px;font-size: 20px; margin-left: 15px; ">Search Test &nbsp;</label>
                         <input type="text" name="searchTest" class="input-text" id="Ser_name" style="width: 230px" oninput="searchRecords()">
                     </div>
                 </div>
@@ -202,7 +202,6 @@ Sample Container Configuration
             </div>
 
             <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; border-radius: 10px;">
-                <label for="" style="font-size: 20px; "><b><i><u>Test Container Details</u></i></b></label>
                 <div class="pageTableScope" style="height: 450px; margin-top: 10px;">
                     <table style="font-family: Futura, 'Trebuchet MS', Arial, 
                     sans-serif; font-size: 13pt;" id="containerdataTable" width="100%" border="0" cellspacing="2" cellpadding="0">
@@ -215,7 +214,7 @@ Sample Container Configuration
                             </tr>
                         </thead>
                         <tbody id="record_tbl">
-                            <!-- Dynamic rows will be inserted here via AJAX -->
+                            
                         </tbody>
                     </table>
                 </div>
@@ -223,12 +222,12 @@ Sample Container Configuration
 
         </div>
 
-        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px; margin-top: 10px;">
+        <div style="display: flex; justify-content: right; align-items: left; margin-bottom: 10px; margin-top: 10px;">
 
-            <input type="button" style="color:blue; font-size: 20px;" class="btn" id="configureBtn" value="Configure" onclick="UpdateContainers()">
+            <input type="button" style="color:blue; font-size: 16px; width: 200px;" class="btn" id="configureBtn" value="Configure" onclick="UpdateContainers()">
 
         </div>
-
+        <br/>
 
 
 

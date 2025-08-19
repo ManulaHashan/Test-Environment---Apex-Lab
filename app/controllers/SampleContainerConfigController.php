@@ -24,7 +24,7 @@ class SampleContainerConfigController extends Controller
         ->where('a.Lab_lid', '=', $_SESSION['lid']);
 
         if (!empty($name)) {
-            $query->where('a.name', 'LIKE', "{$name}%"); 
+            $query->where('a.name', 'LIKE', "%{$name}%"); 
         }
 
 
