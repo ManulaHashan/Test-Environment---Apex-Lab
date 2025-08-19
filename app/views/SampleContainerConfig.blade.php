@@ -63,7 +63,7 @@ Sample Container Configuration
                 }
             });
         } else {
-            // Clear the table if input is less than 3 characters
+            
             $('#record_tbl').html('');
             loadRecordToTable();
         }
