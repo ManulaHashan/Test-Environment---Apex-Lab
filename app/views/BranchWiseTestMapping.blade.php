@@ -330,6 +330,46 @@ Branch Wise Test Mapping
             }
         })
     }
+
+    // Global edit toggle
+    $(document).on('change', '#enableEdit', function() {
+        if ($(this).is(':checked')) {
+            $('.price-input').prop('disabled', false);
+            $('#updatePriceBtn').prop('disabled', false);
+        } else {
+            $('.price-input').prop('disabled', true);
+            $('#updatePriceBtn').prop('disabled', true);
+        }
+    });
+
+   function updatePrices() {
+    var updatedData = [];
+    $('.price-input').each(function() {
+        var tgid = $(this).data('tgid');
+        var newPrice = $(this).val();
+        updatedData.push({ tgid: tgid, price: newPrice });
+    });
+
+    if (updatedData.length === 0) {
+        alert('No prices to update.');
+        return;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "updateBranchTestPrices",
+        data: { tests: updatedData },
+        success: function(response) {
+            alert(response);
+            loadRecordToTable(); // reload table after update
+        },
+        error: function(xhr, status, error) {
+            alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
+        }
+    });
+}
+
+
 </script>
 
 <style>
@@ -447,6 +487,10 @@ Branch Wise Test Mapping
 
                     <!-- Right aligned content -->
                     <div style="display: flex; align-items: center; gap: 10px;">
+                         <label>
+                            <input type="checkbox" id="enableEdit"> Edit Price
+                        </label>
+                        <button onclick="updatePrices()" id="updatePriceBtn" class="btn btn-primary" disabled>Update Price</button>
                         <input type="button" style="color:red" class="btn" id="selectAllBtn" value="Remove" onclick="RemoveTestFromBranch()">
                         <label style="font-size: 18px; color: blue;">Select All</label>
                         <input class="form-check-input" type="checkbox" id="selectAllCheckbox" />

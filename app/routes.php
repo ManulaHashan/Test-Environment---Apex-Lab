@@ -231,6 +231,8 @@ Route::post('updateTestBranches', 'BranchWiseTestMappingController@update_Branch
 
 Route::post('RemoveTestFromBranch', 'BranchWiseTestMappingController@delete_BranchTests');
 
+Route::post('updateBranchTestPrices', 'BranchWiseTestMappingController@updateBranchTestPrices');
+
 
 
 

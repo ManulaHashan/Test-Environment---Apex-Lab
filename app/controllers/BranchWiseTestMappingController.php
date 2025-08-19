@@ -57,9 +57,12 @@ class BranchWiseTestMappingController extends Controller
                 $output .= '<tr>
                 <td align="center">' . htmlspecialchars($tgid) . '</td>
                 <td align="left">' . htmlspecialchars($testName) . '</td>
-                <td align="center">' . htmlspecialchars($price) . '</td>
+                  <td align="center">
+                <input type="text" class="price-input" value="' . htmlspecialchars($price) . '" 
+                    data-tgid="' . $tgid . '" disabled>
+                </td>
                 <td align="center"><input type="checkbox" class="select-test" value="' . $tgid . ':' . $price . '"></td>
-            </tr>';
+                </tr>';
             }
             echo $output;
         } else {
@@ -247,5 +250,23 @@ class BranchWiseTestMappingController extends Controller
 
         return Response::json(['success' => true, 'error' => 'deleted']);
     }
+
+
+    public function updateBranchTestPrices()
+    {
+        $tests = Input::get('tests');
+
+        if (!empty($tests)) {
+            foreach ($tests as $test) {
+                DB::table('labbranches_has_Testgroup')
+                    ->where('tgid', '=', $test['tgid'])
+                    ->update(['price' => $test['price']]);
+            }
+            return "Prices updated successfully!";
+        } else {
+            return "No data received.";
+        }
+}
+
 
 }
