@@ -345,14 +345,14 @@ Branch Wise Test Mapping
     .card {
         width: 100%;
         margin: 20px;
-        border-radius: 10px;
+/*        border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         background-color: #fff;
-        border: 1px solid #ccc;
+        border: 1px solid #ccc;*/
 
     }
 
-    .card-body {
+/*    .card-body {
         padding: 5px;
     }
 
@@ -363,7 +363,7 @@ Branch Wise Test Mapping
 
     .card-text {
         font-size: 14px;
-    }
+    }*/
 
     #Branch_code[readonly] {
         cursor: not-allowed;
@@ -374,12 +374,12 @@ Branch Wise Test Mapping
 @section('body')
 
 
-<h2 class="pageheading" style="margin-top: -1px;"> Branch Wise Test Mapping
+<h2 class="pageheading" style="margin-top: 5px;"> Branch Wise Test Mapping
 </h2>
 <div class="container">
-    <div class="card" style="height: 870px;">
+    <div class="card" style="">
         <div class="card-body">
-            <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; margin-right: 5px; border-radius: 10px;">
+            <div style="flex: 1; padding: 10px; border-radius: 10px;">
                 <div style="display: flex; align-items: center; margin-bottom: 10px; margin-top: 10px;">
                     <label style="width: 150px;font-size: 18px;">Branch Name &nbsp;:</label>
                     <select name="labbranch" style="width: 273px" class="input-text" id="labBranchDropdown">
@@ -417,7 +417,6 @@ Branch Wise Test Mapping
                 </div>
 
                 <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; border-radius: 10px;">
-                    <b><u><i>Test List</i></u></b><br><br>
                     <div style="display: flex; align-items: center;">
                         <label style="width: 150px; font-size: 18px;">Search By Name :</label>
                         <input type="text" name="Ser_name" class="input-text" id="Ser_name" style="width: 400px" title="" value="" oninput="searchRecords()">&nbsp;&nbsp;
@@ -429,7 +428,7 @@ Branch Wise Test Mapping
                                     <td align="center" class="fieldText" style="width: 80px;">Test Group ID</td>
                                     <td align="center" class="fieldText" style="width: 350px;">Name</td>
                                     <td align="center" class="fieldText" style="width: 80px;">Price</td>
-                                    <td align="center" class="fieldText" style="width: 50px;">selecet</td>
+                                    <td align="center" class="fieldText" style="width: 50px;">Select</td>
                                 </tr>
                             </thead>
                             <tbody id="record_tbl">
@@ -456,7 +455,7 @@ Branch Wise Test Mapping
 
             </div><br>
 
-            <div style="width:1350px; display: flex;">
+            <div style="width:1100px; display: flex;">
                 <!-- Create New Branch -->
                 <div style="flex: 1; padding: 10px; border: 2px #8e7ef7 solid; margin-right: 5px; border-radius: 10px;">
 
@@ -496,7 +495,7 @@ Branch Wise Test Mapping
                                     <td align="center" class="fieldText" style="width: 20px;">Branch ID</td>
                                     <td align="center" class="fieldText" style="width: 250px;">Branch Name</td>
                                     <td align="center" class="fieldText" style="width: 20px;">Branch Code</td>
-                                    <td align="center" class="fieldText" style="width: 10px;">selecet</td>
+                                    <td align="center" class="fieldText" style="width: 10px;">Select</td>
                                 </tr>
                             </thead>
                             <tbody id="Branch_record_tbl">

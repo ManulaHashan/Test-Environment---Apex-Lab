@@ -56,7 +56,7 @@ class BranchWiseTestMappingController extends Controller
                 $price = $res->price;
                 $output .= '<tr>
                 <td align="center">' . htmlspecialchars($tgid) . '</td>
-                <td align="center">' . htmlspecialchars($testName) . '</td>
+                <td align="left">' . htmlspecialchars($testName) . '</td>
                 <td align="center">' . htmlspecialchars($price) . '</td>
                 <td align="center"><input type="checkbox" class="select-test" value="' . $tgid . ':' . $price . '"></td>
             </tr>';
@@ -239,10 +239,10 @@ class BranchWiseTestMappingController extends Controller
         foreach ($selectedTests as $testID) {
             $testData = explode(':', $testID);
             $testID = $testData[0];
-            DB::table('labbranches_has_Testgroup')
-            ->where('tgid', '=', $testID)
-            ->where('bid', '=', $labBranchDropdown)
-            ->delete();
+//            DB::table('labbranches_has_Testgroup')
+//            ->where('tgid', '=', $testID)
+//            ->where('bid', '=', $labBranchDropdown)
+//            ->delete();
         }
 
         return Response::json(['success' => true, 'error' => 'deleted']);
