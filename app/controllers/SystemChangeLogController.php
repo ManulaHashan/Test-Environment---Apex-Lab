@@ -32,7 +32,8 @@ class SystemChangeLogController extends Controller{
     public function getChangeLogs()
     {
         $lid = $_SESSION['lid'];
-        $date = Input::get('date');
+        $fromDate = Input::get('fromDate');
+        $toDate   = Input::get('toDate');
         $page = Input::get('page');
         $button = Input::get('button');
         $uid = Input::get('uid');
@@ -44,8 +45,12 @@ class SystemChangeLogController extends Controller{
             ->select('a.date','a.descreption' ,'a.time', 'a.page', 'a.button', 'a.user_luid', 'b.fname', 'b.lname', 'c.position')
             ->where('a.lid', $lid);
 
-        if (!empty($date)) {
-            $query->where('a.date', '=', $date);
+        if (!empty($fromDate) && !empty($toDate)) {
+            $query->whereBetween('a.date', [$fromDate, $toDate]);
+        } elseif (!empty($fromDate)) {
+            $query->where('a.date', '>=', $fromDate);
+        } elseif (!empty($toDate)) {
+            $query->where('a.date', '<=', $toDate);
         }
 
         if (!empty($page)) {
@@ -61,7 +66,8 @@ class SystemChangeLogController extends Controller{
         }
 
         if (!empty($fname) && $fname !== '%') {
-            $query->where('b.fname', 'LIKE', '%' . $fname . '%');
+            $query->where(DB::raw("CONCAT(b.fname, ' ', b.lname)"), 'LIKE', '%' . $fname . '%');
+            
         }
 
         $results = $query->orderBy('a.date', 'desc')->orderBy('a.time', 'desc')->get();
