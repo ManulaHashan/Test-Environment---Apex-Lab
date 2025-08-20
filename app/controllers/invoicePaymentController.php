@@ -21,31 +21,42 @@ class invoicePaymentController extends Controller
         $invoiceId = Input::get('invoice_iid'); 
     
       
-        $payments = DB::table('user as a')
-        ->join('patient as b', 'a.uid', '=', 'b.user_uid')
-        ->join('lps as c', 'c.patient_pid', '=', 'b.pid')
-        ->join('invoice as d', 'd.lps_lpsid', '=', 'c.lpsid')
-        ->join('invoice_payments as e', 'd.iid', '=', 'e.invoice_iid')
-        ->join('paymethod as f', 'e.paymethod', '=', 'f.idpaymethod')
-        ->where('d.iid', '=', $invoiceId)
-        ->select('a.fname', 'a.lname', 'e.amount', 'd.paid','e.ipid','e.date','f.name','e.chno','d.cashier')
-        ->get();
+
+        $payments = DB::table('invoice_payments as e')
+            ->join('user as a', 'a.uid', '=', 'e.user_uid')
+            ->join('invoice as d', 'd.iid', '=', 'e.invoice_iid')
+            ->join('paymethod as f', 'e.paymethod', '=', 'f.idpaymethod')
+            ->where('d.iid', '=', $invoiceId)
+            ->select(
+                'a.fname',
+                'a.lname',
+                'e.amount',
+                'd.paid',
+                'e.ipid',
+                'e.date',
+                'f.name as paymethod',
+                'e.chno'
+            )
+            ->get();
     
         $output = '';
         if (count($payments) > 0) {
             foreach ($payments as $p) {
                 $output .= '<tr>
-                    <td align="center">' . htmlspecialchars($p->ipid) . '</td>
-                    <td align="center">' . htmlspecialchars($p->date) . '</td>
-                    <td align="center">' . htmlspecialchars($p->name) . '</td>
-                    <td align="right">' . number_format($p->amount, 2) . '</td>
-                    <td align="center">' . htmlspecialchars($p->chno) . '</td>
-                    <td align="center">' . htmlspecialchars($p->cashier) . '</td>
-                    <td align="center"> <button class="delete-btn"
-                    style=" border-radius: 5px; background-color:rgb(242, 67, 67); color: #fff; border: none; padding: 5px 10px; cursor: pointer;" 
-                    data-ipid="' . $p->ipid . '" >Delete</button></td>
-                </tr>';
-            }
+                <td align="center">' . htmlspecialchars($p->ipid) . '</td>
+                <td align="center">' . htmlspecialchars($p->date) . '</td>
+                <td align="center">' . htmlspecialchars($p->paymethod) . '</td>
+                <td align="right">' . number_format($p->amount, 2) . '</td>
+                <td align="center">' . htmlspecialchars($p->chno) . '</td>
+                <td align="center">' . htmlspecialchars($p->fname . ' ' . $p->lname) . '</td>
+                <td align="center">
+                    <button class="delete-btn"
+                        style="border-radius:5px; background-color:rgb(242,67,67); color:#fff; border:none; padding:5px 10px; cursor:pointer;" 
+                        data-ipid="' . $p->ipid . '">Delete</button>
+                </td>
+            </tr>';
+                    }
+
         } else {
             $output = '<tr><td colspan="6" align="center">No payment records found</td></tr>';
         }
@@ -147,7 +158,22 @@ class invoicePaymentController extends Controller
         $cno = Input::get('cno');
         $type = explode(':', Input::get('type'))[0];
         
-        $userUid = $_SESSION['uid'];  // Get the user UID from session
+
+        $userUid = $_SESSION['uid'];  
+
+        //   if (session_status() === PHP_SESSION_NONE) {
+        //         session_start();
+        //     }
+
+            
+        //     $userUid = isset($_SESSION['uid']) ? $_SESSION['uid'] : null;
+
+        //     if (!$userUid) {
+        //         return Response::json([
+        //             'status' => 'error',
+        //             'message' => 'Session expired. Please login again.'
+        //         ]);
+        //     }
 
         if (empty($invoiceId) || empty($date) || empty($amount) || empty($type) ||$amount <= 0) {
             return Response::json(['status' => 'error', 'message' => 'All fields are required and tender amount must be greater than 0.']);
