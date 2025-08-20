@@ -45,8 +45,8 @@ Enter Doctor Refference
     document.addEventListener("DOMContentLoaded", function() {
         const today = new Date();
         const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-        document.getElementById('jdate').value = formattedDate; // Set the value
-        document.getElementById('Ref_dob').value = formattedDate; // Set the value
+        document.getElementById('jdate').value = formattedDate; 
+        document.getElementById('Ref_dob').value = formattedDate;
     });
 
     // ********************Function to load selected record into the input field when clicking on a table row*********
@@ -64,6 +64,7 @@ Enter Doctor Refference
         $('#Ref_coodinator').val(refCoodinator);
         $('#Ref_dob').val(refDob);
         $('#Ref_speciality').val(refSpeciality);
+        $('#saveBtn').hide();
         loadInvoiceCount(refID);
     }
 
@@ -171,6 +172,7 @@ Enter Doctor Refference
         const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
         document.getElementById('jdate').value = formattedDate;
         document.getElementById('Ref_dob').value = formattedDate;
+        $('#saveBtn').show();
 
         console.log("All fields have been reset!");
 
@@ -404,24 +406,24 @@ Enter Doctor Refference
         width: 100%;
         margin: 20px;
         border-radius: 10px;
-/*        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        border: 1px solid #ccc;*/
+    /*        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border: 1px solid #ccc;*/
 
-    }
+        }
 
-/*    .card-body {
-        padding: 5px;
-    }
+    /*    .card-body {
+            padding: 5px;
+        }
 
-    .card-title {
-        font-size: 18px;
-        font-weight: bold;
-    }
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-    .card-text {
-        font-size: 14px;
-    }*/
+        .card-text {
+            font-size: 14px;
+        }*/
 
     .warning-container {
         display: flex;
