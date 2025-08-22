@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Barcode Print</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-
+    
     <style>
         @media print {
             body {
@@ -17,7 +16,7 @@
             width: 50%;
             border-collapse: collapse;
             margin: 10px auto;
-
+            
         }
 
         td {
@@ -31,7 +30,7 @@
 
         .barcode-row {
             display: block;
-            margin-bottom: 20px;
+            margin-bottom: 20px; 
         }
 
         /* .barcode-label {
@@ -60,12 +59,10 @@
             height: 40px;
             padding: 0 5px;
         }
-
         .barcode-left {
             text-align: left;
             flex: 1;
         }
-
         .barcode-right {
             text-align: right;
         }
@@ -81,7 +78,7 @@
             justify-content: space-between;
             font-size: 10px;
             margin-top: 5px;
-
+            
         }
 
         /* canvas {
@@ -90,21 +87,19 @@
             margin-right: 8px auto;
         } */
 
-        canvas {
+            canvas {
             display: block;
-            margin: 0 auto;
-            /* center canvas horizontally */
+            margin: 0 auto; /* center canvas horizontally */
             width: 360px !important;
             height: 50px !important;
-
+           
         }
 
 
         .hr-wrapper {
             position: relative;
             margin-left: 10px;
-            margin-right: 10px;
-            /* optional for spacing */
+            margin-right: 10px; /* optional for spacing */
             margin-top: 10px;
         }
 
@@ -117,95 +112,92 @@
 
         .hr-arrow {
             position: absolute;
-            top: -6px;
+            top: -6px; 
             right: -8px;
             font-size: 8px;
             color: #141414;
             background-color: white;
             padding-left: 0px;
-
+           
         }
     </style>
 </head>
-
 <body>
 
+ 
 
 
 
+ {{-- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- --}}
+<?php
+  $specialChar = '';
+  $labLid = $_SESSION['lid'];
 
-    {{-- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- --}}
-    <?php
-    $specialChar = '';
-    $labLid = $_SESSION['lid'];
-    
-    $duplicateBarsetRow = DB::table('addpatientconfigs')->where('lab_lid', $labLid)->select('duplicate_barset')->first();
-    
-    ?>
+$duplicateBarsetRow = DB::table('addpatientconfigs')
+    ->where('lab_lid', $labLid)
+    ->select('duplicate_barset')
+    ->first();
+
+?>
 
 
 
-    {{-- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- --}}
+ {{-- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- --}}
 
-    <?php
-    
-    // Get patient and arrival time
-    $patient_pid = '';
-    $arival_time = '';
-    
-    $result_get_patient_pid = DB::select('select patient_pid, arivaltime FROM lps WHERE date = ? AND sampleNo LIKE ? GROUP BY patient_pid', [$date, $sno . '%']);
-    foreach ($result_get_patient_pid as $lps_details) {
-        $patient_pid = $lps_details->patient_pid;
-        $arival_time = $lps_details->arivaltime;
-    }
-    
-    // Get patient details
-    $fname = $lname = $gender_data = $age = $months = $days = $initials = $refby = '';
-    
-    $result_get_patient_details = DB::select(
-        "
-        SELECT u.fname, u.lname, u.gender_idgender, 
-               p.age, p.months, p.days, p.initials, l.refby
-        FROM patient AS p
-        JOIN user AS u ON p.user_uid = u.uid
-        JOIN lps AS l ON p.pid = l.patient_pid
-        WHERE p.pid = ?
-        GROUP BY p.pid
-    ",
-        [$patient_pid],
-    );
-    
-    foreach ($result_get_patient_details as $patient_details) {
-        $fname = $patient_details->fname;
-        $lname = $patient_details->lname;
-        $gender_data = $patient_details->gender_idgender == '1' ? 'Male' : 'Female';
-        $age = $patient_details->age;
-        $months = $patient_details->months;
-        $days = $patient_details->days;
-        $initials = $patient_details->initials;
-        $refby = $patient_details->refby;
-    }
-    
-    $sample_containerName = DB::select(
-        "select s.name as containerName from Testgroup tg 
-        join sample_containers s on tg.sample_containers_scid = s.scid
-        where tg.tgid = ?",
-        [$tgid],
-    );
-    
-    foreach ($sample_containerName as $sample_containerName) {
-        $container_Name = $sample_containerName->containerName;
-    }
-    
-    if ($rep_barcode == '1') {
-        $repeatBarcode = '-R';
-    } else {
-        $repeatBarcode = '';
-    }
-    
-    ?>
+<?php
 
-    <?php if ($isGroup == "false"): ?>
+
+// Get patient and arrival time
+$patient_pid = "";
+$arival_time = "";
+
+$result_get_patient_pid = DB::select("select patient_pid, arivaltime FROM lps WHERE date = ? AND sampleNo LIKE ? GROUP BY patient_pid", [$date, $sno . '%']);
+foreach ($result_get_patient_pid as $lps_details) {
+    $patient_pid = $lps_details->patient_pid;
+    $arival_time = $lps_details->arivaltime;
+}
+
+// Get patient details
+$fname = $lname = $gender_data = $age = $months = $days = $initials = $refby = "";
+
+$result_get_patient_details = DB::select("
+    SELECT u.fname, u.lname, u.gender_idgender, 
+           p.age, p.months, p.days, p.initials, l.refby
+    FROM patient AS p
+    JOIN user AS u ON p.user_uid = u.uid
+    JOIN lps AS l ON p.pid = l.patient_pid
+    WHERE p.pid = ?
+    GROUP BY p.pid
+", [$patient_pid]);
+
+foreach ($result_get_patient_details as $patient_details) {
+    $fname = $patient_details->fname;
+    $lname = $patient_details->lname;
+    $gender_data = ($patient_details->gender_idgender == "1") ? "Male" : "Female";
+    $age = $patient_details->age;
+    $months = $patient_details->months;
+    $days = $patient_details->days;
+    $initials = $patient_details->initials;
+    $refby = $patient_details->refby;
+}
+
+$sample_containerName = DB::select("select s.name as containerName from Testgroup tg 
+    join sample_containers s on tg.sample_containers_scid = s.scid
+    where tg.tgid = ?", [$tgid]);
+
+foreach ($sample_containerName as $sample_containerName) {
+    $container_Name = $sample_containerName->containerName;
+}
+
+if ($rep_barcode == "1") {
+   $repeatBarcode = "-R";
+}else{
+   $repeatBarcode = "";
+}
+
+?>
+
+<?php if ($isGroup == "false"): ?>
     <!-- Single Barcode -->
 
     <?php
@@ -214,7 +206,8 @@
     $barcodeValue = "{$sno}{$repeatBarcode}";
     
     // Check if duplicate_barset exists and contains the pattern
-    if (!empty($duplicateBarsetRow->duplicate_barset) && preg_match('/' . $tgid . ':(\w)/', $duplicateBarsetRow->duplicate_barset, $matches)) {
+    if (!empty($duplicateBarsetRow->duplicate_barset) && 
+        preg_match("/" . $tgid . ":(\w)/", $duplicateBarsetRow->duplicate_barset, $matches)) {
         $specialChar = $matches[1];
         $barcodeValue = "{$sno}-{$specialChar}{$repeatBarcode}";
     }
@@ -274,7 +267,7 @@
 
 
 
-    <?php else: ?>
+<?php else: ?>
     <!-- Grouped Barcodes -->
     <table>
         <?php
@@ -342,47 +335,46 @@ foreach ($groupedTests as $scid => $tgids) {
             $barcodeCode = $sno . '-' . $duplicateMap[$tgid] .'-' . $sample_container->sample;
             $barcodeCodeGEN =  "{$sno}-{$duplicateMap[$tgid]}{$repeatBarcode}";            
             ?>
-        <tr class="barcode-row">
-            <td>
-                <div class="barcode-label">
-                    <div class="barcode-top">
-                        <div class="barcode-left">
-                            <?= htmlspecialchars($sno) . '-' . $duplicateMap[$tgid] . '' . $repeatBarcode ?></div>
-                        <div class="barcode-right"><?= $sample_container->sample ?></div>
-                    </div>
-                    <canvas id="<?= htmlspecialchars($barcodeID) ?>"></canvas>
-                    <div class="hr-wrapper">
-                        <hr class="solid">
-                        <div class="hr-arrow">▶</div>
-                    </div>
+            <tr class="barcode-row">
+                <td>
+                    <div class="barcode-label">
+                        <div class="barcode-top">
+                            <div class="barcode-left"><?= htmlspecialchars($sno) ."-" . $duplicateMap[$tgid] . "" .$repeatBarcode   ?></div>
+                            <div class="barcode-right"><?=$sample_container->sample ?></div>
+                        </div>
+                        <canvas id="<?= htmlspecialchars($barcodeID) ?>"></canvas>
+                        <div class="hr-wrapper">
+                            <hr class="solid">
+                            <div class="hr-arrow">▶</div>
+                        </div>
 
-                    <div class="barcode-info">
-                        <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
-                        <div><?= htmlspecialchars($abbr) ?></div>
-                        <div class="barcode-footer">
-                            <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
-                            <span><?= htmlspecialchars($arival_time) ?></span>
-                            <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
+                        <div class="barcode-info">
+                            <div><strong><?= htmlspecialchars("$initials $fname $lname") ?></strong></div>
+                            <div><?= htmlspecialchars($abbr) ?></div>
+                            <div class="barcode-footer">
+                                <span><?= htmlspecialchars("$date ($gender_data)") ?></span>
+                                <span><?= htmlspecialchars($arival_time) ?></span>
+                                <span><?= htmlspecialchars("$age : Y $months : M $days : D") ?></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </td>
-        </tr>
-        <script>
-            JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($barcodeCodeGEN) ?>", {
-                format: "CODE128",
-                displayValue: false,
-                lineColor: "#000",
-                width: 2.5,
-                height: 50,
-                margin: 0,
-                marginLeft: 5,
-                marginRight: 5,
-                fontSize: 14,
-
-            });
-        </script>
-        <?php
+                </td>
+            </tr>
+            <script>
+                JsBarcode("#<?= addslashes($barcodeID) ?>", "<?= addslashes($barcodeCodeGEN) ?>", {
+                    format: "CODE128",
+                    displayValue: false,
+                    lineColor: "#000",
+                    width:  2.5,       
+                    height: 50,      
+                    margin: 0,
+                    marginLeft: 5,
+                    marginRight: 5,
+                    fontSize: 14,
+                    
+                });
+            </script>
+            <?php
         } else {
             // normal test, group later
             $normalTests[] = $abbr;
@@ -407,11 +399,11 @@ foreach ($groupedTests as $scid => $tgids) {
             <td>
                 <div class="barcode-label">
                     <div class="barcode-top">
-                        <div class="barcode-left"><?= htmlspecialchars($sno) . '' . $repeatBarcode ?></div>
-                        <div class="barcode-right"><?= $sample_container->sample ?></div>
+                        <div class="barcode-left"><?= htmlspecialchars($sno) . "" .$repeatBarcode  ?></div>
+                        <div class="barcode-right"><?=$sample_container->sample ?></div>
                     </div>
                     <canvas id="<?= htmlspecialchars($barcodeID) ?>"></canvas>
-                    <div class="hr-wrapper">
+                   <div class="hr-wrapper">
                         <hr class="solid">
                         <div class="hr-arrow">▶</div>
                     </div>
@@ -433,8 +425,8 @@ foreach ($groupedTests as $scid => $tgids) {
                 format: "CODE128",
                 displayValue: false,
                 lineColor: "#000",
-                width: 2.5,
-                height: 50,
+                width:  2.5,       
+                height: 50,      
                 margin: 0,
                 marginLeft: 5,
                 marginRight: 5,
@@ -454,8 +446,7 @@ foreach ($groupedTests as $scid => $tgids) {
 ?>
 
     </table>
-    <?php endif; ?>
+<?php endif; ?>
 
 </body>
-
 </html>
