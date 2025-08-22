@@ -315,6 +315,117 @@ Employee Management
         window.location.href = window.location.pathname + "?status=" + status;
     }   
 
+    function updatePassword() {
+    var selectedUID = $('#labuser').val().split(" : ")[0];
+        var username = $('#uname').val();
+        var password = $('#pwd').val();
+
+        if(selectedUID === "%" || username === '' || password === '') {
+            alert('Please select an employee and fill all fields.');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "updateUserCredentials",  // Laravel route
+            data: {
+                uid: selectedUID,
+                username: username,
+                password: password
+            },
+            success: function (response) {
+                if(response.success) {
+                    alert('User credentials updated successfully!');
+                      $('#labuser').val('%');
+                     $('#uname').val('');
+                    $('#pwd').val('');
+                } else {
+                    alert('Update failed: ' + response.message);
+                     $('#labuser').val('%');
+                     $('#uname').val('');
+                    $('#pwd').val('');
+                }
+            },
+            error: function (xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
+                console.error('Error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+            }
+        });
+    }
+
+    function loadUserCredentials(selectedValue) {
+        var selectedUID = selectedValue.split(" : ")[0];
+
+        if(selectedUID === "%") {
+            document.getElementById('uname').value = '';
+            document.getElementById('pwd').value = '';
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "getUserCredentials",  
+            data: { uid: selectedUID },
+            success: function(response) {
+                if(response.success) {
+                    $('#uname').val(response.data.username);
+                    $('#pwd').val(response.data.password);
+                } else {
+                    alert('No data found');
+                     $('#labuser').val('%');
+                    $('#uname').val('');
+                    $('#pwd').val('');
+                }
+            },
+            error: function (xhr, status, error) {
+                alert('Error: ' + xhr.status + ' - ' + xhr.statusText + '\nDetails: ' + xhr.responseText);
+                console.error('Error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        $('#uname').on('keyup', function(){
+            var username = $(this).val();
+
+            if(username.length > 0){
+                $.ajax({
+                    url: 'checkUsername',   
+                    method: 'GET',
+                    data: { username: username },
+                    success: function(response){
+                        if(response.exists){
+                            $('#unameError').text("User Name Already Exists");
+                            $('#pwd_update_btn').prop('disabled', true); 
+                        } else {
+                            $('#unameError').text("");
+                            $('#pwd_update_btn').prop('disabled', false);
+                        }
+                    }
+                });
+            } else {
+                $('#unameError').text("");
+            }
+        });
+    });
+
+    function Reset_feilds() {
+        $('#labuser').val('%');
+        $('#uname').val('');
+        $('#pwd').val('');
+        $('#unameError').text("")
+    }
+
 </script>
 @stop
 
@@ -606,26 +717,90 @@ if (isset($_SESSION['lid']) & isset($_SESSION['luid'])) {
         </form>
         <br/>
         <form action="updatesignimage" method="post" enctype="multipart/form-data">
-        <div>
-            <table border="0">
+            <div>
+                <table border="0">
 
-                <tbody>
-                    <tr>
-                        <td>Sign Image</td>
-                        <td><input type="file" name="signurl" id="signurl" class="input-file"/></td>
-                        <td><input type="submit" class="btn" style="width:120px" value="Update Sign" name="updatesign"/>  
-                            <input type="submit" class="btn" style="width:120px" value="Delete Sign" name="updatesign"/> 
-                            
-                            {{$signmsg or ''}}
-                            
-                            <input type="hidden" name="signurllbl" id="signurllbl" value="{{ $signurl or '' }}" >
-                            <input type="hidden" id="luidimg" name="luid" value="{{$result->luid}}">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                    <tbody>
+                        <tr>
+                            <td>Sign Image</td>
+                            <td><input type="file" name="signurl" id="signurl" class="input-file"/></td>
+                            <td><input type="submit" class="btn" style="width:120px" value="Update Sign" name="updatesign"/>  
+                                <input type="submit" class="btn" style="width:120px" value="Delete Sign" name="updatesign"/> 
+                                
+                                {{$signmsg or ''}}
+                                
+                                <input type="hidden" name="signurllbl" id="signurllbl" value="{{ $signurl or '' }}" >
+                                <input type="hidden" id="luidimg" name="luid" value="{{$result->luid}}">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </form>
+
+        <div id="user-change-container" style="padding: 15px; max-width: 500px; margin: 0 left; border: 1px solid #ccc; border-radius: 8px;">
+            <h3 id="user-change-title" style="margin-bottom: 20px; text-align: center;">Change Employee User Name and Password</h3>
+
+            <table id="user-credentials-table" style="width: 100%; border-collapse: collapse;">
+                <tr>
+                     <td class="fieldText" style="padding: 8px; width: 30%;">
+                        <label for="labuser" style="font-size: 16px; margin-right: 10px; width: 80px;">Employee:</label>
+                    </td>
+                      <td class="fieldText" style="padding: 8px; width: 30%;">
+                        <select name="labuser" id="labuser" class="input-text" onchange="loadUserCredentials(this.value)" style="flex: 1; height: 35px; padding: 3px;">
+                            <option value="%">All</option>
+                                <?php
+                                $query = "select a.uid, a.fname, a.lname 
+                                        FROM user a
+                                        INNER JOIN labUser b ON a.uid = b.user_uid
+                                        INNER JOIN Lab_labUser c ON b.luid = c.labUser_luid
+                                        WHERE c.lab_lid = '" . $_SESSION['lid'] . "' 
+                                        AND a.status = '1'
+                                        ORDER BY a.fname ASC";
+                                
+                                $Result = DB::select($query);
+                                
+                                foreach ($Result as $res) {
+                                    $uid = $res->uid;
+                                    $fullName = $res->fname . ' ' . $res->lname;
+                                    $displayText = $uid . " : " . $fullName;
+                                    echo "<option value='{$fullName}'>{$displayText}</option>";
+                                }
+                                ?>
+                        </select>
+                      </td>
+                </tr>
+                <tr>
+                    <td class="fieldText" style="padding: 8px; width: 30%;">User Name</td>
+                    <td style="padding: 8px;">
+                      <input type="text" name="uname" id="uname" class="input-text" style="width: 100%; padding: 5px;">
+                      <span id="unameError" style="color:red; font-size: 12px;"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fieldText" style="padding: 8px;">Password</td>
+                    <td style="padding: 8px;">
+                        <input type="password" name="pwd" id="pwd" class="input-text" style="width: 100%; padding: 5px;" autocomplete="new-password">
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td>
+                        <input type="button" style="flex: 0 0 80px;width: 175px; height: 50px;" class="btn" id="pwd_update_btn"
+                        value="Update Password" onclick="updatePassword()">
+                    </td>
+                    <td>
+                        <input type="button" style="flex: 0 0 80px;width: 175px; height: 50px;" class="btn" id="pwd_update_btn"
+                        value="Reset" onclick="Reset_feilds()">
+                    </td>
+                    
+                </tr>
+                
+            </table>
+             
+              
+        </div>
 
     </blockquote>
     <?php

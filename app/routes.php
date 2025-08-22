@@ -802,6 +802,12 @@ Route::get('EmpMan', 'EmployeeController@manageEmployee');
 Route::post('EmpMan', 'EmployeeController@manageEmployee');
 Route::get('loadUserPrivillages', 'EmployeeController@getPrivilleges');
 Route::post('updatesignimage', 'EmployeeController@updateSignImage');
+Route::post('getUserCredentials', 'EmployeeController@postGetUserCredentials');
+Route::post('updateUserCredentials', 'EmployeeController@postUpdateUserCredentials');
+Route::get('checkUsername', 'EmployeeController@checkUsername');
+
+
+
 
 
 //Expenses~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

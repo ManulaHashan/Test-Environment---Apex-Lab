@@ -442,4 +442,69 @@ class EmployeeController extends Controller {
         }
     }
 
+
+
+     // 1️⃣ Fetch user credentials for selected UID
+    public function postGetUserCredentials() {
+        $uid = Input::get('uid');
+
+        $data = DB::table('loginDetails as a')
+            ->join('user as b', 'b.loginDetails_idloginDetails', '=', 'a.idloginDetails')
+            ->select('a.idloginDetails', 'a.username', 'a.password')
+            ->where('b.uid', $uid)
+            ->first();
+
+        if($data) {
+            return Response::json(['success' => true, 'data' => $data]);
+        } else {
+            return Response::json(['success' => false]);
+        }
+    }
+
+    // 2️⃣ Update user credentials
+    public function postUpdateUserCredentials() {
+        $uid = Input::get('uid');
+        $username = Input::get('username');
+        $password = Input::get('password');
+
+        $login = DB::table('loginDetails as a')
+            ->join('user as b', 'b.loginDetails_idloginDetails', '=', 'a.idloginDetails')
+            ->where('b.uid', $uid)
+            ->first();
+
+        if($login) {
+            $update = DB::table('loginDetails')
+                ->where('idloginDetails', $login->idloginDetails)
+                ->update([
+                    'username' => $username,
+                    'password' => $password
+                ]);
+
+            if($update) {
+                return Response::json(['success' => true]);
+            } else {
+                return Response::json(['success' => false, 'message' => 'Nothing updated']);
+            }
+        } else {
+            return Response::json(['success' => false, 'message' => 'User not found']);
+        }
+    }
+
+    public function checkUsername()
+    {
+        $username = Input::get('username'); 
+
+        // DB check (LIKE ekata use karala)
+        $exists = DB::table('loginDetails')
+            ->where('username', 'like', '%' . $username . '%')
+            ->exists();
+
+        // Response ekak yawanna (JSON)
+        return Response::json([
+            'exists' => $exists
+        ]);
+    }
+
+   
+
 }
