@@ -184,9 +184,9 @@ Enter Doctor Refference
     }
 
     //**************************function validateLettersOnly on name feild***************
-    function validateLettersOnly(input) {
-        // Allow only letters and spaces
-        input.value = input.value.replace(/[^a-zA-Z\s]/g, '');
+    function replaceSingleQuote(input) {
+        
+        input.value = input.value.replace(/'/g, '"');
     }
 
 
@@ -478,7 +478,8 @@ Enter Doctor Refference
 
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <label style="width: 150px;font-size: 18px;">Name &nbsp;</label>
-                    <input type="text" oninput="validateLettersOnly(this)" name=" Ref_name" class="input-text" id="Ref_name" style="width: 450px" pattern="[A-Za-z0-9]{1,10}" title="" value="">
+                    <input type="text" oninput="replaceSingleQuote(this)" 
+                        name="Ref_name" class="input-text" id="Ref_name" style="width: 450px">
 
                     <label style="width: 150px;font-size: 18px; margin-left: 20px;">Ref.Speciality  &nbsp;</label>
                     <input type="text" name="Ref_address" class="input-text" id="Ref_speciality" style="width: 450px"  title="" value="">

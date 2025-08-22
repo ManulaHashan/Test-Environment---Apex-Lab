@@ -12,7 +12,7 @@
         }
 
         table {
-            width: 20%;
+            width: 50%;
             border-collapse: collapse;
             margin: 10px auto;
             
@@ -24,6 +24,7 @@
             padding-right: 1px;
             vertical-align: top;
             text-align: center;
+            width: 50%;
         }
 
         .barcode-row {
