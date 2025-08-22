@@ -309,7 +309,11 @@ Employee Management
                 document.getElementById('dl').disabled = true;
             }
         };
-    }    
+    } 
+    function filterUsers() {
+        var status = document.getElementById("statusFilter").value;
+        window.location.href = window.location.pathname + "?status=" + status;
+    }   
 
 </script>
 @stop
@@ -323,8 +327,18 @@ if (isset($_SESSION['lid']) & isset($_SESSION['luid'])) {
         <p>&nbsp;</p>
         <form action="EmpMan" method="POST" onsubmit="return submitReq()" id="form">
             <table border="0" cellspacing="0" cellpadding="0">
-                <tr valign="top">
+               <tr valign="top">
                     <td height="260">
+                       
+                        <div style="margin-bottom: 10px;">
+                            <label for="statusFilter" style="font-weight: bold">Status: </label>
+                           
+                             <select id="statusFilter" onchange="filterUsers()" style="border-radius: 12px;border: 2px solid #ccc; padding: 5px;">
+                                <option value="1" <?php echo (!isset($_GET['status']) || $_GET['status'] == '1') ? 'selected' : ''; ?>>Active Employees</option>
+                                <option value="Terminated" <?php echo (isset($_GET['status']) && $_GET['status'] == 'Terminated') ? 'selected' : ''; ?>>Terminated Employees</option>
+                            </select>
+                                        </div>
+                        
                         <div class="pageTableScope3">
                             <table border="0" cellspacing="0" cellpadding="0" class="table-basic">
                                 <tr class="viewTHead">
@@ -333,7 +347,6 @@ if (isset($_SESSION['lid']) & isset($_SESSION['luid'])) {
                                     <th width="123" height="23" scope="col">Middle Name</th>
                                     <th width="123" height="23" scope="col">Last Name</th>
                                     <th width="123" height="23" scope="col">Gender</th>
-
                                     <th width="123" height="23" scope="col">User Type</th>
                                     <th width="123" height="23" scope="col">Position</th>
                                     <th width="123" height="23" scope="col">Branch</th>
@@ -344,69 +357,76 @@ if (isset($_SESSION['lid']) & isset($_SESSION['luid'])) {
                                 </tr>
 
                                 <?php
-                                $Result = DB::select("select * from user a,labUser b,Lab_labUser c,gender d,country e,loginDetails f where a.uid=b.user_uid and b.luid=c.labUser_luid and a.gender_idgender=d.idgender and b.country_idcountry = e.idcountry and a.loginDetails_idlogindetails=f.idlogindetails and c.lab_lid = '" . $_SESSION['lid'] . "'");
+                                
+                                $statusFilter = isset($_GET['status']) ? $_GET['status'] : '1';
+                                
+                                $Result = DB::select("SELECT * FROM 
+                                    user a, labUser b, Lab_labUser c, gender d, country e, loginDetails f 
+                                    WHERE a.uid = b.user_uid 
+                                    AND b.luid = c.labUser_luid 
+                                    AND a.gender_idgender = d.idgender 
+                                    AND b.country_idcountry = e.idcountry 
+                                    AND a.loginDetails_idlogindetails = f.idlogindetails 
+                                    AND c.lab_lid = '" . $_SESSION['lid'] . "' 
+                                    AND a.status = '" . $statusFilter . "'");
+                                
                                 foreach ($Result as $result) {
-                                    ?>
-
+                                ?>
                                     <tr>
-                                        <td id="<?php echo "fn+" . $result->luid; ?>">{{$result-> uid}}</td>
-                                        <td id="<?php echo "fn+" . $result->luid; ?>">{{$result-> fname}}</td>
-                                        <td id="<?php echo "mn+" . $result->luid; ?>">{{$result-> mname}}</td>
-                                        <td id="<?php echo "ln+" . $result->luid; ?>">{{$result-> lname}}</td>
-                                        <td id="<?php echo "gen+" . $result->luid; ?>">{{$result-> gender}}</td>
+                                        <td id="<?php echo "fn+" . $result->luid; ?>"><?php echo $result->uid; ?></td>
+                                        <td id="<?php echo "fn+" . $result->luid; ?>"><?php echo $result->fname; ?></td>
+                                        <td id="<?php echo "mn+" . $result->luid; ?>"><?php echo $result->mname; ?></td>
+                                        <td id="<?php echo "ln+" . $result->luid; ?>"><?php echo $result->lname; ?></td>
+                                        <td id="<?php echo "gen+" . $result->luid; ?>"><?php echo $result->gender; ?></td>
 
                                         <?php
-                                        $ResultUtype = DB::select("select type from usertype where idusertype = '" . $result->usertype_idusertype . "'");
+                                        $ResultUtype = DB::select("SELECT type FROM usertype WHERE idusertype = '" . $result->usertype_idusertype . "'");
                                         if ($ResultUtype != null) {
                                             foreach ($ResultUtype as $utype) {
-                                                ?>
-                                                <td id="<?php echo "ut+" . $result->luid; ?>">{{$utype-> type}}</td>
-                                                <?php
+                                        ?>
+                                                <td id="<?php echo "ut+" . $result->luid; ?>"><?php echo $utype->type; ?></td>
+                                        <?php
                                             }
                                         }
                                         ?>
 
-                                        <td id="<?php echo "posi+" . $result->luid; ?>">{{$result->position}}</td>
-                                        <td id="<?php echo "br+" . $result->luid; ?>">{{$result->branch}}</td>
-                                        <td id="<?php echo "tp+" . $result->luid; ?>">{{$result->tpno}}</td>
-                                        <td id="<?php echo "hp+" . $result->luid; ?>">{{$result->hpno}}</td>
-                                        <td id="<?php echo "st+" . $result->luid; ?>">{{$result->status}}</td>
+                                        <td id="<?php echo "posi+" . $result->luid; ?>"><?php echo $result->position; ?></td>
+                                        <td id="<?php echo "br+" . $result->luid; ?>"><?php echo $result->branch; ?></td>
+                                        <td id="<?php echo "tp+" . $result->luid; ?>"><?php echo $result->tpno; ?></td>
+                                        <td id="<?php echo "hp+" . $result->luid; ?>"><?php echo $result->hpno; ?></td>
+                                        <td id="<?php echo "st+" . $result->luid; ?>"><?php echo $result->status; ?></td>
                                         <td>
-
-                                            <input type="hidden" id="<?php echo "co+" . $result->luid; ?>" value="{{$result->country}}">
-                                            <input type="hidden" id="<?php echo "dob+" . $result->luid; ?>" value="{{$result->dob}}">
-                                            <input type="hidden" id="<?php echo "nic+" . $result->luid; ?>" value="{{$result->nic}}">
-                                            <input type="hidden" id="<?php echo "add+" . $result->luid; ?>" value="{{$result->address}}">
-                                            <input type="hidden" id="<?php echo "em+" . $result->luid; ?>" value="{{$result->email}}">
-                                            <input type="hidden" id="<?php echo "guest+" . $result->luid; ?>" value="{{$result->guest}}">
+                                            <input type="hidden" id="<?php echo "co+" . $result->luid; ?>" value="<?php echo $result->country; ?>">
+                                            <input type="hidden" id="<?php echo "dob+" . $result->luid; ?>" value="<?php echo $result->dob; ?>">
+                                            <input type="hidden" id="<?php echo "nic+" . $result->luid; ?>" value="<?php echo $result->nic; ?>">
+                                            <input type="hidden" id="<?php echo "add+" . $result->luid; ?>" value="<?php echo $result->address; ?>">
+                                            <input type="hidden" id="<?php echo "em+" . $result->luid; ?>" value="<?php echo $result->email; ?>">
+                                            <input type="hidden" id="<?php echo "guest+" . $result->luid; ?>" value="<?php echo $result->guest; ?>">
 
                                             <?php
-                                            $ResultUserid = DB::select("select uid from user a,labUser b,usertype c where a.uid = b.user_uid and a.usertype_idusertype=c.idusertype and c.type='admin' and b.luid='" . $result->luid . "'");
+                                            $ResultUserid = DB::select("SELECT uid FROM user a, labUser b, usertype c WHERE a.uid = b.user_uid AND a.usertype_idusertype = c.idusertype AND c.type = 'admin' AND b.luid = '" . $result->luid . "'");
                                             if ($ResultUserid != null) {
                                                 foreach ($ResultUserid as $userid) {
-                                                    ?>
-                                                    <input type="hidden" id="<?php echo "un+" . $result->luid; ?>" value="{{$result->username}}">
-                                                    <input type="hidden" id="<?php echo "pw+" . $result->luid; ?>" value="{{$result->password}}">
-                                                    <input type="hidden" id="<?php echo "sec1+" . $result->luid; ?>" value="{{$result->seq1}}">
-                                                    <input type="hidden" id="<?php echo "sec2+" . $result->luid; ?>" value="{{$result->seq2}}">
-                                                    
-                                                    <?php
+                                            ?>
+                                                    <input type="hidden" id="<?php echo "un+" . $result->luid; ?>" value="<?php echo $result->username; ?>">
+                                                    <input type="hidden" id="<?php echo "pw+" . $result->luid; ?>" value="<?php echo $result->password; ?>">
+                                                    <input type="hidden" id="<?php echo "sec1+" . $result->luid; ?>" value="<?php echo $result->seq1; ?>">
+                                                    <input type="hidden" id="<?php echo "sec2+" . $result->luid; ?>" value="<?php echo $result->seq2; ?>">
+                                            <?php
                                                 }
                                             } else {
-                                                ?>
+                                            ?>
                                                 <input type="hidden" id="<?php echo "un+" . $result->luid; ?>" value="">
-                                                <?php
+                                            <?php
                                             }
                                             ?>
 
-                                            <input type="button" id="{{$result->luid}}" name="select" value="Select" class="btn" onclick="selectEmp(id)">
-
+                                            <input type="button" id="<?php echo $result->luid; ?>" name="select" value="Select" class="btn" onclick="selectEmp(this.id)">
                                         </td>
                                     </tr>
                                 <?php } ?>
                             </table>
                         </div>
-
                     </td>
                 </tr>
                 <tr valign="top">
