@@ -5,13 +5,18 @@ use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
+date_default_timezone_set('Asia/Colombo');
+
 if (!isset($_SESSION)) {
     session_start();
 }
 
 //error_reporting(0);
 
-class PatientRegistrationController extends Controller {
+class PatientRegistrationController extends Controller
+{
+    
+
 
     public function loadSampleNumber()
     {
@@ -22,9 +27,9 @@ class PatientRegistrationController extends Controller {
         $labBranchId = Input::get('labBranchId');
         if ($labBranchId == '%') {
             
-            if($_SESSION['lid'] == "34"){
+            if($_SESSION['lid'] == "6"){
                 
-                $sampleResult = DB::select("SELECT MAX(CONVERT(sampleNo, UNSIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = ? and date > '2025-08-05'", [$_SESSION['lid']]);
+                $sampleResult = DB::select("SELECT MAX(CONVERT(sampleNo, UNSIGNED INTEGER)) AS max_sample_no FROM lps WHERE Lab_lid = ? and date > '2019-08-09'", [$_SESSION['lid']]);
 
                 if (!empty($sampleResult)) {
                     $currentNo = $sampleResult[0]->max_sample_no;
@@ -67,52 +72,75 @@ class PatientRegistrationController extends Controller {
 
         return $sampleNo;
     }
-
     public function loadBrachWiceTest() {
-        $labBranchId = Input::get('labBranchId');
-        $labLid = $_SESSION['lid'];
+            $labBranchId = Input::get('labBranchId');
+            $labLid = $_SESSION['lid'];
 
-        if (!$labLid) {
-            return response()->json(['error' => 'Session expired or invalid.'], 401);
-        }
+            if (!$labLid) {
+                return response()->json(['error' => 'Session expired or invalid.'], 401);
+            }
 
+        // foreach (StaticParameters::getConfigs() as $config) {
+        //     if($config->Lab_lid == $_SESSION["lid"]){
+        //         $separatePriceList = $config->separate_prices_branch;
+        //     }
+        // }
+
+
+        $config = DB::table('configs')
+            ->where('Lab_lid', $labLid)
+            ->first();
+
+        $separatePriceList = $config ? $config->separate_prices_branch : 0;
+
+        $separatePriceList = 0;
         // Build SQL query based on labBranchId
         if ($labBranchId == "%") {
-            $query = "SELECT c.name, c.tgid, c.price, c.testingtime 
-                      FROM test a 
-                      JOIN Lab_has_test b ON a.tid = b.test_tid 
-                      JOIN Testgroup c ON b.testgroup_tgid = c.tgid 
-                      WHERE b.lab_lid = ?
-                      GROUP BY c.name 
-                      ORDER BY c.name";
-            $bindings = [$labLid];
-        } else {
-            $query = "SELECT c.name, d.tgid, d.price, d.testingtime 
-                      FROM test a 
-                      JOIN Lab_has_test b ON a.tid = b.test_tid 
-                      JOIN Testgroup c ON b.testgroup_tgid = c.tgid 
-                      JOIN labbranches_has_Testgroup d ON d.tgid = b.testgroup_tgid 
-                      WHERE b.lab_lid = ? AND d.bid LIKE ?
-                      GROUP BY c.name 
-                      ORDER BY c.name";
-            $bindings = [$labLid, $labBranchId];
-        }
+                $query = "SELECT c.name, c.tgid, c.price, c.testingtime 
+                        FROM Testgroup c 
+                        WHERE c.lab_lid = ? 
+                        GROUP BY c.name 
+                        ORDER BY c.name";
+                $bindings = [$labLid];
+            } else {
+                if($separatePriceList){
+                    
+                    $query = "SELECT c.name, d.tgid, d.price, d.testingtime 
+                        FROM Testgroup c 
+                        JOIN labbranches_has_Testgroup d ON d.tgid = c.tgid 
+                        WHERE c.lab_lid = ? AND d.bid LIKE ? 
+                        GROUP BY c.name 
+                        ORDER BY c.name";
+                    $bindings = [$labLid, $labBranchId];
+                    
+                }else{
+                    
+                    $query = "SELECT c.name, c.tgid, c.price, c.testingtime 
+                        FROM Testgroup c 
+                        WHERE c.lab_lid = ? 
+                        GROUP BY c.name 
+                        ORDER BY c.name";
+                    $bindings = [$labLid];
+                    
+                }
+                
+            }
 
-        // Execute query
-        $result = DB::select($query, $bindings);
+            // Execute query
+            $result = DB::select($query, $bindings);
 
-        // Build options for dropdown
-        $list_data = "<option value=''></option>";
+            // Build options for dropdown
+            $list_data = "<option value=''></option>";
 
-        foreach ($result as $res) {
-            $tgid = htmlspecialchars($res->tgid);
-            $group = htmlspecialchars($res->name);
-            $price = htmlspecialchars($res->price);
-            $time = htmlspecialchars($res->testingtime);
-            $list_data .= "<option value='$tgid:$group:$price:$time'>$group</option>";
-        }
+            foreach ($result as $res) {
+                $tgid = htmlspecialchars($res->tgid);
+                $group = htmlspecialchars($res->name);
+                $price = htmlspecialchars($res->price);
+                $time = htmlspecialchars($res->testingtime);
+                $list_data .= "<option value='$tgid:$group:$price:$time'>$group</option>";
+            }
 
-        return Response::json(['options' => $list_data]);
+            return Response::json(['options' => $list_data]);
     }
 
     public function loadPackageTests() {
@@ -279,6 +307,7 @@ class PatientRegistrationController extends Controller {
                         ->where('date', $today)
                         ->where('Lab_lid', $labLid)
                         ->where('sampleNo', 'like', $like)
+                        ->whereRaw("sampleNo REGEXP '^[0-9A-Z]+[0-9]$'")
                         ->orderBy('sampleNo', 'desc')
                         ->first();
 
@@ -294,6 +323,7 @@ class PatientRegistrationController extends Controller {
                         ->where('date', $today)
                         ->where('Lab_lid', $labLid)
                         ->where('sampleNo', 'like', $like)
+                        ->whereRaw("sampleNo REGEXP '^[0-9A-Z]+[0-9]$'")
                         ->orderBy(DB::raw('LENGTH(sampleNo)'), 'desc')
                         ->orderBy('sampleNo', 'desc')
                         ->first();
@@ -343,23 +373,28 @@ class PatientRegistrationController extends Controller {
                 $finalSerial = $baseSerial . $suffixLetter;
 
                 // Inserting lps tables
-                $lpsId = DB::table('lps')->insertGetId([
-                    'patient_pid' => $patientid,
-                    'Lab_lid' => $labLid,
-                    'date' => $now,
-                    'sampleNo' => $finalSerial,
-                    'arivaltime' => $now,
-                    'refby' => $refName,
-                    'refference_idref' => $refId,
-                    'type' => $type,
-                    'fastingtime' => $fasting_time,
-                    'price' => $dataRow['price'],
-                    'Testgroup_tgid' => $dataRow['tgid'],
-                    'urgent_sample' => $dataRow['priority'],
-                    'status' => $lpsStatus,
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ]);
+                $data = [
+                        'patient_pid' => $patientid,
+                        'Lab_lid' => $labLid,
+                        'date' => $now,
+                        'sampleNo' => $finalSerial,
+                        'arivaltime' => $now,
+                        'refby' => $refName,
+                        'type' => $type,
+                        'fastingtime' => $fasting_time,
+                        'price' => $dataRow['price'],
+                        'Testgroup_tgid' => $dataRow['tgid'],
+                        'urgent_sample' => $dataRow['priority'],
+                        'status' => $lpsStatus,
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+
+                    if ($refId !== "") {
+                        $data['refference_idref'] = $refId;
+                    }
+                
+                $lpsId = DB::table('lps')->insertGetId($data);
                 
                 if($index == 0){
                     $return_lpsid = $lpsId;
@@ -528,6 +563,10 @@ class PatientRegistrationController extends Controller {
 
         $retArr = explode("##", $lpsidArr);
         
+        if(str_contains($lpsidArr, "##")){
+            
+        
+        
         $lpsid = $retArr[0];
         $sample_date = $retArr[1];
         $sample_sno = $retArr[2];
@@ -555,25 +594,48 @@ class PatientRegistrationController extends Controller {
             
             $paymentMethod = isset($paymentMethodMap[$paymentMethodRaw]) ? $paymentMethodMap[$paymentMethodRaw] : 'cash';
             
-            $invoiceId = DB::table('invoice')->insertGetId([
-                'lps_lpsid' => $lpsid,
-                'date' => $now,
-                'total' => $totalAmount,
-                'gtotal' => $grandTotal,
-                'paid' => $paid,
-                'paiddate' => $now,
-                'status' => $paymentStatus,
-                'paymentmethod' => $paymentMethod,
-                'cashier' => $cashierName,
-                'cost' => 0,
-                'discount' => Input::get('discount'),
-                'Discount_did' => Input::get('discountId'),
-                'multiple_delivery_methods' => Input::get('delivery_methods'),
-                     'remark' => $invoiceRemark
-                    // 'source' => $source,
-                    // 'created_at' => $now,
-                    // 'updated_at' => $now
-            ]);
+            if(Input::get('discountId') == ""){
+                
+                $invoiceId = DB::table('invoice')->insertGetId([
+                    'lps_lpsid' => $lpsid,
+                    'date' => $now,
+                    'total' => $totalAmount,
+                    'gtotal' => $grandTotal,
+                    'paid' => $paid,
+                    'paiddate' => $now,
+                    'status' => $paymentStatus,
+                    'paymentmethod' => $paymentMethod,
+                    'cashier' => $cashierName,
+                    'cost' => 0,
+                    'discount' => Input::get('discount'),
+                    'multiple_delivery_methods' => Input::get('delivery_methods'),
+                         'remark' => $invoiceRemark
+                        // 'source' => $source,
+                ]);
+                
+            }else{
+                
+                $invoiceId = DB::table('invoice')->insertGetId([
+                    'lps_lpsid' => $lpsid,
+                    'date' => $now,
+                    'total' => $totalAmount,
+                    'gtotal' => $grandTotal,
+                    'paid' => $paid,
+                    'paiddate' => $now,
+                    'status' => $paymentStatus,
+                    'paymentmethod' => $paymentMethod,
+                    'cashier' => $cashierName,
+                    'cost' => 0,
+                    'discount' => Input::get('discount'),
+                    'Discount_did' => Input::get('discountId'),
+                    'multiple_delivery_methods' => Input::get('delivery_methods'),
+                         'remark' => $invoiceRemark
+                        // 'source' => $source,
+                ]);
+                
+            }
+            
+            
 
 
             // insert invoce_payments table
@@ -634,12 +696,22 @@ class PatientRegistrationController extends Controller {
 
                 $sample_date = $getSampleNo ? $getSampleNo->date : '';
                 $sample_sno = $getSampleNo ? $getSampleNo->sampleNo : '';
-
-        return Response::json([
+                
+                return Response::json([
                     'success' => true,
                     'message' => 'Patient details saved successfully',
                     'datainv' => $sample_sno . '###' . $sample_date
-        ]);
+                ]);
+
+        }else{
+            return Response::json([
+                    'success' => false,
+                    'message' => 'Error in Saving invoice!',
+                    'datainv' => $lpsidArr 
+                ]);
+        }
+        
+        
 
 
     }
@@ -1424,7 +1496,6 @@ class PatientRegistrationController extends Controller {
 //         }
 //         $labLid = $_SESSION['lid']; 
 //         $hasEmail = DB::table('Lab_features')
-
 //             ->where('Lab_lid', $labLid)
 //             ->where('features_idfeatures', 8)
 //             ->exists();
@@ -1455,37 +1526,4 @@ class PatientRegistrationController extends Controller {
 
         return Response::json(['hasPdetailsUpdateFeature' => $patientDetailsEditingFeature]);
     }
-
-
-
-    public function getReferenceDetails()
-    {
-        try {
-            $referenceId = Input::get('reference_id'); 
-
-            if (!$referenceId) {
-                return Response::json([], 200);
-            }
-
-        
-            $result = DB::table('refference')
-                ->where('idref', $referenceId)
-                ->select('idref', 'code', 'name') 
-                ->first();
-
-            if ($result) {
-                return Response::json($result, 200);
-            } else {
-                return Response::json([], 200);
-            }
-
-        } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 500);
-        }
-    }
-
 }
-
-
-
-

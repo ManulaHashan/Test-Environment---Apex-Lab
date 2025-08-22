@@ -16,6 +16,8 @@ Add New Patient
 
 <script>
 
+    var barcode_enabled = false;
+
     $(document).ready(function () {
             window.scrollTo(0, 85);
             
@@ -31,7 +33,13 @@ Add New Patient
                 document.getElementById('sampleNo').value = sampleNo;
                 view_selected_patient(sampleNo, date);
 
-                // Barcode Privilage checking
+                
+            } else {
+                loadcurrentSampleNo();
+                
+            }
+            
+            // Barcode Privilage checking
                 $.ajax({
                     url: '/barcode-feature-checking',
                     type: 'GET',
@@ -39,6 +47,9 @@ Add New Patient
                         console.log('AJAX response received:', response);
 
                         if (response.hasFeature) {
+                            
+                            barcode_enabled = true;
+                            
                             $('#print_barcode').show();
                             $('#group_barcode').show();
                             $('#test_wise_bcode').show();
@@ -46,6 +57,7 @@ Add New Patient
                             $('#rep_chkboxlbl').show();
                             $('#rep_chkbox').show();
                         
+                            disableBarcodeOptions();
 
                             // Log display after showing
                             console.log('Buttons shown based on feature present');
@@ -63,11 +75,6 @@ Add New Patient
                         }
                     }
                 });
-
-            //  reportnig method Privilage checking
-            
-
-                    
 
                 //  patientData privilage checking
                 $.ajax({
@@ -94,14 +101,6 @@ Add New Patient
                         }
                     }
                 });
-            } else {
-                loadcurrentSampleNo();
-                
-            }
-
-            if (date) {
-                document.getElementById('selected_date').value = date;
-            }
 
             load_test();
 
@@ -283,7 +282,7 @@ Add New Patient
 
         function checkInvoiceField() {
             const hasValue = $('#invoiceId').val().trim() !== '';
-            $('#update_payment').prop('disabled', !hasValue);
+//            $('#update_payment').prop('disabled', !hasValue);
             console.log('Invoice field check:', hasValue ? 'has value' : 'empty');
         }
 
@@ -405,7 +404,7 @@ Add New Patient
                     <td align="center">${type}</td>  
                     <td align="center">
                     <button type="button" class="delbtn" onclick="removeTestItemInTable('${tgid}', '${tstData}')">
-                        <i class="fas fa-trash-alt"></i>
+                        X<i class="fas fa-trash-alt"></i>
                     </button>
 
                     </td>
@@ -941,56 +940,17 @@ Add New Patient
                 $("#loaderOverlay").show(); 
                 console.log("Sending data to server...");
             },
-        //    success: function (response) {
-
-        //         console.log("Server Response:", response);
-        //         alert(response.message || 'Patient saved successfully!');
-
-        //         var sampleData = response.datainv.split('###');
-        //         var sno = sampleData[0];
-        //         var date = sampleData[1];
-                
-        //         var isPrintBill = $('#print_bill').is(':checked');
-        //         var isTwoCopies = $('#two_copies').is(':checked');
-        //         var isTokenPrint = $('#print_token').is(':checked');
-
-        //         view_selected_patient(sno, date);
-
-        //         if (isPrintBill) {
-        //             if (isTwoCopies) {
-        //                 for (let i = 0; i < 2; i++) {
-        //                     printInvoice();
-        //                 }
-        //             } else {
-        //                 printInvoice();
-        //             }
-
-        //         } else if (isTokenPrint) {
-        //             // Only print token when invoice is not printed and token checkbox is checked
-        //             var tokenUrl = "printtoken/" + sno + "&" + date;
-        //             var tokenWin = window.open(tokenUrl, '_blank');
-
-        //             setTimeout(function () {
-        //                 tokenWin.print();
-        //             }, 2000);
-
-        //             setTimeout(function () {
-        //                 tokenWin.close();
-        //             }, 5000);
-
-        //             setTimeout(function () {
-        //                 resetPage();
-        //             }, 6000);
-        //         } else {
-        //             resetPage();
-        //         }
-        //     }
                 success: function (response) {
                     var sampleData = response.datainv.split('###');
                     var sno = sampleData[0];
                     var date = sampleData[1];
                     $('#sampleNo').val(sno);
                     $('#patientDate').val(date);
+                    
+                    $('#ser_sampleno').val(sno);
+                    $('#ser_date').val(date);
+                    
+                    
 
                     var isPrintBill = $('#print_bill').is(':checked');
                     var isTwoCopies = $('#two_copies').is(':checked');
@@ -1005,9 +965,15 @@ Add New Patient
                         } else {
                             printInvoice(sno, date);
                         }
-                    } else {
+                    } 
+                    
+
+                    if(!barcode_enabled){
                         resetPage();
+                    }else{
+                        closepatientConfirmModal();
                     }
+                    
                 },
             error: function (xhr) {
                 console.error('Error:', xhr);
@@ -1027,7 +993,7 @@ Add New Patient
 
 
 
-    //***********************view selected invoice in viewinvoice page proces related function***********************
+    //view selected invoice in viewinvoice page proces related function
     function view_selected_patient(sampleNo, date)
     {
         $.ajax({
@@ -1067,6 +1033,8 @@ Add New Patient
                     $('#Ser_tpno').val(patientData.tpno || '');
                     $('#invoiceId').val(invoiceData.iid || '');
                     $('#patientDate').val(date || '');
+
+                    enableBarcodeOptions();
 
 
                     invoicePayments.forEach(function (payment) {
@@ -1115,11 +1083,13 @@ Add New Patient
                     } else {
                         $('#discount_percentage').val('');
                     }
-                    $('#total_amount').text(invoiceData.total ? invoiceData.total.toFixed(2) : '0.00');
-                    $('#discount').val(invoiceData.discount || 0);
-                    $('#grand_total').text(invoiceData.gtotal ? invoiceData.gtotal.toFixed(2) : '0.00');
+                    $('#total_amount').text(invoiceData.total ? parseFloat(invoiceData.total).toFixed(2) : '0.00');
+                    $('#discount').val(parseFloat(invoiceData.discount) || 0);
+                    
+                    $('#grand_total').text(invoiceData.gtotal ? parseFloat(invoiceData.gtotal).toFixed(2) : '0.00');
                     $('#paid').val(invoiceData.paid || 0);
-                    $('#due').text((invoiceData.gtotal - invoiceData.paid).toFixed(2));
+                    
+                    $('#due').text((parseFloat(invoiceData.gtotal) - parseFloat(invoiceData.paid)).toFixed(2));
 
                     var paymeth = "";
                     $('input[name="payment_method"]').prop('checked', false);
@@ -1238,7 +1208,7 @@ Add New Patient
 
                     }
 
-
+                    enableBarcodeOptions();
 
 
                 } else {
@@ -1253,7 +1223,6 @@ Add New Patient
         });
     }
 
-    //***********************Petation Details edit checkbox process************************************
     $(document).on('change', '.patient_details_edit', function () {
         if ($(this).is(':checked')) {
             // Enable all readonly fields
@@ -1296,6 +1265,22 @@ Add New Patient
         }
     });
 
+
+    function enableBarcodeOptions(){
+//        $("#group_barcode").removeAttr("disabled");
+//        $("#print_barcode").removeAttr("disabled");
+//        $("#test_wise_bcode").removeAttr("disabled");
+//        $("#remove_barcode").removeAttr("disabled");
+        
+    }
+    
+    function disableBarcodeOptions(){
+//        $("#group_barcode").attr("disabled", true); 
+//        $("#print_barcode").attr("disabled", true); 
+//        $("#test_wise_bcode").attr("disabled", true); 
+//        $("#remove_barcode").attr("disabled", true); 
+        
+    }
 
     // ******************Bill search Function in billing UI************************************
     function view_search_patient()
@@ -1482,7 +1467,7 @@ Add New Patient
                 } else {
                     alert(response.message || 'No data found.');
                     loadcurrentSampleNo();
-                    resetPage();
+//                    resetPage();
                 }
             },
             error: function (xhr) {
@@ -1517,7 +1502,7 @@ Add New Patient
     });
 
   
-//***********************Patient Search Process Start***********************
+
     var lastSearchedTpno = '';
 
     function searchUserRecords() {
@@ -1648,47 +1633,9 @@ Add New Patient
         });
     }
 
-    //***********************Patient Search Process End***********************
+    
 
-   
-
-//############################### Reference section process Start#############################
- 
-    $(document).ready(function () {
-
-        $('#refcode').on('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault(); 
-
-                var refCode = $(this).val().trim();
-
-                if (refCode.length > 0) {
-                    $.ajax({
-                        type: "GET",
-                        url: "/getRefByCode", 
-                        data: { code: refCode },
-                        success: function (data) {
-                            if (data && data.name) {
-                                $('#refDropdown').val(data.name); 
-                                $('#ref').val(data.idref); 
-                                $('#refcode_suggestions').hide(); 
-                            } else {
-                                alert("No matching reference found for this code.");
-                            }
-                        },
-                        error: function (xhr) {
-                            console.error("Error fetching reference name by code:", xhr.statusText);
-                        }
-                    });
-                }
-            }
-        });
-
-    });
-
-
-   
-     function searchRefferenceCode() {
+    function searchRefferenceCode() {
         var refCode = $('#refcode').val();
 
         if (refCode.length < 1) {
@@ -1752,6 +1699,104 @@ Add New Patient
     }
 
 
+ 
+    $(document).ready(function () {
+
+        $('#refcode').on('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); 
+
+                var refCode = $(this).val().trim();
+
+                if (refCode.length > 0) {
+                    $.ajax({
+                        type: "GET",
+                        url: "/getRefByCode", 
+                        data: { code: refCode },
+                        success: function (data) {
+                            if (data && data.name) {
+                                $('#refDropdown').val(data.name); 
+                                $('#ref').val(data.idref); 
+                                $('#refcode_suggestions').hide(); 
+                            } else {
+                                alert("No matching reference found for this code.");
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error("Error fetching reference name by code:", xhr.statusText);
+                        }
+                    });
+                }
+            }
+        });
+
+    });
+
+
+   
+    //     function searchRefferenceCode() {
+    //     var refCode = $('#refcode').val();
+
+    //     if (refCode.length < 1) {
+    //         $('#refcode_suggestions').hide();
+    //         return;
+    //     }
+
+    //         $.ajax({
+    //             type: "GET",
+    //             url: "/getRefCode",
+    //             data: { keyword: refCode },
+    //             success: function (data) {
+    //             var suggestionsHtml = '';
+    //             if (data.length > 0) {
+    //                 $.each(data, function (index, ref) {
+    //                     suggestionsHtml += '<option value="' + ref.code + '">' + ref.code + ' - ' + ref.name + '</option>';
+    //                 });
+    //                 $('#refcode_list').html(suggestionsHtml);
+    //             } else {
+    //                 $('#refcode_list').empty();
+    //             }
+    //         },
+    //         error: function (xhr) {
+    //             console.error('Error:', xhr.statusText);
+    //         }
+    //     });
+    // }
+
+    // function searchRefName() {
+    //     var keyword = $('#refDropdown').val();
+
+    //     if (keyword.length < 1) {
+    //         $('#refname_suggestions').hide();
+    //         return;
+    //     }
+
+    //     $.ajax({
+    //         type: "GET",
+    //         url: "/getRefName", // you need to handle this route in backend
+    //         data: {
+    //             keyword: keyword
+    //         },
+    //        success: function (data) {
+    //             var suggestionsHtml = '';
+    //             if (data.length > 0) {
+    //                 $.each(data, function (index, ref) {
+    //                     suggestionsHtml += '<option value="' + ref.name + '">' + ref.name + ' (' + ref.code + ')</option>';
+    //                 });
+    //                 $('#refname_list').html(suggestionsHtml);
+    //             } else {
+    //                 $('#refname_list').empty();
+    //             }
+    //         },
+    //         error: function (xhr) {
+    //             console.error('Error:', xhr.statusText);
+    //         }
+    //     });
+    // }
+
+    
+
+
     function selectRef(code, idref, name) {
         $('#refcode').val(code);
         $('#refDropdown').val(name); // Show ref name in text input
@@ -1759,10 +1804,6 @@ Add New Patient
 
         $('#refcode_suggestions').hide();
         $('#refname_suggestions').hide();
-
-        if (idref) {
-        loadReferenceData(idref);
-    }
     }
 
     //-----------------------------------------------------------------------
@@ -1778,41 +1819,6 @@ Add New Patient
     });
 
 
-    function loadReferenceData(referenceId) {
-        $.ajax({
-            type: "GET",
-            url: "/getReferenceDetails",
-            data: { reference_id: referenceId },
-            success: function (data) {
-                if (data) {
-                    $('#refcode').val(data.code);
-                    $('#refDropdown').val(data.name);
-                    $('#ref').val(data.idref);
-                }
-            },
-            error: function (xhr) {
-                console.error("Reference details load error:", xhr.statusText);
-            }
-        });
-    }
-
-
-    function onBranchChange() {
-        var selectedOption = $('#labBranchDropdown').find('option:selected');
-        var referenceId = selectedOption.data('reference');  
-
-        loadcurrentSampleNo();
-        load_test();
-
-        if (referenceId) {
-            loadReferenceData(referenceId); 
-        }else {
-        
-        $('#refcode').val('');
-        $('#refDropdown').val('');
-        $('#ref').val('');
-    }
-    }
 
     //-----------------------------------------------------------------------
 
@@ -1823,7 +1829,7 @@ Add New Patient
         var refCode = selectedOption.getAttribute("data-code") || '';
         document.getElementById("refcode").value = refCode;
     }
-//############################### Reference section process End#############################
+
 
 
 
@@ -1940,9 +1946,12 @@ Add New Patient
 
 
     function viewSelectedInvoicePayments() {
+        
+        
         var invoiceId = $('#invoiceId').val();
         var due = $('#due').val();
 
+        
 
         window.open("invoicePayments?iid=" + invoiceId + "&due=" + $('#due').val(), "_blank");
 
@@ -1974,7 +1983,84 @@ Add New Patient
     }
 
 
+    //Print Invoice Section
+    // function printInvoice() {
+    //     var fname = $('#fname').val().trim();
+    //     // var lname = $('#lname').val().trim();
+    //     var years = $('#years').val().trim();
+    //     var months = $('#months').val().trim();
+    //     var days = $('#days').val().trim();
+    //     var testRows = $('#test_tbl tbody tr').length;
 
+    //     if (
+    //         fname === "" || 
+    //         (years === "" && months === "" && days === "") || 
+    //         testRows === 0
+    //         ) 
+    //         {
+    //             alert("Please fill all required fields and add at least one test before printing.");
+    //             return; 
+    //         }
+
+    //         var date = $('#patientDate').val();
+    //         var sno = $('#sampleNo').val();
+
+    //         var win = window.open("printinvoice/" + sno + "&" + date, '_blank');
+
+    //         setTimeout(function () {
+    //             win.print();
+    //         }, 5000);
+
+    //         setTimeout(function () {
+    //             win.close();
+    //             resetPage();
+    //         }, 8000);
+    // }
+
+   
+    // function printInvoice() {
+    //     var fname = $('#fname').val().trim();
+    //     var years = $('#years').val().trim();
+    //     var months = $('#months').val().trim();
+    //     var days = $('#days').val().trim();
+    //     var testRows = $('#test_tbl tbody tr').length;
+
+    //     if (
+    //         fname === "" || 
+    //         (years === "" && months === "" && days === "") || 
+    //         testRows === 0
+    //     ) {
+    //         alert("Please fill all required fields and add at least one test before printing.");
+    //         return; 
+    //     }
+
+    //     var date = $('#patientDate').val();
+    //     var sno = $('#sampleNo').val();
+    //     var isClaimBill = $('#claim_bill').is(':checked');
+    //     var isTokenPrint = $('#print_token').is(':checked');
+
+    //     // build correct URL based on checkbox
+    //     var url = isClaimBill 
+    //         ? "printinvoice/claim/" + sno + "&" + date 
+    //         : "printinvoice/" + sno + "&" + date;
+
+    //     var win = window.open(url, '_blank');
+
+    //     setTimeout(function () {
+    //         win.print();
+    //     }, 5000);
+
+    //     setTimeout(function () {
+    //         win.close();
+    //         resetPage();
+    //     }, 8000);
+
+
+    //     // Final cleanup
+    //     setTimeout(function () {
+    //         resetPage();
+    //     }, 6000);
+    //     }
 
 
     function printInvoice() {
@@ -2018,12 +2104,13 @@ Add New Patient
 
         setTimeout(function () {
             win.print();
-        }, 5000);
+        }, 3000);
 
         setTimeout(function () {
             win.close();
-            resetPage();
-        }, 8000);
+            
+            
+        }, 3000);
     }
 
     
@@ -2422,7 +2509,7 @@ $('#btnFront').on('click', function() {
     }
 
 
-    // Function to Test Wise Barcode Load
+
     function testWiseBarcodeLoad() {
         var date = $('#patientDate').val();
         var sno = $('#sampleNo').val();
@@ -2452,8 +2539,9 @@ $('#btnFront').on('click', function() {
             success: function (data) {
                 if (data.length > 0) {
                     $.each(data, function (index, item) {
+                        var odNO = parseFloat(index)+1;
                         var row = '<tr>' +
-                            '<td>' + item.orderno + ' </td>' +
+                            '<td>' + odNO + ' </td>' +
                             '<td>' + item.reportname + ' </td>' +
                             '</tr>';
                         $('#test_para_record_tbl').append(row);
@@ -2681,6 +2769,40 @@ $('#btnFront').on('click', function() {
 
     
 
+    // function handleQRScanAndClear(inputElem) {
+    //     const scannedData = inputElem.value.trim();
+    //     handleQRScan(scannedData);
+    //     inputElem.value = ''; 
+    // }
+
+    // function handleQRScan(scannedData) {
+      
+    //     const parts = scannedData.split('|');
+
+    //     if (parts.length === 2) {
+    //         const sno = parts[0];
+    //         const date = parts[1];
+
+           
+    //         document.getElementById('ser_sampleno').value = sno;
+    //         document.getElementById('ser_date').value = date;
+
+           
+    //         view_search_patient();
+    //     } else {
+    //         alert("Invalid QR code format");
+    //     }
+    // }
+
+    
+    // document.addEventListener('click', function () {
+    //     document.getElementById('qr_input').focus();
+    // });
+
+  
+    // window.onload = function () {
+    //     document.getElementById('qr_input').focus();
+    // };
 
 </script>
 
@@ -3202,22 +3324,20 @@ $('#btnFront').on('click', function() {
 
                                     <td>
 
-                                        {{-- <select name="labbranch" class="input-text" id="labBranchDropdown" onchange="loadcurrentSampleNo();
-                                                    load_test();"> --}}
-                                        <select name="labbranch" class="input-text" id="labBranchDropdown" onchange="onBranchChange()">
+                                        <select name="labbranch" class="input-text" id="labBranchDropdown" onchange="loadcurrentSampleNo();
+                                                    load_test();">
                                             <option value="%" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
                                             <?php
-                                            $Result = DB::select("SELECT name, code, bid,reference_id FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+                                            $Result = DB::select("SELECT name, code, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
 
                                             foreach ($Result as $res) {
                                                 $branchName = $res->name;
                                                 $branchCode = $res->code;
-                                                $branchReference = $res->reference_id;
                                                 $bid = $res->bid;
 
                                                 $displayText = $branchCode . " : " . $branchName;
                                                 ?>
-                                                <option value="<?= $bid ?>" data-reference="<?= $branchReference ?>"><?= $displayText ?></option>
+                                                <option value="<?= $bid ?>"><?= $displayText ?></option>
                                                 <?php
                                             }
                                             ?>
@@ -3430,13 +3550,6 @@ $('#btnFront').on('click', function() {
                         </div>
                         
                         <hr style=" background-color: rgb(19, 153, 211); height: 2px; border: none; ">
-                        <!-- <div style="display: flex; align-items: center; margin-top: 5px;">
-                            <label style="width: 150px;  "><b>Test Name</b>:</label>
-                            <input type="text" name="testname" class="input-text" id="testname" list="testlist" oninput="setDataToTable(this.value)" style="width: 350px">
-                            <datalist id="testlist"></datalist>
-                            <input type="checkbox" name="byname" id="byname" class="ref_chkbox" value="1">
-                            <label style="width: 70px;   "><b>By Name</b></label>
-                        </div> -->
 
                         <div style="display: flex; align-items: center; margin-top: 5px;">
                             <label class='form_label_sm'><b>Test Name</b></label>
@@ -3495,7 +3608,7 @@ $('#btnFront').on('click', function() {
                         <div style="display: flex; align-items: center; margin-top: 0px;">
                             <label style="width: 125px;  ">Total Amount:</label>
                             <label style="width: 30px;  ">Rs: </label>
-                            <label id="total_amount" style=" padding-right: 50px; font-size: large; color: rgb(17, 17, 17); font-family: 'Times New Roman', Times, serif; font-weight: bolder;">000,000.00</label>
+                            <label id="total_amount" style=" padding-right: 50px; font-size: large; color: rgb(17, 17, 17); font-family: 'Times New Roman', Times, serif; font-weight: bolder;">0</label>
 
                             <br>
 
@@ -3523,7 +3636,7 @@ $('#btnFront').on('click', function() {
                         <div style="display: flex; align-items: center; margin-top: 10px;">
                             <label style="width: 140px;  "><b>Grand Total:</b></label>
                             <label style="width: 20px;  margin-left: 20px;">Rs: </label>
-                            <label style="padding-left: 10px; padding-right: 45px; color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="grand_total">000,000.00</label>
+                            <label style="padding-left: 10px; padding-right: 45px; color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="grand_total">0</label>
 
                             <label><input type="radio" name="payment_method" id="cash" value="1" checked onchange="togglePaidField();"> Cash</label>
                             <label><input type="radio" name="payment_method" id="card" value="2"onchange="togglePaidField();"> Card</label>
@@ -3541,7 +3654,7 @@ $('#btnFront').on('click', function() {
                             <label style="width: 20px;  "></label>
                             <label style="width: 60px;  ">Due:</label>
                             <label style="width: 40px;  ">Rs:</label>
-                            <label style="color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="due">000,000.00</label>
+                            <label style="color: rgb(17, 17, 17); font-size: large; font-family: 'Times New Roman', Times, serif; font-weight: bolder;" id="due">0</label>
                         </div>
                         <div style="display: flex; align-items: center;margin-top: 15px;" id="vaucher_div">
                             <label style="width: 125px;  ">Voucher No:</label>
