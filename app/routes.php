@@ -489,6 +489,15 @@ Route::post('delete-suggestion', 'ValueSuggestionsController@deleteSuggestion');
 
 
 
+Route::get('/SuggestionButtons', function () {
+    return View::make('SuggestionButtons');
+});
+
+Route::post('saveButtonStyle', 'SuggestionButtonsController@save_Button');
+Route::get('/getButtonStyles', 'SuggestionButtonsController@getButtonStyles');
+Route::post('/updateButtonStyle', 'SuggestionButtonsController@update_Button');
+Route::post('/deleteButtonStyle', 'SuggestionButtonsController@delete_Button');
+
 
 
 // **************************************Manula's Development Routes End************************************************************

@@ -55,9 +55,11 @@
             justify-content: space-between;
             align-items: center;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 15px;
             height: 40px;
             padding: 0 5px;
+            font-weight: bold;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
         }
         .barcode-left {
             text-align: left;
@@ -69,8 +71,10 @@
 
         .barcode-info {
             margin-top: 5px;
-            font-size: 12px;
+            font-size: 15px;
             text-align: left;
+            font-weight: bold;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
         }
 
         .barcode-footer {
@@ -90,7 +94,7 @@
             canvas {
             display: block;
             margin: 0 auto; /* center canvas horizontally */
-            width: 360px !important;
+            width: 310px !important;
             height: 50px !important;
            
         }
