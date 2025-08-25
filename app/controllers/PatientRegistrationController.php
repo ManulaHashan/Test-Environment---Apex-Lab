@@ -1022,10 +1022,58 @@ class PatientRegistrationController extends Controller
         ]);
     }
 
-    public function getTestCodes() {
+    // public function getTestCodes() {
+    //     try {
+    //         $labLid = $_SESSION['lid'];
+    //         $testCodes = DB::table('Testgroup as t')
+    //                 ->join('lps as l', 't.tgid', '=', 'l.Testgroup_tgid')
+    //                 ->select('t.testCode', 't.tgid', 't.name as group', 't.price', 't.testingtime')
+    //                 ->where('l.lab_lid', '=', $labLid)
+    //                 ->groupBy('t.tgid', 't.testCode', 't.name', 't.price', 't.testingtime')
+    //                 ->orderBy(DB::raw('COUNT(*)'), 'DESC')
+    //                 ->limit(12)
+    //                 ->get();
+
+    //         return Response::json([
+    //                     'success' => true,
+    //                     'data' => [
+    //                         'testCodes' => $testCodes
+    //                     ]
+    //         ]);
+    //     } catch (Exception $e) {
+    //         return Response::json([
+    //                     'success' => false,
+    //                     'message' => $e->getMessage()
+    //         ]);
+    //     }
+    // }
+
+
+     public function getTestCodes() {
         try {
             $labLid = $_SESSION['lid'];
-            $testCodes = DB::table('Testgroup as t')
+
+           
+            $testCodes = DB::select("
+                SELECT
+                    a.testCode,
+                    a.tgid,
+                    a.name AS `group`,
+                    a.price,
+                    a.testingtime,
+                    b.color,
+                    b.orderno
+                FROM Testgroup a, reg_test_suggestions b
+                WHERE a.Lab_lid = b.lab_lid 
+                AND a.tgid = b.tgid 
+                AND a.Lab_lid = ?
+                ORDER BY b.orderno ASC
+                
+            ", [$labLid]);
+
+           
+            if (empty($testCodes)) {
+                $testCodes = DB::table('Testgroup as t')
                     ->join('lps as l', 't.tgid', '=', 'l.Testgroup_tgid')
                     ->select('t.testCode', 't.tgid', 't.name as group', 't.price', 't.testingtime')
                     ->where('l.lab_lid', '=', $labLid)
@@ -1033,20 +1081,23 @@ class PatientRegistrationController extends Controller
                     ->orderBy(DB::raw('COUNT(*)'), 'DESC')
                     ->limit(12)
                     ->get();
+            }
 
             return Response::json([
-                        'success' => true,
-                        'data' => [
-                            'testCodes' => $testCodes
-                        ]
+                'success' => true,
+                'data' => [
+                    'testCodes' => $testCodes
+                ]
             ]);
         } catch (Exception $e) {
             return Response::json([
-                        'success' => false,
-                        'message' => $e->getMessage()
+                'success' => false,
+                'message' => $e->getMessage()
             ]);
         }
     }
+
+
 
     public function getSingleBarcode() {
         $tgid = Input::get('tgid'); // test group id

@@ -2122,42 +2122,95 @@ Add New Patient
   
 
     // *-*-*-*-*-*-*-*-*-*-*most recent test buttons-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-    $(document).ready(function () {
+    // $(document).ready(function () {
+    //     $.ajax({
+    //         url: '/get-test-codes',
+    //         method: 'GET',
+    //         success: function (response) {
+    //             if (response.success) {
+    //                 const testCodes = response.data.testCodes;
+    //                 const buttons = $('#testCodeButtons button');
+
+    //                 buttons.each(function (index) {
+    //                     if (index < testCodes.length) {
+    //                         const test = testCodes[index];
+
+                            
+    //                         $(this).text(test.testCode);
+    //                         $(this).prop('disabled', false);
+
+                           
+    //                         const valueString = `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`;
+    //                         $(this).data('testinfo', valueString);
+    //                     } else {
+    //                         $(this).text('');
+    //                         $(this).prop('disabled', true);
+    //                         $(this).removeData('testinfo');
+    //                     }
+    //                 });
+
+                    
+    //                 $('#testCodeButtons button').off('click').on('click', function () {
+    //                     const testInfo = $(this).data('testinfo');
+    //                     if (testInfo) {
+    //                         setDataToTable(testInfo);
+    //                     }
+    //                 });
+    //             }
+    //         },
+    //         error: function () {
+    //             alert('Error loading test codes');
+    //         }
+    //     });
+    // });
+
+     $(document).ready(function () {
         $.ajax({
             url: '/get-test-codes',
             method: 'GET',
-            success: function (response) {
-                if (response.success) {
-                    const testCodes = response.data.testCodes;
-                    const buttons = $('#testCodeButtons button');
+             success: function (response) {
+            if (response.success) {
+                const testCodes = response.data.testCodes;
+                const buttons = $('#testCodeButtons button');
 
-                    buttons.each(function (index) {
-                        if (index < testCodes.length) {
-                            const test = testCodes[index];
+                buttons.each(function (index) {
+                    if (index < testCodes.length) {
+                        const test = testCodes[index];
 
-                            
-                            $(this).text(test.testCode);
-                            $(this).prop('disabled', false);
+                       
+                        $(this).text(test.testCode);
+                        $(this).prop('disabled', false);
 
-                           
-                            const valueString = `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`;
-                            $(this).data('testinfo', valueString);
+                       
+                        if (test.color) {
+                            $(this).css('background-color', test.color);
+                            $(this).attr("style", $(this).attr("style") + "; color: white !important;");
+
                         } else {
-                            $(this).text('');
-                            $(this).prop('disabled', true);
-                            $(this).removeData('testinfo');
+                            
+                            $(this).css('background-color', '#4b9bf0');
                         }
-                    });
 
-                    
-                    $('#testCodeButtons button').off('click').on('click', function () {
-                        const testInfo = $(this).data('testinfo');
-                        if (testInfo) {
-                            setDataToTable(testInfo);
-                        }
-                    });
-                }
-            },
+                       
+                        const valueString = `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`;
+                        $(this).data('testinfo', valueString);
+                    } else {
+                        $(this).text('');
+                        $(this).prop('disabled', true);
+                        $(this).css('background-color', '#4b9bf0'); 
+                        $(this).removeData('testinfo');
+                    }
+                });
+
+                
+                $('#testCodeButtons button').off('click').on('click', function () {
+                    const testInfo = $(this).data('testinfo');
+                    if (testInfo) {
+                        setDataToTable(testInfo);
+                    }
+                });
+            }
+        },
             error: function () {
                 alert('Error loading test codes');
             }
