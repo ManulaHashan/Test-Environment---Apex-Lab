@@ -2164,58 +2164,46 @@ Add New Patient
     //     });
     // });
 
-     $(document).ready(function () {
-        $.ajax({
-            url: '/get-test-codes',
-            method: 'GET',
-             success: function (response) {
+
+$(document).ready(function () {
+    $.ajax({
+        url: '/get-test-codes',
+        method: 'GET',
+        success: function (response) {
             if (response.success) {
                 const testCodes = response.data.testCodes;
-                const buttons = $('#testCodeButtons button');
+                const container = $('#testCodeButtons');
+                container.empty(); // Clear old buttons
 
-                buttons.each(function (index) {
-                    if (index < testCodes.length) {
-                        const test = testCodes[index];
-
-                       
-                        $(this).text(test.testCode);
-                        $(this).prop('disabled', false);
-
-                       
-                        if (test.color) {
-                            $(this).css('background-color', test.color);
-                            $(this).attr("style", $(this).attr("style") + "; color: white !important;");
-
-                        } else {
-                            
-                            $(this).css('background-color', '#4b9bf0');
-                        }
-
-                       
-                        const valueString = `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`;
-                        $(this).data('testinfo', valueString);
-                    } else {
-                        $(this).text('');
-                        $(this).prop('disabled', true);
-                        $(this).css('background-color', '#4b9bf0'); 
-                        $(this).removeData('testinfo');
-                    }
-                });
-
-                
-                $('#testCodeButtons button').off('click').on('click', function () {
-                    const testInfo = $(this).data('testinfo');
-                    if (testInfo) {
-                        setDataToTable(testInfo);
-                    }
+                testCodes.forEach(function (test) {
+                    const btn = $('<button>')
+                        .css({
+                            height: '35px',
+                            padding: '10px',
+                            'font-weight': 'bold',
+                            'border-radius': '0%',
+                            'background-color': test.color ? test.color : '#4b9bf0',
+                            color: test.color ? 'white' : '#f8d7da',
+                            margin: '5px'
+                        })
+                        .text(test.testCode)
+                        .prop('disabled', false)
+                        .data('testinfo', `${test.tgid}:${test.group}:${parseFloat(test.price).toFixed(2)}:${test.testingtime}`)
+                        .on('click', function () {
+                            const testInfo = $(this).data('testinfo');
+                            if (testInfo) {
+                                setDataToTable(testInfo);
+                            }
+                        });
+                    container.append(btn);
                 });
             }
         },
-            error: function () {
-                alert('Error loading test codes');
-            }
-        });
+        error: function () {
+            alert('Error loading test codes');
+        }
     });
+});
 
     
 
@@ -3747,47 +3735,7 @@ $('#btnFront').on('click', function() {
                     <div style="flex: 1; padding-left: 10px; padding-right: 10px; border: 2px #8e7ef7 solid; border-radius: 10px; width: 95%">
                         
                         <div id="testCodeButtons" style="display: flex; align-items: center; margin-top: 5px; overflow-x: scroll; width: 600px;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="padding: 5px;">
-                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>   
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                
-                                    <td style="padding: 5px;">
-                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style=" height: 35px;padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style="height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                    <td style="padding: 5px;">
-                                        <button style=" height: 35px; padding: 10px; font-weight: bold; border-radius: 0%; background-color: #4b9bf0; color: #f8d7da"></button>
-                                    </td>
-                                </tr>
-                            </table>
+                            <!-- Buttons will be generated dynamically by JS -->
                         </div>
                         
                         <div style="height: 200px; overflow-y: scroll">
