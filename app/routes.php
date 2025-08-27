@@ -499,6 +499,11 @@ Route::post('/updateButtonStyle', 'SuggestionButtonsController@update_Button');
 Route::post('/deleteButtonStyle', 'SuggestionButtonsController@delete_Button');
 
 
+Route::get('/SampleDataEdit', function() {
+    return View::make('SampleDataEdit');
+});
+Route::get('getSampleDataEditRecords', 'SampleDataEditController@getSampleDataEditRecords');
+Route::post('updateSampleRecord', 'SampleDataEditController@updateSampleRecord');
 
 // **************************************Manula's Development Routes End************************************************************
 
