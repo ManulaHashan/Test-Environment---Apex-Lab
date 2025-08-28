@@ -152,7 +152,11 @@ foreach ($result_get_invoiceData as $invoice){
         <tr>
             <td colspan="2" style="text-align: left; font-weight: bold;">
                 <span style="font-size: 35px;"><?php echo $labname; ?></span>
-                <span style="font-size: 18px;"><?php echo $labaddress; ?></span>
+                <span style="font-size: 18px;">
+                    <?php 
+                        // echo $labaddress;
+                         ?>
+                </span>
             </td>
 
         </tr>
@@ -160,9 +164,24 @@ foreach ($result_get_invoiceData as $invoice){
        
 
             <td colspan="2" style="text-align: left; ">
-                <span style="font-size: 15px;">Reg.No. PHSRC/L/207 Tel.0710901310, 0342269463,Email:
-                <?php echo $labemail; ?></span><br>
-                <span style="font-size: 15px;">Open daily 7.00 am to 7.00 pm,Poyadays closed. Collect reports withing 2 months</span>
+                <span style="font-size: 17px;">
+                    <i>Providing Information for the diagnosis</i>
+                </span><br>
+                <span style="font-size: 15px;">
+                    <?php 
+                    echo $labaddress; 
+                    ?>
+                </span><br>
+                <span style="font-size: 15px;">
+                    <?php 
+                    echo $labtpno; 
+                    ?> 
+                    / 0773985830
+                </span>
+                <span style="font-size: 15px;">
+                   &nbsp;&nbsp; Reg No - PHSLC/L/700
+                </span>
+                
             </td>
         </tr>
         <tr>
@@ -209,9 +228,8 @@ foreach ($result_get_invoiceData as $invoice){
                         <div style="font-weight: bold;"><span style="color: #000;">Sample NO</span></div>
                         <div style="font-size: 30px; font-weight: bold; margin-top: 5px;"><?php echo $sno; ?></div>
                         <div style="font-size: 30px; font-weight: bold; margin-top: 5px;"></div><br>
-                        <div style="font-size: 15px;  margin-top: 5px;">
-                            <span style="display: inline-block; width: 120px;">T.P.No:</span>
-                            <?php echo $ptpno; ?>
+                        <div style="font-size: 15px; margin-top: 5px;">
+                            <span style=";">T.P.No:</span> <?php echo $ptpno; ?>
                         </div>
                     </td>
                 </tr>
