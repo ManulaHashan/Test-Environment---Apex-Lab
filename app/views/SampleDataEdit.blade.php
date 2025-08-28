@@ -79,24 +79,27 @@ function loadRecordToTable() {
         var lpsid = $(this).data('lpsid');
 
         
+        function cleanDate(val) {
+            return (val === null || val === undefined || val.trim() === '' || val === '0') ? '' : val;
+        }
         var rowData = {
             lpsid: lpsid,
             sampleNo: $row.find('input[name="sampleNo"]').val(),
             date: $row.find('input[name="date"]').val(),
             patient_pid: $row.find('input[name="patient_pid"]').val(),
             arivaltime: $row.find('input[name="arivaltime"]').val(),
-            finishtime: $row.find('input[name="finishtime"]').val(),
-            finishdate: $row.find('input[name="finishdate"]').val(),
-            collecteddate: $row.find('input[name="collecteddate"]').val(),
-            status: $row.find('input[name="status"]').val(),
-            refference_idref: $row.find('input[name="refference_idref"]').val(),
-            blooddraw: $row.find('input[name="blooddraw"]').val(),
-            repcollected: $row.find('input[name="repcollected"]').val(),
+            finishtime: cleanDate($row.find('input[name="finishtime"]').val()),
+            finishdate: cleanDate($row.find('input[name="finishdate"]').val()),
+            collecteddate: cleanDate($row.find('input[name="collecteddate"]').val()),
+            status: $row.find('select[name="status"]').val(),
+            refference_idref: $row.find('select[name="refference_idref"]').val(),
+            blooddraw: cleanDate($row.find('input[name="blooddraw"]').val()),
+            repcollected: cleanDate($row.find('input[name="repcollected"]').val()),
             fastinghours: $row.find('input[name="fastinghours"]').val(),
             fastingtime: $row.find('input[name="fastingtime"]').val(),
-            entered_uid: $row.find('input[name="entered_uid"]').val(),
+            entered_uid: $row.find('select[name="entered_uid"]').val(),
             reference_in_invoice: $row.find('input[name="reference_in_invoice"]').val(),
-            Testgroup_tgid: $row.find('input[name="Testgroup_tgid"]').val(),
+            Testgroup_tgid: $row.find('select[name="Testgroup_tgid"]').val(),
             urgent_sample: $row.find('input[name="urgent_sample"]').val()
         };
 
@@ -121,6 +124,22 @@ function loadRecordToTable() {
 
     $(document).on('input', 'input[name="status"]', function() {
     this.value = this.value.replace(/[^a-zA-Z]/g, '');
+});
+
+// Time fields validation: only allow HH:MM:SS format and prevent letters
+$(document).on('input', 'input[name="arivaltime"], input[name="finishtime"], input[name="fastingtime"]', function() {
+    // Remove all except digits and colons
+    this.value = this.value.replace(/[^0-9:]/g, '');
+    // Enforce max length 8 (HH:MM:SS)
+    if (this.value.length > 8) {
+        this.value = this.value.slice(0, 8);
+    }
+    // Optionally, auto-format as HH:MM:SS (if desired)
+    // You can uncomment below for auto-formatting
+    // var v = this.value.replace(/[^0-9]/g, '');
+    // if (v.length >= 6) {
+    //     this.value = v.slice(0,2) + ':' + v.slice(2,4) + ':' + v.slice(4,6);
+    // }
     });
 </script>
 
