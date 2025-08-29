@@ -18,15 +18,27 @@ class SampleDataEditController extends Controller{
         $labId = $_SESSION['lid'];
         $sample_date = Input::get('sample_date');
         $sample_no = Input::get('sample_no');
+        $branchCode = Input::get('branch_code');
 
         $query = DB::table('lps')
             ->where('Lab_lid', '=', $labId)
             ->where('date', '=', $sample_date);
 
+    $center = explode(':', $branchCode); 
+    $mainLabValues = array('%:@', '%');
     if (!empty($sample_no)) {
-        $query->where('sampleNo', 'like','%'.$sample_no.'%');
+        
+        $query->where('sampleNo', 'like', $sample_no.'%');
+    } else {
+       
+        if (!empty($branchCode) && !in_array($branchCode, $mainLabValues) && isset($center[1]) && $center[1] != '') {
+           
+            $query->whereRaw("sampleNo REGEXP '^" . $center[1] . "'");
+        } else {
+            
+            $query->whereRaw("sampleNo REGEXP '^[0-9]'");
+        }
     }
-
     $records = $query->select(
         'lpsid', 'date', 'sampleNo', 'patient_pid', 'arivaltime', 'finishtime', 'finishdate',
         'collecteddate', 'status', 'refference_idref', 'blooddraw', 'repcollected',
@@ -34,7 +46,7 @@ class SampleDataEditController extends Controller{
         'Testgroup_tgid', 'urgent_sample'
     )->get();
 
-    // Get all refference options ONCE
+    
     $refferenceOptions = DB::table('refference')
         ->where('lid', $labId)
         ->orderBy('name', 'asc')
@@ -62,7 +74,7 @@ class SampleDataEditController extends Controller{
         foreach ($records as $row) {
             
             $refferenceDropdown = '<select name="refference_idref">';
-                // Add empty option if refference_idref is null or empty
+                
                 if (empty($row->refference_idref)) {
                     $refferenceDropdown .= '<option value="" selected></option>';
                 } else {
@@ -76,7 +88,7 @@ class SampleDataEditController extends Controller{
 
             // *************************************
             $testGroupDropdown = '<select name="Testgroup_tgid">';
-                // Add empty option if refference_idref is null or empty
+                
                 if (empty($row->Testgroup_tgid)) {
                     $testGroupDropdown .= '<option value="" selected></option>';
                 } else {
@@ -92,7 +104,7 @@ class SampleDataEditController extends Controller{
 
 
              $labUserOptions = '<select name="entered_uid">';
-                // Add empty option if refference_idref is null or empty
+                
                 if (empty($row->entered_uid)) {
                     $labUserOptions .= '<option value="" selected></option>';
                 } else {
@@ -108,15 +120,15 @@ class SampleDataEditController extends Controller{
 
             $output .= '<tr>
                 <td>' . htmlspecialchars($row->lpsid) . '</td>
-                <td><input type="text" value="' . htmlspecialchars($row->sampleNo) . '" name="sampleNo"></td>
-                <td><input type="text" value="' . htmlspecialchars($row->date) . '" name="date" class="datepicker"></td>
-                <td><input type="number" value="' . htmlspecialchars($row->patient_pid) . '" name="patient_pid"></td>
-                <td><input type="text" value="' . htmlspecialchars($row->arivaltime) . '" name="arivaltime" class="timepicker"></td>
-                <td><input type="text" value="' . htmlspecialchars($row->finishtime) . '" name="finishtime" class="timepicker"></td>
-                <td><input type="text" value="' . htmlspecialchars($row->finishdate) . '" name="finishdate" class="datepicker"></td>
-                <td><input type="text" value="' . htmlspecialchars($row->collecteddate) . '" name="collecteddate" class="datepicker"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->sampleNo) . '" name="sampleNo" style="border:none;"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->date) . '" name="date" class="datepicker" style="border:none;"></td>
+                <td><input type="number" value="' . htmlspecialchars($row->patient_pid) . '" name="patient_pid" style="border:none;"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->arivaltime) . '" name="arivaltime" class="timepicker" style="border:none;"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->finishtime) . '" name="finishtime" class="timepicker" style="border:none;"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->finishdate) . '" name="finishdate" class="datepicker" style="border:none;"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->collecteddate) . '" name="collecteddate" class="datepicker" style="border:none;"></td>
                 <td>
-                    <select name="status">
+                    <select name="status" style="border:none;">
                         <option value="Accepted" ' . ($row->status == "Accepted" ? "selected" : "") . '>Accepted</option>
                         <option value="barcorded" ' . ($row->status == "barcorded" ? "selected" : "") . '>barcorded</option>
                         <option value="Done" ' . ($row->status == "Done" ? "selected" : "") . '>Done</option>
@@ -124,22 +136,27 @@ class SampleDataEditController extends Controller{
                     </select>
                 </td>
                 <td>
-                        ' . $refferenceDropdown . '
+                        ' . str_replace('<select ', '<select style="border:none;" ', $refferenceDropdown) . '
                 </td>
-                <td><input type="text" value="' . htmlspecialchars($row->blooddraw) . '" name="blooddraw" class="datetimepicker"></td>
-                <td><input type="text" value="' . htmlspecialchars($row->repcollected) . '" name="repcollected" class="datetimepicker"></td>
-                <td><input type="number" value="' . htmlspecialchars($row->fastinghours) . '" name="fastinghours"></td>
-                <td><input type="text" value="' . htmlspecialchars($row->fastingtime) . '" name="fastingtime" class="timepicker"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->blooddraw) . '" name="blooddraw" class="datetimepicker" style="border:none;"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->repcollected) . '" name="repcollected" class="datetimepicker" style="border:none;"></td>
+                <td><input type="number" value="' . htmlspecialchars($row->fastinghours) . '" name="fastinghours" style="border:none;"></td>
+                <td><input type="text" value="' . htmlspecialchars($row->fastingtime) . '" name="fastingtime" class="timepicker" style="border:none;"></td>
                 
                <td>
-                        ' . $labUserOptions . '
+                        ' . str_replace('<select ', '<select style="border:none;" ', $labUserOptions) . '
                 </td>
-                <td><input type="number" value="' . htmlspecialchars($row->reference_in_invoice) . '" name="reference_in_invoice"></td>
+                <td><input type="number" value="' . htmlspecialchars($row->reference_in_invoice) . '" name="reference_in_invoice" style="border:none;"></td>
                 <td>
-                        ' . $testGroupDropdown . '
+                        ' . str_replace('<select ', '<select style="border:none;" ', $testGroupDropdown) . '
                 </td>
-                <td><input type="number" value="' . htmlspecialchars($row->urgent_sample) . '" name="urgent_sample"></td>
-                <td><button class="updateRowBtn" data-lpsid="' . htmlspecialchars($row->lpsid) . '">Update</button></td>
+                <td>
+                    <select name="urgent_sample" style="border:none;">
+                        <option value="0" ' . ($row->urgent_sample == "0" ? "selected" : "") . '>0 (Normal)</option>
+                        <option value="1" ' . ($row->urgent_sample == "1" ? "selected" : "") . '>1 (Urgent)</option>
+                    </select>
+                </td>
+                <td><input type="checkbox" name="select_row" class="updateRowBtn" data-lpsid="' . htmlspecialchars($row->lpsid) . '" value="' . htmlspecialchars($row->lpsid) . '"></td>
             </tr>';
         }
         echo $output;
@@ -154,7 +171,15 @@ class SampleDataEditController extends Controller{
     $sampleNo = Input::get('sampleNo');
     $date = Input::get('date');
 
-        $exists = DB::table('lps')
+
+    if (empty($lpsid)) {
+        return Response::json([
+            'success' => false,
+            'message' => 'lpsid Not Found. Can\'t Update '
+        ]);
+    }
+
+    $exists = DB::table('lps')
         ->where('sampleNo', $sampleNo)
         ->where('date', $date)
         ->where('lpsid', '!=', $lpsid)
@@ -183,10 +208,10 @@ class SampleDataEditController extends Controller{
         'refference_idref' => Input::get('refference_idref') ?: null,
         'blooddraw' => nullIfEmpty(Input::get('blooddraw')),
         'repcollected' => nullIfEmpty(Input::get('repcollected')),
-        'fastinghours' => Input::get('fastinghours'),
-        'fastingtime' => Input::get('fastingtime'),
+        'fastinghours' => nullIfEmpty(Input::get('fastinghours')),
+        'fastingtime' => nullIfEmpty(Input::get('fastingtime')),
         'entered_uid' => Input::get('entered_uid'),
-        'reference_in_invoice' => Input::get('reference_in_invoice'),
+        'reference_in_invoice' => nullIfEmpty(Input::get('reference_in_invoice')),
         'Testgroup_tgid' => Input::get('Testgroup_tgid'),
         'urgent_sample' => Input::get('urgent_sample')
     );

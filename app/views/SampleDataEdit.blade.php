@@ -6,7 +6,7 @@
 
 
 @section('title')
-View Invices
+Sample Data Edit
 @stop
 
 @section('head')
@@ -22,17 +22,49 @@ View Invices
 <script>
 
 
+$(document).ready(function() {
+    $('#labbranch').val('%:@'); // set Main Lab as default
+    $('#sample_date').val(new Date().toISOString().slice(0, 10));
+    loadRecordToTable();
+
+    $('#labbranch').on('change', function() {
+        var val = $(this).val();
+        var parts = val.split(':');
+        if (val === '%:@' || val === '%') {
+            $('#sample_no').val(''); 
+        } else if (parts.length > 1 && parts[1] !== '') {
+            $('#sample_no').val(parts[1]); 
+        } else {
+            $('#sample_no').val('');
+        }
+        loadRecordToTable(); 
+    });
+
+    $('#sample_date').on('change', function() {
+        loadRecordToTable();
+    });
+});
+
+
 
 function loadRecordToTable() {
     var sample_date = $('#sample_date').val();
     var sample_no = $('#sample_no').val();
+    var labbranchVal = $('#labbranch').val();
+    var branchCode = '';
+    if (labbranchVal) {
+       
+        var parts = labbranchVal.split(':');
+        branchCode = parts.length > 1 ? parts[1] : labbranchVal;
+    }
 
     $.ajax({
         type: "GET",
         url: "getSampleDataEditRecords", 
         data: {
             sample_date: sample_date,
-            sample_no: sample_no
+            sample_no: sample_no,
+            branch_code: branchCode 
         },
         success: function(tbl_records) {
             $('#lps_record_tbl').html(tbl_records); 
@@ -64,21 +96,27 @@ function loadRecordToTable() {
 }
 
 
-    $(document).ready(function() {
-        $('#sample_date').val(new Date().toISOString().slice(0, 10));
-        loadRecordToTable();
-    });
+    
 
     $('#ser_btn').on('click', function() {
         loadRecordToTable();
     });
 
 
-    $(document).on('click', '.updateRowBtn', function() {
-        var $row = $(this).closest('tr');
-        var lpsid = $(this).data('lpsid');
+    function updateSelectedRows() {
+    var checkedBoxes = $('#lps_record_tbl input[type="checkbox"]:checked');
+    var total = checkedBoxes.length;
+    var updated = 0;
+    var errorShown = false;
 
-        
+    if (total === 0) {
+        alert('Please select a row for update');
+        return;
+    }
+
+    checkedBoxes.each(function() {
+        var $row = $(this).closest('tr');
+        var lpsid = $row.find('.updateRowBtn').data('lpsid');
         function cleanDate(val) {
             return (val === null || val === undefined || val.trim() === '' || val === '0') ? '' : val;
         }
@@ -100,27 +138,38 @@ function loadRecordToTable() {
             entered_uid: $row.find('select[name="entered_uid"]').val(),
             reference_in_invoice: $row.find('input[name="reference_in_invoice"]').val(),
             Testgroup_tgid: $row.find('select[name="Testgroup_tgid"]').val(),
-            urgent_sample: $row.find('input[name="urgent_sample"]').val()
+            urgent_sample: $row.find('select[name="urgent_sample"]').val()
         };
 
         $.ajax({
             type: "POST",
-            url: "updateSampleRecord", 
+            url: "updateSampleRecord",
             data: rowData,
             success: function(response) {
-               if (response.success) {
-                alert('Record updated successfully!');
-                loadRecordToTable(); 
+                if (response.success) {
+                    updated++;
+                    if (updated === total && !errorShown) {
+                        alert('Data update success!');
+                        loadRecordToTable();
+                    }
                 } else {
-                    alert(response.message); 
-                    loadRecordToTable(); 
+                    if (!errorShown) {
+                        alert(response.message);
+                        errorShown = true;
+                        loadRecordToTable();
+                    }
                 }
             },
             error: function(xhr, status, error) {
-                alert('Update Error: ' + xhr.status + ' - ' + xhr.statusText);
+                if (!errorShown) {
+                    alert('Update Error: ' + xhr.status + ' - ' + xhr.statusText);
+                    errorShown = true;
+                    loadRecordToTable();
+                }
             }
         });
     });
+}
 
     $(document).on('input', 'input[name="status"]', function() {
     this.value = this.value.replace(/[^a-zA-Z]/g, '');
@@ -176,13 +225,20 @@ $(document).on('input', 'input[name="arivaltime"], input[name="finishtime"], inp
         font-size: 14px;
     }
 
+
+    /* Table row height increase */
+    .TableWithBorder tr {
+        height: 40px;
+        border-bottom: 3px solid rgb(53, 39, 250);
+    }
+
     #invdataTable table tr:hover {
-    background-color: #28acbd; /* light cyan on hover */
-    cursor: pointer;
+        background-color: #28acbd; 
+        cursor: pointer;
     }
 
     #invdataTable tbody tr.selected {
-        background-color: #4f8de5 !important; /* green for selected row */
+        background-color: #4f8de5 !important; 
     }
 
     .input-text::placeholder {
@@ -204,6 +260,26 @@ $(document).on('input', 'input[name="arivaltime"], input[name="finishtime"], inp
                 <label style="width: 40px;"></label>
                 <label style="font-size: 16px; min-width: 60px;"><b>Date</b></label>
                 <input type="date" name="idate" class="input-text" id="sample_date" style="width: 120px; height: 30px;">
+                
+                <label style="width: 70px;font-size: 18px;margin-left: 15px"><b>Center</b></label>
+                    <select name="labbranch" style="width: 250px; height: 30px" class="input-text" id="labbranch" onchange="">
+                        <option value="%:@" data-code="ML" data-maxno="0" data-mainlab="true">Main Lab</option>
+                        <?php
+                        $Result = DB::select("SELECT name, code, bid FROM labbranches WHERE Lab_lid = '" . $_SESSION['lid'] . "' ORDER BY name ASC");
+
+                        foreach ($Result as $res) {
+                            $branchName = $res->name;
+                            $branchCode = $res->code;
+                            $bid = $res->bid;
+
+
+                            $displayText = $branchCode . " : " . $branchName;
+                        ?>
+                            <option value="<?= $bid . ":" . $branchCode ?>"><?= $displayText ?></option>
+                        <?php
+                        }
+                        ?>
+                    </select>
                 <label style="font-size: 16px; min-width: 90px;"><b>Sample No</b></label>
                 <input type="text" name="invoice_no" class="input-text" id="sample_no" style="width: 100px; height: 30px;">
                 <input type="button" class="btn" id="ser_btn" value="Search" style="width: 90px; height: 32px; margin-left: 10px;" onclick="loadRecordToTable();">
@@ -249,6 +325,10 @@ $(document).on('input', 'input[name="arivaltime"], input[name="finishtime"], inp
                 </table>
             </div>
         </div>
+             <input type="button" value="Update Selected" id="updateBtn" 
+            onclick="updateSelectedRows()" 
+            class="btn btn-success" 
+            style="margin-top: 10px; float: right;">
     </div>
 </div>
 
